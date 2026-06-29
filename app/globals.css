@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+/* ─── Dark mode (default) ─── */
+:root {
+  --background: #1a1410;
+  --foreground: #f8f5ef;
+  --surface: #221c16;
+  --surface-elevated: #2a221c;
+  --muted-foreground: rgba(248, 245, 239, 0.62);
+  --border: rgba(248, 245, 239, 0.10);
+  --card: rgba(248, 245, 239, 0.04);
+  --card-foreground: #f8f5ef;
+  --primary: #d4af37;
+  --primary-foreground: #1a1410;
+  --secondary: rgba(248, 245, 239, 0.06);
+  --secondary-foreground: #f8f5ef;
+  --accent: #e8c86a;
+  --accent-foreground: #1a1410;
+  --destructive: #7b001c;
+  --destructive-foreground: #f8f5ef;
+  --ring: rgba(212, 175, 55, 0.3);
+  --gold: #d4af37;
+  --gold-light: #e8c86a;
+  --gold-dark: #b9912c;
+  --ruby: #7b001c;
+  --ruby-light: #a00d2e;
+  --ruby-dark: #5c0014;
+  --success: #22c55e;
+  --warning: #f59e0b;
+
+  /* Depth & elevation */
+  --shadow-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.50), 0 1px 1px 0 rgba(0,0,0,0.25);
+  --shadow-elevation-2: 0 4px 12px 0 rgba(0,0,0,0.45), 0 2px 4px 0 rgba(0,0,0,0.20);
+  --shadow-elevation-3: 0 8px 30px 0 rgba(0,0,0,0.50), 0 4px 8px 0 rgba(0,0,0,0.25);
+  --shadow-inner-subtle: inset 0 1px 0 0 rgba(255,255,255,0.04);
+
+  /* Glow halos */
+  --glow-gold: 0 0 20px rgba(212, 175, 55, 0.12);
+  --glow-gold-strong: 0 0 30px rgba(212, 175, 55, 0.20);
+  --glow-ruby: 0 0 20px rgba(123, 0, 28, 0.18);
+  --glow-light: 0 0 40px rgba(248, 245, 239, 0.03);
+
+  /* Keep existing ink/cream tokens for backward compat */
+  --ink: #1a1410;
+  --ink-light: #221c16;
+  --cream: rgba(240, 230, 210, 0.85);
+  --cream-solid: #f0e6d2;
+  --cream-muted: rgba(240, 230, 210, 0.35);
+}
+
+/* ─── Light mode ─── */
+.light {
+  --background: #f8f3e8;
+  --foreground: #18110b;
+  --surface: #fffbf2;
+  --surface-elevated: #ffffff;
+  --muted-foreground: rgba(24, 17, 11, 0.68);
+  --border: rgba(24, 17, 11, 0.12);
+  --card: rgba(255, 255, 255, 0.72);
+  --card-foreground: #18110b;
+  --primary: #b9912c;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(24, 17, 11, 0.05);
+  --secondary-foreground: #18110b;
+  --accent: #d4af37;
+  --accent-foreground: #18110b;
+  --destructive: #7b001c;
+  --destructive-foreground: #f8f5ef;
+  --ring: rgba(185, 145, 44, 0.25);
+  --gold: #b9912c;
+  --gold-light: #d4af37;
+  --gold-dark: #8c6f22;
+  --ruby: #7b001c;
+  --ruby-light: #a00d2e;
+  --ruby-dark: #5c0014;
+  --success: #16a34a;
+  --warning: #d97706;
+
+  /* Depth & elevation */
+  --shadow-elevation-1: 0 1px 2px 0 rgba(24,17,11,0.06), 0 1px 1px 0 rgba(24,17,11,0.03);
+  --shadow-elevation-2: 0 4px 12px 0 rgba(24,17,11,0.08), 0 2px 4px 0 rgba(24,17,11,0.04);
+  --shadow-elevation-3: 0 8px 30px 0 rgba(24,17,11,0.10), 0 4px 8px 0 rgba(24,17,11,0.05);
+  --shadow-inner-subtle: inset 0 1px 0 0 rgba(255,255,255,0.60);
+
+  /* Glow halos */
+  --glow-gold: 0 0 15px rgba(185, 145, 44, 0.10);
+  --glow-gold-strong: 0 0 25px rgba(185, 145, 44, 0.18);
+  --glow-ruby: 0 0 15px rgba(123, 0, 28, 0.10);
+  --glow-light: 0 0 40px rgba(248, 245, 239, 0.30);
+
+  --ink: #f8f3e8;
+  --ink-light: #fffbf2;
+  --cream: rgba(24, 17, 11, 0.85);
+  --cream-solid: #18110b;
+  --cream-muted: rgba(24, 17, 11, 0.35);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-ruby: var(--ruby);
+  --color-ruby-light: var(--ruby-light);
+  --color-ruby-dark: var(--ruby-dark);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  /* Legacy tokens */
+  --color-ink: var(--ink);
+  --color-ink-light: var(--ink-light);
+  --color-cream: var(--cream);
+  --color-cream-solid: var(--cream-solid);
+  --color-cream-muted: var(--cream-muted);
+
+  /* Depth & elevation utilities */
+  --shadow-elevation-1: var(--shadow-elevation-1);
+  --shadow-elevation-2: var(--shadow-elevation-2);
+  --shadow-elevation-3: var(--shadow-elevation-3);
+  --shadow-glow-gold: var(--glow-gold);
+  --shadow-glow-ruby: var(--glow-ruby);
+
+  /* Premium transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* Premium animations */
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+  --animate-fade-in-down: fade-in-down 0.8s var(--ease-out-expo) forwards;
+
+  --font-sans: Inter, Avenir Next, Segoe UI, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Playfair Display, Cormorant Garamond, Georgia, ui-serif, serif;
+  --radius-sm: 0.125rem;
+  --radius: 0.25rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--background);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+.light html,
+html.light {
+  color-scheme: light;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+a {
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.3);
+}
+
+/* ─── Animations ─── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes ping-slow {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: var(--glow-gold); }
+  50% { box-shadow: var(--glow-gold-strong); }
+}
+
+@keyframes theme-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-ping-slow { animation: ping-slow 3s ease-out infinite; }
+.animate-scan-line { animation: scan-line 8s linear infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.8s var(--ease-out-expo) forwards; }
+.animate-fade-in-down { animation: fade-in-down 0.8s var(--ease-out-expo) forwards; }
+.animate-pulse-subtle { animation: pulse-subtle 3s ease-in-out infinite; }
+.animate-glowing { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-theme-spin { animation: theme-spin 0.6s ease-out; }
+
+/* ─── Moroccan Ruby Diamond accent ─── */
+.ruby-diamond {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--ruby);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  border-radius: 1px;
+}
+
+.ruby-diamond-sm {
+  width: 6px;
+  height: 6px;
+}
+
+/* ─── Gold separator line ─── */
+.gold-sep {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  flex-shrink: 0;
+}
