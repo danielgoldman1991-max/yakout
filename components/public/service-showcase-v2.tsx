@@ -11,7 +11,8 @@ const icons = [Building2, KeyRound, Car];
 const ctas: Record<string, string> = {
   "Location d'appartements à Marrakech": "/contact?type=reservation",
   "Conciergerie propriétaire": "/contact?type=proprietaire",
-  "Chauffeur privé": "/contact?type=chauffeur",
+  "Chauffeur privé": "/contact?type=transport",
+  "Transport prive": "/contact?type=transport",
 };
 
 export function ServiceShowcaseV2({ services }: { services: Service[] }) {
@@ -34,7 +35,7 @@ export function ServiceShowcaseV2({ services }: { services: Service[] }) {
             Une conciergerie complète pour voyageurs et propriétaires
           </h2>
           <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
-            Location d{'\''}appartements, conciergerie immobilière, chauffeur privé et services touristiques sur mesure à Marrakech.
+            Location d{'\''}appartements, conciergerie immobiliere, transport prive et services touristiques sur mesure a Marrakech.
           </p>
         </div>
 
@@ -42,6 +43,10 @@ export function ServiceShowcaseV2({ services }: { services: Service[] }) {
           {mainServices.map((service, i) => {
             const Icon = icons[i] ?? Sparkles;
             const ctaHref = ctas[service.title] ?? "/services";
+            const title = service.title === "Chauffeur privé" ? "Transport prive" : service.title;
+            const description = service.title === "Chauffeur privé"
+              ? "Transfert aeroport, chauffeur prive, circuit ou mise a disposition : Yakout propose la solution adaptee."
+              : service.short_description;
             return (
               <article
                 key={service.id}
@@ -55,10 +60,10 @@ export function ServiceShowcaseV2({ services }: { services: Service[] }) {
                     <Icon className="h-6 w-6 text-gold" />
                   </div>
                   <h3 className="mt-6 font-display text-xl text-foreground transition-colors duration-300 group-hover:text-gold">
-                    {service.title}
+                    {title}
                   </h3>
                   <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                    {service.short_description}
+                    {description}
                   </p>
                   <div className="mt-8">
                     <Link

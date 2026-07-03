@@ -8,23 +8,23 @@ import { site } from "@/lib/constants/site";
 import { buildWhatsAppUrl } from "@/lib/utils/whatsapp";
 import { YakoutLogo } from "@/components/brand/yakout-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { PremiumButton } from "@/components/ui/premium-button";
 
 const nav = [
   ["Accueil", "/"],
   ["Appartements", "/apartments"],
-  ["Conciergerie", "/concierge"],
-  ["Chauffeur privé", "/chauffeur"],
-  ["Véhicules", "/vehicles"],
+  ["Transport privé", "/transport"],
+  ["Packs & Séjours", "/packages"],
   ["Services", "/services"],
   ["Blog", "/blog"],
   ["Contact", "/contact"],
-];
+] as const;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname === href || (href === "/transport" && (pathname === "/chauffeur" || pathname.startsWith("/vehicles")));
   const closeMobile = () => setMobileOpen(false);
 
   return (
@@ -42,10 +42,10 @@ export function SiteHeader() {
                 <Link
                   key={href}
                   href={href}
-                  className={`rounded-sm px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] transition-all duration-200 relative ${
+                  className={`relative rounded-sm px-3 py-2 text-[13px] font-medium transition-all duration-200 lg:px-4 ${
                     active
-                      ? "text-gold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-[1px] after:bg-ruby after:rotate-45"
-                      : "text-muted-foreground/75 hover:text-foreground hover:bg-gold/5"
+                      ? "text-gold after:absolute after:bottom-1 after:left-1/2 after:h-1 after:w-1 after:-translate-x-1/2 after:rotate-45 after:rounded-[1px] after:bg-ruby"
+                      : "text-muted-foreground/75 hover:bg-gold/5 hover:text-foreground"
                   }`}
                 >
                   {label}
@@ -65,13 +65,9 @@ export function SiteHeader() {
             >
               <MessageCircle className="h-4 w-4" />
             </Link>
-            <Link
-              href="/contact"
-              className="hidden h-10 items-center gap-2 rounded-sm border border-gold/30 bg-gold/5 px-5 text-[10px] font-semibold uppercase tracking-[0.12em] text-gold shadow-elevation-1 transition-all duration-300 hover:-translate-y-0.5 hover:bg-gold hover:text-[#050505] hover:shadow-glow-gold md:inline-flex"
-            >
-              Organiser mon séjour
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            <PremiumButton href="/contact?type=proprietaire" variant="primary" size="sm" className="hidden md:inline-flex">
+              Confier mon bien <ArrowRight className="h-3.5 w-3.5" />
+            </PremiumButton>
             <button
               className="flex h-9 w-9 items-center justify-center text-muted-foreground transition hover:text-foreground md:hidden"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -95,9 +91,7 @@ export function SiteHeader() {
                     href={href}
                     onClick={closeMobile}
                     className={`rounded-sm px-4 py-3.5 text-sm font-medium tracking-wide transition ${
-                      active
-                        ? "bg-gold/10 text-gold"
-                        : "text-muted-foreground hover:bg-gold/5 hover:text-foreground"
+                      active ? "bg-gold/10 text-gold" : "text-muted-foreground hover:bg-gold/5 hover:text-foreground"
                     }`}
                   >
                     {label}
@@ -120,11 +114,11 @@ export function SiteHeader() {
                   WhatsApp
                 </Link>
                 <Link
-                  href="/contact"
+                  href="/contact?type=proprietaire"
                   onClick={closeMobile}
-                  className="flex items-center gap-3 rounded-sm bg-gold px-4 py-3.5 text-sm font-semibold text-[#050505] shadow-elevation-1 shadow-gold/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-glow-gold"
+                  className="flex items-center gap-3 rounded-sm bg-gold px-4 py-3.5 text-sm font-semibold uppercase tracking-[0.1em] text-primary-foreground shadow-elevation-2 shadow-gold/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-gold-light hover:shadow-glow-gold"
                 >
-                  Organiser mon séjour
+                  Confier mon bien
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>

@@ -6,28 +6,19 @@ const IS_DEV = process.env.NODE_ENV === "development";
 function log(level: Level, message: string, data?: unknown) {
   const timestamp = new Date().toISOString();
   const prefix = `${PREFIX} [${level.toUpperCase()}] ${timestamp}`;
-  const payload =
-    data instanceof Error
-      ? { name: data.name, message: data.message, stack: data.stack }
-      : data && typeof data === "object" && "message" in data
-        ? {
-            ...(data as Record<string, unknown>),
-            message: String((data as { message?: unknown }).message ?? ""),
-          }
-        : data;
 
   switch (level) {
     case "debug":
-      if (IS_DEV) console.debug(prefix, message, payload ?? "");
+      if (IS_DEV) console.debug(prefix, message, data ?? "");
       break;
     case "info":
-      console.info(prefix, message, payload ?? "");
+      console.info(prefix, message, data ?? "");
       break;
     case "warn":
-      console.warn(prefix, message, payload ?? "");
+      console.warn(prefix, message, data ?? "");
       break;
     case "error":
-      console.error(prefix, message, payload ?? "");
+      console.error(prefix, message, data ?? "");
       break;
   }
 }

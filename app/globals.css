@@ -166,7 +166,8 @@ html.light {
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -188,6 +189,25 @@ a {
 
 ::selection {
   background: rgba(212, 175, 55, 0.3);
+}
+
+/* ─── Native select overrides (dark-mode dropdown fix) ─── */
+select {
+  color: var(--foreground);
+  background-color: var(--card);
+}
+
+select option,
+select optgroup {
+  color: var(--foreground);
+  background-color: var(--surface-elevated);
+}
+
+/* When in light mode with .light on html */
+.light select option,
+.light select optgroup {
+  color: var(--foreground);
+  background-color: var(--surface);
 }
 
 /* ─── Animations ─── */
@@ -215,6 +235,11 @@ a {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fade-out-up {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-16px); }
+}
+
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
@@ -235,6 +260,7 @@ a {
 .animate-scan-line { animation: scan-line 8s linear infinite; }
 .animate-fade-in-up { animation: fade-in-up 0.8s var(--ease-out-expo) forwards; }
 .animate-fade-in-down { animation: fade-in-down 0.8s var(--ease-out-expo) forwards; }
+.animate-fade-out-up { animation: fade-out-up 0.2s var(--ease-out-expo) forwards; }
 .animate-pulse-subtle { animation: pulse-subtle 3s ease-in-out infinite; }
 .animate-glowing { animation: glow-pulse 2s ease-in-out infinite; }
 .animate-theme-spin { animation: theme-spin 0.6s ease-out; }

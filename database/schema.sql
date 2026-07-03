@@ -80,11 +80,12 @@ create table public.leads (
   name text not null,
   phone text not null,
   email text,
-  request_type text not null check (request_type in ('reservation','chauffeur','proprietaire','vehicule','services','general')),
+  request_type text not null check (request_type in ('reservation','transport','chauffeur','proprietaire','vehicule','services','package','general')),
   source text not null default 'Site web',
   page_url text,
-  related_type text check (related_type is null or related_type in ('apartment','vehicle')),
+  related_type text check (related_type is null or related_type in ('apartment','vehicle','service','package','trip','transfer','owner','partner','general')),
   related_slug text,
+  district text,
   message text,
   desired_date date,
   people_count integer,
@@ -102,12 +103,32 @@ create table public.partners (
   company_id uuid references public.companies(id) on delete cascade,
   name text not null,
   type text not null,
+  partner_type text default 'other',
+  city text default 'Marrakech',
+  company_name text,
+  ice text,
+  tax_id text,
+  contact_person text,
+  preferred_contact_channel text default 'whatsapp',
+  whatsapp text,
   phone text,
   email text,
   address text,
   commercial_terms text,
   commission numeric(8,2),
+  commission_rate numeric(5,2),
+  payment_terms text,
+  default_cost_type text,
+  status text default 'active',
+  service_categories text[] default '{}',
+  zones text[] default '{}',
+  languages text[] default '{}',
+  bank_name text,
+  rib text,
+  rating integer,
+  reliability_score integer,
   notes text,
+  internal_notes text,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -163,24 +184,51 @@ create table public.vehicles (
   company_id uuid references public.companies(id) on delete cascade,
   partner_id uuid references public.partners(id) on delete set null,
   internal_name text not null,
-  vehicle_type text not null check (vehicle_type in ('Vehicule Yakout','Vehicule partenaire')),
+  title text,
+  public_title text,
+  internal_reference text,
+  vehicle_type text check (vehicle_type in ('Vehicule Yakout','Vehicule partenaire')),
   brand text,
   model text,
   registration text,
+  plate_number text,
+  category text,
   capacity integer default 1,
+  luggage_capacity integer,
+  transmission text,
+  fuel_type text,
+  color text,
+  ownership_type text default 'partner',
+  driver_required boolean default true,
+  with_driver boolean not null default true,
   partner_cost numeric(12,2) default 0,
   commission numeric(8,2) default 0,
+  commission_rate numeric(5,2),
   private_notes text,
+  internal_notes text,
   availability_status text default 'Disponible',
+  management_status text default 'active',
   public_name text not null,
   slug text not null unique,
   public_description text,
+  short_description text,
+  description text,
+  amenities text[] default '{}',
+  use_cases text[] default '{}',
   price_from numeric(12,2) default 0,
+  price_transfer numeric(12,2),
+  price_half_day numeric(12,2),
+  price_full_day numeric(12,2),
+  price_per_km numeric(12,2),
+  currency text default 'MAD',
   image_url text,
   image_alt_text text,
-  with_driver boolean not null default true,
+  public_status text default 'draft',
   is_published boolean not null default false,
   is_featured boolean not null default false,
+  insurance_expiry_date date,
+  technical_visit_expiry_date date,
+  authorization_expiry_date date,
   meta_title text,
   meta_description text,
   created_at timestamptz not null default now(),
@@ -192,8 +240,14 @@ create table public.vehicle_images (
   company_id uuid references public.companies(id) on delete cascade,
   vehicle_id uuid not null references public.vehicles(id) on delete cascade,
   url text not null,
+  image_url text,
+  image_path text,
   alt_text text,
+  image_alt_text text,
   display_order integer default 0,
+  sort_order integer default 0,
+  is_cover boolean default false,
+  storage_bucket text default 'yakout-media',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -221,20 +275,103 @@ create table public.reservations (
 create table public.trips (
   id uuid primary key default gen_random_uuid(),
   company_id uuid references public.companies(id) on delete cascade,
+  lead_id uuid references public.leads(id) on delete set null,
   client_id uuid references public.clients(id) on delete set null,
   vehicle_id uuid references public.vehicles(id) on delete set null,
   partner_id uuid references public.partners(id) on delete set null,
+  package_id uuid references public.packages(id) on delete set null,
+  title text,
   trip_date date not null,
   trip_time time,
+  start_time time,
+  end_time time,
   departure text not null,
   destination text not null,
+  destination_label text,
+  itinerary text,
+  pickup_location text,
+  dropoff_location text,
   trip_type text not null default 'Autre',
+  passengers_count integer,
   sold_price numeric(12,2) not null default 0,
   cost_price numeric(12,2) not null default 0,
+  amount numeric(12,2),
+  cost_amount numeric(12,2),
+  currency text default 'MAD',
   margin numeric(12,2) generated always as (sold_price - cost_price) stored,
   payment_status text default 'Non paye',
   trip_status text default 'Demande',
+  status text default 'planned',
   notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.transfers (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid references public.companies(id) on delete cascade,
+  lead_id uuid references public.leads(id) on delete set null,
+  client_id uuid references public.clients(id) on delete set null,
+  vehicle_id uuid references public.vehicles(id) on delete set null,
+  partner_id uuid references public.partners(id) on delete set null,
+  driver_name text,
+  transfer_type text not null,
+  pickup_location text,
+  dropoff_location text,
+  pickup_date date,
+  pickup_time time,
+  passengers_count integer,
+  luggage_count integer,
+  flight_number text,
+  amount numeric(12,2) default 0,
+  currency text default 'MAD',
+  cost_amount numeric(12,2) default 0,
+  status text default 'pending',
+  payment_status text default 'pending',
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.packages (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid references public.companies(id) on delete cascade,
+  title text not null,
+  public_title text,
+  slug text not null unique,
+  package_type text default 'custom',
+  short_description text,
+  description text,
+  destination text,
+  duration_label text,
+  capacity_min integer,
+  capacity_max integer,
+  price_from numeric(12,2),
+  currency text default 'MAD',
+  public_status text default 'draft',
+  is_featured boolean default false,
+  image_url text,
+  image_alt_text text,
+  internal_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.package_items (
+  id uuid primary key default gen_random_uuid(),
+  package_id uuid not null references public.packages(id) on delete cascade,
+  item_type text not null,
+  item_id uuid,
+  item_slug text,
+  partner_id uuid references public.partners(id) on delete set null,
+  title text not null,
+  description text,
+  quantity numeric(10,2) default 1,
+  unit_label text,
+  price_amount numeric(12,2),
+  cost_amount numeric(12,2),
+  sort_order integer default 0,
+  is_optional boolean default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -245,6 +382,10 @@ create table public.payments (
   client_id uuid references public.clients(id) on delete set null,
   reservation_id uuid references public.reservations(id) on delete set null,
   trip_id uuid references public.trips(id) on delete set null,
+  vehicle_id uuid references public.vehicles(id) on delete set null,
+  partner_id uuid references public.partners(id) on delete set null,
+  transfer_id uuid references public.transfers(id) on delete set null,
+  package_id uuid references public.packages(id) on delete set null,
   amount numeric(12,2) not null,
   paid_at date not null,
   payment_method text not null,
@@ -262,6 +403,9 @@ create table public.expenses (
   apartment_id uuid references public.apartments(id) on delete set null,
   vehicle_id uuid references public.vehicles(id) on delete set null,
   partner_id uuid references public.partners(id) on delete set null,
+  transfer_id uuid references public.transfers(id) on delete set null,
+  trip_id uuid references public.trips(id) on delete set null,
+  package_id uuid references public.packages(id) on delete set null,
   expense_date date not null,
   amount numeric(12,2) not null,
   category text not null,
@@ -280,6 +424,11 @@ create table public.documents (
   file_url text not null,
   related_entity_type text,
   related_entity_id uuid,
+  partner_id uuid references public.partners(id) on delete set null,
+  vehicle_id uuid references public.vehicles(id) on delete set null,
+  transfer_id uuid references public.transfers(id) on delete set null,
+  trip_id uuid references public.trips(id) on delete set null,
+  package_id uuid references public.packages(id) on delete set null,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -405,13 +554,36 @@ create table public.seo_metadata (
 );
 
 create index on public.leads(company_id, status, created_at);
+create index on public.leads(request_type, created_at desc);
+create index on public.leads(related_type, related_slug);
+create index on public.leads(district);
 create index on public.clients(company_id, created_at);
 create index on public.apartments(company_id, is_published, slug);
 create index on public.vehicles(company_id, is_published, slug);
+create index on public.vehicles(company_id, public_status, slug);
+create index on public.vehicles(partner_id);
+create index on public.vehicle_images(vehicle_id, sort_order);
 create index on public.reservations(company_id, reservation_status, check_in);
 create index on public.trips(company_id, trip_status, trip_date);
+create index on public.trips(package_id);
+create index on public.transfers(company_id, status, pickup_date);
+create index on public.transfers(vehicle_id);
+create index on public.packages(company_id, public_status, slug);
+create index on public.package_items(package_id, sort_order);
+create index on public.package_items(partner_id);
+create index on public.partners(partner_type);
+create index on public.partners(status);
+create index on public.partners(created_at desc);
+create index on public.partners(city);
+create index on public.partners(company_id);
 create index on public.payments(company_id, status, paid_at);
+create index on public.payments(vehicle_id, transfer_id, package_id);
+create index on public.payments(partner_id);
 create index on public.expenses(company_id, category, expense_date);
+create index on public.expenses(vehicle_id, transfer_id, package_id);
+create index on public.expenses(partner_id);
+create index on public.documents(vehicle_id, partner_id, transfer_id, trip_id, package_id);
+create index on public.documents(partner_id);
 create index on public.blog_posts(company_id, status, slug);
 create index on public.services(company_id, is_published, display_order);
 create index on public.site_pages(company_id, status, slug);
@@ -422,7 +594,8 @@ declare
 begin
   foreach table_name in array array[
     'companies','profiles','company_settings','modules','clients','leads','partners','apartments','apartment_images',
-    'vehicles','vehicle_images','reservations','trips','payments','expenses','documents','site_pages','site_sections',
+    'vehicles','vehicle_images','reservations','trips','transfers','packages','package_items',
+    'payments','expenses','documents','site_pages','site_sections',
     'site_settings','media_assets','blog_categories','blog_posts','services','seo_metadata'
   ]
   loop

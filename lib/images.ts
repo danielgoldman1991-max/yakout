@@ -21,7 +21,7 @@ export const yakoutImageAlts = {
   ownerConcierge: "Accueil premium et conciergerie immobilière à Marrakech",
   airportTransfer: "Transfert aéroport Marrakech avec chauffeur privé",
   apartmentPremium: "Appartement premium à Marrakech avec terrasse",
-  skodaChauffeur: "Skoda Kodiaq avec chauffeur privé à Marrakech",
+  skodaChauffeur: "Véhicule premium avec chauffeur privé à Marrakech",
 } as const;
 
 export const fallbackImages = {

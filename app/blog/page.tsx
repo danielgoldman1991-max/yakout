@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, CalendarDays, MessageCircle } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
@@ -75,6 +77,7 @@ export default async function BlogPage() {
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover transition duration-500 group-hover:scale-105"
+                        unoptimized={Boolean(post.cover_image_url)}
                       />
                     </div>
                     <div className="p-6">

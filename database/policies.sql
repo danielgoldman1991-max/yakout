@@ -23,35 +23,49 @@ alter table public.blog_categories enable row level security;
 alter table public.blog_posts enable row level security;
 alter table public.services enable row level security;
 alter table public.seo_metadata enable row level security;
+alter table public.owners enable row level security;
+alter table public.maintenance_tasks enable row level security;
+alter table public.owner_statements enable row level security;
+alter table public.owner_payouts enable row level security;
 
 create or replace function public.current_company_id()
 returns uuid
 language sql
 stable
+security definer
 as $$
   select company_id from public.profiles where user_id = (select auth.uid()) limit 1
 $$;
 
+drop policy if exists "profiles own company read" on public.profiles;
 create policy "profiles own company read" on public.profiles for select to authenticated
 using (company_id = public.current_company_id() or user_id = (select auth.uid()));
 
+drop policy if exists "profiles own company update" on public.profiles;
 create policy "profiles own company update" on public.profiles for update to authenticated
 using (user_id = (select auth.uid()))
 with check (user_id = (select auth.uid()));
 
+drop policy if exists "companies same company read" on public.companies;
 create policy "companies same company read" on public.companies for select to authenticated
 using (id = public.current_company_id());
 
+drop policy if exists "public published apartments" on public.apartments;
 create policy "public published apartments" on public.apartments for select to anon, authenticated
 using (is_published = true);
+drop policy if exists "public published vehicles" on public.vehicles;
 create policy "public published vehicles" on public.vehicles for select to anon, authenticated
 using (is_published = true);
+drop policy if exists "public published services" on public.services;
 create policy "public published services" on public.services for select to anon, authenticated
 using (is_published = true);
+drop policy if exists "public published blog" on public.blog_posts;
 create policy "public published blog" on public.blog_posts for select to anon, authenticated
 using (status = 'published');
+drop policy if exists "public published pages" on public.site_pages;
 create policy "public published pages" on public.site_pages for select to anon, authenticated
 using (status = 'published');
+drop policy if exists "public site settings" on public.site_settings;
 create policy "public site settings" on public.site_settings for select to anon, authenticated
 using (is_public = true);
 
@@ -62,12 +76,17 @@ begin
   foreach t in array array[
     'company_settings','modules','activity_logs','clients','leads','partners','apartments','apartment_images',
     'vehicles','vehicle_images','reservations','trips','payments','expenses','documents','site_pages','site_sections',
-    'site_settings','media_assets','blog_categories','blog_posts','services','seo_metadata'
+    'site_settings','media_assets','blog_categories','blog_posts','services','seo_metadata',
+    'owners','maintenance_tasks','owner_statements','owner_payouts'
   ]
   loop
+    execute format('drop policy if exists "%s company select" on public.%I', t, t);
     execute format('create policy "%s company select" on public.%I for select to authenticated using (company_id = public.current_company_id())', t, t);
+    execute format('drop policy if exists "%s company insert" on public.%I', t, t);
     execute format('create policy "%s company insert" on public.%I for insert to authenticated with check (company_id = public.current_company_id())', t, t);
+    execute format('drop policy if exists "%s company update" on public.%I', t, t);
     execute format('create policy "%s company update" on public.%I for update to authenticated using (company_id = public.current_company_id()) with check (company_id = public.current_company_id())', t, t);
+    execute format('drop policy if exists "%s company delete" on public.%I', t, t);
     execute format('create policy "%s company delete" on public.%I for delete to authenticated using (company_id = public.current_company_id())', t, t);
   end loop;
 end;

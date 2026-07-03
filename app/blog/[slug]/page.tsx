@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 import { ArrowRight, CalendarDays, MessageCircle } from "lucide-react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -10,7 +12,7 @@ import { PremiumButton } from "@/components/ui/premium-button";
 import { getBlogPostBySlug } from "@/lib/data";
 import { fallbackImages } from "@/lib/images";
 import { formatDate } from "@/lib/formatters";
-import { sanitizeHtml } from "@/lib/utils/sanitize-html";
+import { BlogContentRenderer } from "@/components/blog/blog-content-renderer";
 import { buildWhatsAppUrl } from "@/lib/utils/whatsapp";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -51,6 +53,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               sizes="100vw"
               className="object-cover"
               priority
+              unoptimized={Boolean(post.cover_image_url)}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
           </div>
@@ -90,11 +93,9 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
         {/* ─── Contenu article ─── */}
         <article className="container mx-auto max-w-3xl px-6 py-16 md:px-12 md:py-20">
-          <div
-            className="space-y-5 text-[15px] leading-8 text-muted-foreground [&_h2]:mt-10 [&_h2]:font-display [&_h2]:text-xl [&_h2]:text-foreground [&_h3]:mt-8 [&_h3]:font-display [&_h3]:text-lg [&_h3]:text-foreground [&_p]:leading-8 [&_a]:text-gold [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition [&_a:hover]:text-gold-light [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_img]:my-8 [&_img]:rounded-sm [&_blockquote]:border-l-2 [&_blockquote]:border-gold/30 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-muted-foreground/80"
-            dangerouslySetInnerHTML={post.content ? { __html: sanitizeHtml(post.content) } : undefined}
-          />
-          {!post.content && (
+          {post.content ? (
+            <BlogContentRenderer content={post.content} />
+          ) : (
             <div className="rounded-sm border border-border bg-card px-8 py-10 text-center">
               <p className="font-display text-lg text-muted-foreground">Contenu de l&apos;article à venir.</p>
               <p className="mt-2 text-sm text-muted-foreground/60">

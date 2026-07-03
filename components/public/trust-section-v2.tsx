@@ -5,7 +5,7 @@ const trustItems: { title: string; desc: string; icon: LucideIcon }[] = [
   { title: "Présence locale à Marrakech", desc: "Une connaissance terrain pour organiser les séjours et suivre les opérations.", icon: MapPin },
   { title: "Réponse rapide sur WhatsApp", desc: "Des échanges simples et directs pour qualifier chaque demande.", icon: MessageCircle },
   { title: "Appartements sélectionnés", desc: "Des biens mis en avant avec attention pour garantir confort et cohérence.", icon: Building2 },
-  { title: "Chauffeur privé organisé", desc: "Transferts, trajets et excursions planifiés avec sérieux.", icon: Car },
+  { title: "Transport prive organise", desc: "Transferts, trajets et excursions planifies avec serieux.", icon: Car },
   { title: "Suivi des demandes", desc: "Chaque demande peut être suivie depuis votre espace de gestion interne.", icon: Search },
   { title: "Accompagnement voyageurs et propriétaires", desc: "Une approche pensée pour les deux côtés du service.", icon: Heart },
 ];

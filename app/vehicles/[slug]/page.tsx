@@ -60,7 +60,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
   const safeCapacity = vehicle.capacity ? `${vehicle.capacity} places` : "Capacité sur demande";
   const imageSrc = vehicle.image_url || fallbackImages.vehicle.url;
   const imageAlt = vehicle.image_url ? `Véhicule ${vehicle.public_name} avec chauffeur à Marrakech` : fallbackImages.vehicle.alt;
-  const whatsappMsg = `Bonjour Yakout, je souhaite réserver ${vehicle.public_name}${safeBrand ? ` (${safeBrand} ${safeModel})` : ""} à Marrakech.`;
+  const whatsappMsg = `Bonjour Yakout, je souhaite organiser un transport prive a Marrakech. Mon besoin pourrait correspondre a ${vehicle.public_name}${safeBrand ? ` (${safeBrand} ${safeModel})` : ""}.`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,11 +206,11 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
                   </p>
                   <div className="mt-4">
                     <LeadForm
-                      requestType="vehicule"
+                      requestType="transport"
                       source="vehicle_detail"
                       relatedType="vehicle"
                       relatedSlug={vehicle.slug}
-                      messagePlaceholder={`Bonjour Yakout, je souhaite réserver ${vehicle.public_name} avec chauffeur. Pouvez-vous me contacter ?`}
+                      entityName={vehicle.public_name}
                     />
                   </div>
                   <div className="mt-4">
@@ -240,8 +240,8 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
               Contactez-nous pour réserver votre trajet ou pour construire un itinéraire sur mesure.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <PremiumButton href="/contact?type=vehicule" variant="primary">
-                Réserver maintenant <ArrowRight className="h-4 w-4" />
+              <PremiumButton href={`/contact?type=transport&vehicle=${vehicle.slug}`} variant="primary">
+                Demander un transport prive <ArrowRight className="h-4 w-4" />
               </PremiumButton>
               <Link
                 href={buildWhatsAppUrl(whatsappMsg)}

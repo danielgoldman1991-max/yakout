@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import type { ElementType } from "react";
 import { notFound } from "next/navigation";
-import { ArrowRight, MapPin, Users, MessageCircle, Check, Home, Star, Shield } from "lucide-react";
+import { ArrowRight, BedDouble, Check, CheckCircle, HeartHandshake, HelpCircle, MapPin, MessageCircle, Shield, ShoppingCart, Sparkles, Users } from "lucide-react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
-import { SectionHeader } from "@/components/ui/section-header";
 import { PremiumButton } from "@/components/ui/premium-button";
-import { LeadForm } from "@/components/public/lead-form";
+import { SectionHeader } from "@/components/ui/section-header";
+import { ApartmentGallery } from "@/components/public/apartment-gallery";
 import { getApartmentBySlug } from "@/lib/data";
-import { fallbackImages } from "@/lib/images";
+import { getApartmentImages } from "@/lib/data/apartments";
 import { formatCurrency } from "@/lib/formatters";
+import { normalizeListItems } from "@/lib/utils/lists";
 import { buildWhatsAppUrl } from "@/lib/utils/whatsapp";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -19,248 +20,188 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const apartment = await getApartmentBySlug(slug);
   if (!apartment) return { title: "Appartement introuvable" };
   return {
-    title: apartment.meta_title || `${apartment.public_name} - Appartement à ${apartment.district}, Marrakech | Yakout`,
-    description: apartment.meta_description || `Réservez l'appartement ${apartment.public_name} à ${apartment.district}, Marrakech. ${apartment.capacity} personnes, ${apartment.bedrooms} chambre(s). À partir de ${formatCurrency(apartment.price_from)}/nuit. Conciergerie premium Yakout.`,
+    title: apartment.meta_title || `${apartment.public_name} - ${apartment.district}, Marrakech | Yakout`,
+    description: apartment.meta_description || apartment.short_description || `Appartement a ${apartment.district}, Marrakech.`,
     openGraph: {
       title: `${apartment.public_name} - ${apartment.district} | Yakout Marrakech`,
-      description: apartment.meta_description || `Appartement premium à ${apartment.district}, Marrakech. ${apartment.capacity} personnes, à partir de ${formatCurrency(apartment.price_from)}/nuit.`,
+      description: apartment.meta_description || apartment.short_description,
       images: apartment.image_url ? [{ url: apartment.image_url }] : undefined,
     },
   };
 }
 
-const defaultPerks = [
-  "Service ménage inclus entre chaque séjour",
-  "Check-in flexible et autonome possible",
-  "Équipement complet et linge de maison fourni",
-  "WiFi haut débit et climatisation",
-  "Support Yakout disponible 7j/7",
-  "Arrivée accompagnée par notre équipe",
-];
+export const dynamic = "force-dynamic";
 
 export default async function ApartmentDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const apartment = await getApartmentBySlug(slug);
   if (!apartment) notFound();
 
-  const safeDistrict = apartment.district || "Quartier à confirmer";
-  const safeCapacity = apartment.capacity ? `${apartment.capacity} personnes` : "Capacité sur demande";
-  const safeBedrooms = apartment.bedrooms ? `${apartment.bedrooms} chambre${apartment.bedrooms > 1 ? "s" : ""}` : "Studio";
-  const safeBathrooms = apartment.bathrooms ? `${apartment.bathrooms} salle${apartment.bathrooms > 1 ? "s" : ""} de bain` : "Salle de bain";
-  const imageSrc = apartment.image_url || fallbackImages.apartment.url;
-  const imageAlt = apartment.image_alt_text || (apartment.image_url ? `Appartement ${apartment.public_name} à ${safeDistrict}, Marrakech` : fallbackImages.apartment.alt);
-  const whatsappMsg = `Bonjour Yakout, je souhaite des informations sur l'appartement ${apartment.public_name} à ${safeDistrict}.`;
-  const descriptionParagraphs = apartment.detailed_description
-    ? apartment.detailed_description.split(/\n{1,}/).map((item) => item.trim()).filter(Boolean)
-    : [];
-  const apartmentPerks = apartment.amenities && apartment.amenities.length > 0 ? apartment.amenities : defaultPerks;
-  const whyChoose = [
-    {
-      icon: Home,
-      title: "Confort et équipement",
-      desc: apartment.short_description || `${safeBedrooms}, ${safeBathrooms}, capacité ${safeCapacity.toLowerCase()}.`,
-    },
-    {
-      icon: MapPin,
-      title: "Emplacement privilégié",
-      desc: `Situé à ${safeDistrict}, avec les informations de quartier modifiables depuis le dashboard.`,
-    },
-    {
-      icon: Shield,
-      title: "Description du bien",
-      desc: descriptionParagraphs[0] || "Complétez la description longue depuis le dashboard pour enrichir cette section.",
-    },
-    {
-      icon: Star,
-      title: "Équipements",
-      desc: apartmentPerks.slice(0, 3).join(", "),
-    },
+  const images = await getApartmentImages(apartment.id);
+  const title = apartment.public_name || apartment.internal_name;
+  const district = apartment.address_public_hint || apartment.district;
+  const price = apartment.price_per_night ?? apartment.price_from;
+  const description = apartment.detailed_description || apartment.description || apartment.short_description || "";
+  const paragraphs = normalizeListItems(description.split(/\n{1,}/));
+  const highlights = normalizeListItems(apartment.highlights?.length ? apartment.highlights : [
+    "Bien selectionne par Yakout",
+    "Disponibilite sur demande",
+    "Accompagnement local",
+  ]);
+  const amenities = normalizeListItems(apartment.amenities?.length ? apartment.amenities : ["Wi-Fi", "Climatisation", "Cuisine equipee"]);
+  const rules = normalizeListItems(apartment.house_rules?.length ? apartment.house_rules : ["Respect du voisinage", "Check-in sur demande"]);
+  const reservationHref = `/contact?type=reservation&apartment=${apartment.slug}`;
+  const whatsappMsg = `Bonjour Yakout, je souhaite reserver l'appartement ${title} a ${district}.`;
+
+  const services = [
+    { icon: HeartHandshake, title: "Conciergerie", description: "Accueil et assistance tout au long de votre sejour.", href: "/concierge" },
+    { icon: Users, title: "Chauffeur prive", description: "Transferts aeroport et deplacements avec chauffeur.", href: "/chauffeur" },
+    { icon: ShoppingCart, title: "Courses avant arrivee", description: "Frigo rempli selon vos preferences a l'arrivee.", href: "/contact?type=services" },
+    { icon: MessageCircle, title: "Assistance WhatsApp", description: "Equipe disponible 7j/7 pour toute question.", href: "/contact?type=general" },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <WhatsAppFloatingButton />
-      <main className="pt-[80px]">
-        {/* ─── Hero image immersive ─── */}
-        <section className="relative overflow-hidden bg-surface">
-          <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/9] max-h-[70vh] min-h-[320px] md:min-h-[460px]">
-            <Image
-              src={imageSrc}
-              alt={imageAlt}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-              unoptimized={Boolean(apartment.image_url)}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0">
-              <div className="container mx-auto px-6 pb-8 md:px-12 md:pb-12">
-                <Link
-                  href="/apartments"
-                  className="mb-4 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70 transition hover:text-gold"
-                >
-                  <ArrowRight className="h-3 w-3 rotate-180" />
-                  Retour aux appartements
-                </Link>
-                <div className="flex flex-wrap items-center gap-3 text-[10px] font-medium uppercase tracking-[0.18em] text-gold">
-                  <span className="inline-flex items-center gap-1.5 rounded-sm bg-background/60 px-2 py-1 backdrop-blur-sm">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {safeDistrict}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-sm bg-background/60 px-2 py-1 backdrop-blur-sm">
-                    <Users className="h-3.5 w-3.5" />
-                    {safeCapacity}
-                  </span>
-                  {apartment.bedrooms > 0 && (
-                    <span className="rounded-sm bg-background/60 px-2 py-1 backdrop-blur-sm">
-                      {safeBedrooms}
-                    </span>
-                  )}
+      <main>
+        <ApartmentGallery
+          apartment={apartment}
+          images={images}
+          title={title}
+          district={district}
+          price={price}
+          capacity={apartment.capacity}
+          bedrooms={apartment.bedrooms}
+          bathrooms={apartment.bathrooms}
+          beds={apartment.beds}
+          hasTerrace={apartment.has_terrace}
+          hasParking={apartment.has_parking}
+          minimumNights={apartment.minimum_nights}
+        />
+
+        <section className="border-b border-border bg-background">
+          <div className="container mx-auto px-6 py-6 md:px-12">
+            <Link href="/apartments" className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground transition hover:text-gold">
+              <ArrowRight className="h-3 w-3 rotate-180" />
+              Retour aux appartements
+            </Link>
+          </div>
+          <div className="container mx-auto px-6 pb-10 md:px-12 md:pb-14">
+            <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
+              <div>
+                {paragraphs.length > 0 && (
+                  <div className="mt-6">
+                    <SectionHeader label="Apercu" title="Le logement" />
+                    <div className="mt-5 max-w-prose space-y-4 text-[15px] leading-7 text-muted-foreground">
+                      {paragraphs.map((p, i) => <p key={`desc-${i}`}>{p}</p>)}
+                    </div>
+                  </div>
+                )}
+
+                <ListSection sectionKey="highlights" label="Points forts" title="Ce que vous allez apprecier" items={highlights} icon={Sparkles} />
+                <ListSection sectionKey="amenities" label="Equipements" title="Confort & equipements" items={amenities} icon={Check} />
+                <ListSection sectionKey="conditions" label="Conditions" title="A savoir avant votre sejour" items={[
+                  apartment.check_in_time ? `Check-in : ${apartment.check_in_time}` : "Check-in sur demande",
+                  apartment.check_out_time ? `Check-out : ${apartment.check_out_time}` : "Check-out sur demande",
+                  ...rules,
+                ]} icon={Shield} />
+
+                <div className="mt-10 border-t border-border pt-8">
+                  <SectionHeader label="Services Yakout" title="Completez votre sejour avec Yakout" description="Des services sur mesure pour rendre votre sejour fluide et agreable." />
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {services.map((s, i) => (
+                      <ServiceCard key={`service-${i}`} icon={s.icon} title={s.title} description={s.description} href={s.href} />
+                    ))}
+                  </div>
                 </div>
-                <h1 className="mt-3 font-display text-[clamp(1.6rem,4vw,3.2rem)] font-semibold leading-[1.06] tracking-tight text-white">
-                  {apartment.public_name}
-                </h1>
+              </div>
+
+              <aside className="lg:sticky lg:top-24 lg:self-start">
+                <div className="rounded-sm border border-gold/20 bg-card shadow-elevation-2">
+                  <div className="border-b border-border/60 px-6 py-4">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Demander ce logement</p>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">A partir de</p>
+                    <p className="mt-1 font-display text-3xl text-gold">{formatCurrency(price)} <span className="text-sm text-muted-foreground">/ nuit</span></p>
+
+                    <div className="mt-5 space-y-2 border-t border-border/40 pt-5 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2"><MapPin className="h-4 w-4 shrink-0 text-gold" />{district}, Marrakech</span>
+                      <span className="flex items-center gap-2"><Users className="h-4 w-4 shrink-0 text-gold" />{apartment.capacity} voyageurs</span>
+                      <span className="flex items-center gap-2"><BedDouble className="h-4 w-4 shrink-0 text-gold" />{apartment.bedrooms ?? 0} chambre{(apartment.bedrooms ?? 0) > 1 ? "s" : ""}</span>
+                    </div>
+
+                    <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+                      <p className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" /> Disponibilite sur demande</p>
+                      <p className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" /> Accompagnement Yakout</p>
+                    </div>
+
+                    <PremiumButton href={reservationHref} variant="primary" className="mt-6 w-full">
+                      Demander ce logement <ArrowRight className="h-4 w-4" />
+                    </PremiumButton>
+
+                    <Link
+                      href="/contact?type=reservation"
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-sm border border-border bg-card px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 hover:shadow-elevation-2"
+                    >
+                      Besoin d&apos;une recommandation ?
+                    </Link>
+
+                    <p className="mt-4 text-[11px] leading-5 text-muted-foreground">
+                      Envoyez votre demande, Yakout vous confirme la disponibilite et vous accompagne dans l&apos;organisation du sejour.
+                    </p>
+                  </div>
+
+                  <div className="border-t border-border/60 px-6 py-4">
+                    <Link
+                      href={buildWhatsAppUrl(whatsappMsg)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gold/70 transition hover:text-gold"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      Disponibilite rapide par WhatsApp
+                    </Link>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-border bg-surface">
+          <div className="container mx-auto px-6 py-16 md:px-12 md:py-20">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card">
+                <HelpCircle className="h-6 w-6 text-gold" />
+              </div>
+              <h2 className="mt-5 font-display text-2xl text-foreground md:text-3xl">
+                Vous ne savez pas quel appartement choisir&nbsp;?
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-[15px] leading-7 text-muted-foreground">
+                Indiquez vos dates et vos preferences. Yakout vous recommande le logement le plus adapte parmi notre selection.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <PremiumButton href="/contact?type=reservation" variant="primary">
+                  Demander une recommandation <ArrowRight className="h-4 w-4" />
+                </PremiumButton>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Contenu principal ─── */}
-        <div className="container mx-auto px-6 py-16 md:px-12 md:py-20">
-          <div className="grid gap-14 lg:grid-cols-[1fr_400px]">
-            {/* Colonne principale */}
-            <div>
-              {/* Infos clés */}
-              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-border bg-border sm:grid-cols-4">
-                {[
-                  { label: "Quartier", value: safeDistrict },
-                  { label: "Capacité", value: safeCapacity },
-                  { label: "Chambres", value: safeBedrooms },
-                  { label: "Salles de bain", value: safeBathrooms },
-                ].map(({ label, value }) => (
-                  <div key={label} className="bg-card px-5 py-4 text-center">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-                    <p className="mt-1 font-display text-base text-foreground">{value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Description éditoriale */}
-              <div className="mt-14">
-                <SectionHeader
-                  title={apartment.public_name}
-                  description={apartment.short_description || "Cet appartement a été sélectionné pour son emplacement, son confort et sa qualité d'accueil."}
-                />
-                <div className="mt-6 max-w-prose space-y-5 text-[15px] leading-8 text-muted-foreground">
-                  {descriptionParagraphs.length > 0 ? (
-                    descriptionParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
-                  ) : (
-                    <>
-                      <p>
-                        Situé dans le quartier prisé de <strong>{safeDistrict}</strong>, cet appartement
-                        vous offre un cadre idéal pour profiter pleinement de Marrakech.
-                      </p>
-                      <p>
-                        Ajoutez une description longue depuis le dashboard pour personnaliser ce contenu.
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Équipements et services */}
-              <div className="mt-14">
-                <SectionHeader
-                  label="Équipements"
-                  title="Tout le confort pour votre séjour"
-                />
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {apartmentPerks.map((item) => (
-                    <div key={item} className="flex items-center gap-3 rounded-sm border border-border bg-card px-4 py-3 transition-all duration-200 hover:border-gold/15 hover:shadow-elevation-1">
-                      <Check className="h-4 w-4 shrink-0 text-gold" />
-                      <span className="text-sm text-muted-foreground">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pourquoi choisir cet appartement */}
-              <div className="mt-14">
-                <SectionHeader
-                  label="Pourquoi cet appartement"
-                  title="Confort, emplacement et accompagnement"
-                />
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  {whyChoose.map(({ icon: Icon, title, desc }) => (
-                    <div key={title} className="rounded-sm border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/20 hover:shadow-elevation-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-sm border border-gold/15 bg-gold/5">
-                        <Icon className="h-4 w-4 text-gold" />
-                      </div>
-                      <h3 className="mt-4 font-display text-sm text-foreground">{title}</h3>
-                      <p className="mt-2 text-xs leading-6 text-muted-foreground">{desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Sidebar sticky */}
-            <div className="lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-sm border border-border bg-card shadow-elevation-1">
-                <div className="border-b border-border px-6 py-5">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                    À partir de
-                  </p>
-                  <p className="mt-2 font-display text-3xl text-gold">
-                    {formatCurrency(apartment.price_from)}
-                    <span className="text-sm text-muted-foreground"> / nuit</span>
-                  </p>
-                </div>
-                <div className="px-6 py-5">
-                  <p className="text-sm font-medium text-foreground">Demande de réservation</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Remplissez ce formulaire et nous vous répondons sous 24h.
-                  </p>
-                  <div className="mt-4">
-                    <LeadForm
-                      requestType="reservation"
-                      source="apartment_detail"
-                      relatedType="apartment"
-                      relatedSlug={apartment.slug}
-                      messagePlaceholder={`Bonjour Yakout, je souhaite réserver l'appartement ${apartment.public_name}. Pouvez-vous me contacter ?`}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <Link
-                      href={buildWhatsAppUrl(whatsappMsg)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 rounded-sm border border-border bg-card px-4 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 hover:shadow-elevation-2"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5 text-gold/70" />
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground">Disponibilité par WhatsApp</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── CTA final ─── */}
-        <section className="border-t border-border bg-surface">
-          <div className="container mx-auto px-6 py-20 text-center md:px-12 md:py-24">
+        <section className="bg-background">
+          <div className="container mx-auto px-6 py-16 text-center md:px-12 md:py-20">
             <h2 className="font-display text-2xl text-foreground md:text-3xl">
-              Vous souhaitez réserver cet appartement&thinsp;?
+              Vous aimez ce logement&nbsp;?
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-[15px] text-muted-foreground">
-              Contactez-nous pour vérifier les disponibilités et organiser votre arrivée à Marrakech.
+            <p className="mx-auto mt-4 max-w-lg text-[15px] leading-7 text-muted-foreground">
+              Envoyez votre demande, nous vous confirmons la disponibilite et les meilleures options pour votre sejour a Marrakech.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <PremiumButton href="/contact?type=reservation" variant="primary">
-                Demander une disponibilité <ArrowRight className="h-4 w-4" />
+              <PremiumButton href={reservationHref} variant="primary">
+                Demander ce logement <ArrowRight className="h-4 w-4" />
               </PremiumButton>
               <Link
                 href={buildWhatsAppUrl(whatsappMsg)}
@@ -269,7 +210,7 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
                 className="inline-flex h-12 items-center gap-2.5 rounded-sm border border-border bg-card px-7 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 hover:shadow-elevation-2"
               >
                 <MessageCircle className="h-4 w-4" />
-                Contacter sur WhatsApp
+                Disponibilite par WhatsApp
               </Link>
             </div>
           </div>
@@ -277,5 +218,41 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function ListSection({ sectionKey, label, title, items, icon: Icon }: { sectionKey: string; label: string; title: string; items: string[]; icon: ElementType }) {
+  const safeItems = normalizeListItems(items);
+  if (safeItems.length === 0) return null;
+
+  return (
+    <div className="mt-10">
+      <SectionHeader label={label} title={title} />
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {safeItems.map((item, index) => (
+          <div key={`${sectionKey}-${item}-${index}`} className="flex items-center gap-3 rounded-sm border border-border bg-card px-4 py-3 transition-colors hover:border-gold/20 hover:bg-gold/[0.02]">
+            <Icon className="h-4 w-4 shrink-0 text-gold" />
+            <span className="text-sm text-muted-foreground">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ServiceCard({ icon: Icon, title, description, href }: { icon: ElementType; title: string; description: string; href: string }) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-start gap-4 rounded-sm border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-elevation-2"
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-border bg-surface transition-colors group-hover:border-gold/30 group-hover:bg-gold/5">
+        <Icon className="h-5 w-5 text-gold" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-foreground group-hover:text-gold">{title}</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
+      </div>
+    </Link>
   );
 }

@@ -1,259 +1,254 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { ArrowRight, Heart, Luggage, Paintbrush, TrendingUp, Home, Users, Sparkles, Shield, Globe, MessageCircle } from "lucide-react";
-import { SiteFooter } from "@/components/layout/site-footer";
+import Link from "next/link";
+import { ArrowRight, Building2, Car, Package, Sparkles, MessageCircle, Search, Heart, Send } from "lucide-react";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
 import { PremiumButton } from "@/components/ui/premium-button";
-import { PremiumHeroV2 } from "@/components/public/premium-hero-v2";
-import { ServiceShowcaseV2 } from "@/components/public/service-showcase-v2";
-import { PropertySectionV2 } from "@/components/public/property-section-v2";
-import { TransferSectionV2 } from "@/components/public/transfer-section-v2";
-import { TrustSectionV2 } from "@/components/public/trust-section-v2";
-import { MethodSectionV2 } from "@/components/public/method-section-v2";
-import { FinalCtaV2 } from "@/components/public/final-cta-v2";
-import { getPublishedApartments, getPublishedVehicles, getServices } from "@/lib/data";
+import { ApartmentCard } from "@/components/apartments/apartment-card";
+import { getPublicApartments } from "@/lib/data";
+import { getPublicVehicles } from "@/lib/data/public-vehicles";
 import { site } from "@/lib/constants/site";
-import { getBaseUrl } from "@/lib/utils/url";
 import { yakoutImages, yakoutImageAlts } from "@/lib/images";
+import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: site.metaTitle,
-  description: site.metaDescription,
+  title: "Yakout Marrakech — Appartements, transport privé et séjours sur mesure",
+  description:
+    "Yakout organise vos séjours à Marrakech : appartements sélectionnés, transport privé, chauffeur, circuits et services sur mesure. Une expérience simple et fluide.",
   openGraph: {
-    title: site.metaTitle,
-    description: site.metaDescription,
+    title: "Yakout — Appartements, transport privé et séjours à Marrakech",
+    description:
+      "Découvrez des appartements sélectionnés, un transport privé fiable et des services sur mesure pour vos séjours à Marrakech.",
   },
 };
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: site.companyName,
-  description: site.metaDescription,
-  areaServed: site.city,
-  telephone: site.phoneDisplay,
-  email: site.email,
-  url: getBaseUrl(),
-  image: site.logo,
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: site.city,
-    addressCountry: "MA",
-  },
-};
-
-const ownerBenefits = [
-  { icon: Home, title: "Mise en valeur du bien", desc: "Photos professionnelles, description optimisée et visibilité maximale." },
-  { icon: Luggage, title: "Accueil voyageurs", desc: "Check-in, check-out, remise des clés et assistance tout au long du séjour." },
-  { icon: Paintbrush, title: "Ménage et maintenance", desc: "Ménage professionnel après chaque départ et suivi technique du bien." },
-  { icon: TrendingUp, title: "Suivi des revenus", desc: "Reporting clair, optimisation tarifaire et virement mensuel." },
-];
-
-const coverageTravelers = [
-  { icon: Home, title: "Séjour", desc: "Recherche et réservation d'appartement premium." },
-  { icon: TrendingUp, title: "Transfert", desc: "Prise en charge aéroport et trajets privés." },
-  { icon: Heart, title: "Chauffeur", desc: "Chauffeur privé à la demande ou à la journée." },
-  { icon: Sparkles, title: "Services touristiques", desc: "Excursions, activités et conseils personnalisés." },
-  { icon: MessageCircle, title: "Assistance WhatsApp", desc: "Réponse en temps réel pendant tout votre séjour." },
-];
-
-const coverageOwners = [
-  { icon: Globe, title: "Mise en ligne du bien", desc: "Annonce optimisée sur notre site et nos partenaires." },
-  { icon: Users, title: "Accueil voyageurs", desc: "Gestion complète des arrivées et départs." },
-  { icon: Sparkles, title: "Ménage", desc: "Nettoyage professionnel entre chaque séjour." },
-  { icon: Shield, title: "Maintenance", desc: "Suivi technique et interventions rapides." },
-  { icon: TrendingUp, title: "Suivi activité", desc: "Tableau de bord avec vos revenus en temps réel." },
-  { icon: FileText, title: "Reporting", desc: "Rapport mensuel détaillé et virement automatique." },
-];
-
-function FileText(props: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={props.className}>
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" x2="8" y1="13" y2="13" />
-      <line x1="16" x2="8" y1="17" y2="17" />
-    </svg>
-  );
-}
 
 export default async function HomePage() {
-  const [publishedApartments, publishedVehicles, services] = await Promise.all([
-    getPublishedApartments(), getPublishedVehicles(), getServices(),
-  ]);
-  const featuredApartments = publishedApartments.filter((a) => a.is_featured).length > 0
-    ? publishedApartments.filter((a) => a.is_featured).slice(0, 3)
-    : publishedApartments.slice(0, 3);
-  const skodaVehicle = publishedVehicles[0];
+  const apartments = await getPublicApartments();
+  const vehicles = await getPublicVehicles();
+  const featured = apartments.filter((a) => a.is_featured).slice(0, 3);
+  const displayApts = featured.length >= 3 ? featured : apartments.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <SiteHeader />
-        <WhatsAppFloatingButton />
-
-        <main className="pt-[80px]">
-        {/* ─── Hero V2 ─── */}
-        <PremiumHeroV2 />
-
-        {/* ─── Services V2 ─── */}
-        <ServiceShowcaseV2 services={services} />
-
-        {/* ─── Propriétaire —── */}
-        <section className="border-b border-border bg-surface-light">
-          <div className="container mx-auto px-6 py-24 md:px-12">
-            <div className="grid items-center gap-16 lg:grid-cols-2">
-              <div>
-                <div className="flex items-center gap-3">
-                  <span className="ruby-diamond" />
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">Propriétaires</p>
-                  <span className="gold-sep" />
-                </div>
-                <h2 className="mt-5 font-display text-[clamp(1.6rem,4vw,3rem)] font-semibold leading-[1.06] tracking-tight text-foreground">
-                  Vous êtes propriétaire à Marrakech ?
-                </h2>
-                <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
-                  Confiez votre appartement à Yakout pour une gestion plus professionnelle, plus fluide et mieux suivie.
+      <SiteHeader />
+      <WhatsAppFloatingButton />
+      <main>
+        {/* ─── Hero ─── */}
+        <section className="relative flex min-h-[75vh] items-center overflow-hidden border-b border-border/40">
+          <div className="absolute inset-0">
+            <Image
+              src={yakoutImages.hero}
+              alt={yakoutImageAlts.hero}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1a1410]/90 via-[#1a1410]/70 to-transparent" />
+          </div>
+          <div className="relative z-10 w-full py-32 md:py-40">
+            <div className="container mx-auto px-6 md:px-12">
+              <div className="max-w-2xl">
+                <span className="ruby-diamond" />
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-gold/90">
+                  Hospitalité privée à Marrakech
                 </p>
-                <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                  {ownerBenefits.map((b) => (
-                    <div key={b.title} className="rounded-sm border border-border bg-card p-5 shadow-elevation-1 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/15 hover:shadow-elevation-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-sm border border-gold/15 bg-gold/5">
-                        <b.icon className="h-4 w-4 text-gold" />
-                      </div>
-                      <p className="mt-4 font-display text-sm text-foreground">{b.title}</p>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{b.desc}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8">
-                  <PremiumButton href="/contact?type=proprietaire" variant="primary">
-                    Confier mon appartement <ArrowRight className="h-4 w-4" />
+                <h1 className="mt-5 font-display text-[clamp(2rem,5.5vw,4rem)] font-semibold leading-[1.04] tracking-tight text-white">
+                  Votre séjour à Marrakech, pensé dans les moindres détails
+                </h1>
+                <p className="mt-6 max-w-xl text-base leading-8 text-white/70">
+                  Appartements sélectionnés, transport privé, circuits et services sur mesure : Yakout coordonne votre séjour dans une expérience simple et fluide.
+                </p>
+                <div className="mt-10 flex flex-wrap gap-4">
+                  <PremiumButton href="/contact?type=package" variant="primary" size="lg">
+                    Organiser mon séjour <ArrowRight className="h-4 w-4" />
+                  </PremiumButton>
+                  <PremiumButton href="/apartments" variant="secondary" size="lg">
+                    Découvrir les appartements
                   </PremiumButton>
                 </div>
               </div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-sm shadow-elevation-2 lg:aspect-auto lg:h-full lg:min-h-[400px]">
-                <Image
-                  src={yakoutImages.ownerConcierge}
-                  alt={yakoutImageAlts.ownerConcierge}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
-              </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Properties V2 ─── */}
-        <PropertySectionV2 apartments={featuredApartments} />
-
-        {/* ─── Transfer V2 ─── */}
-        <TransferSectionV2 vehicle={skodaVehicle} />
-
-        {/* ─── Trust V2 ─── */}
-        <TrustSectionV2 />
-
-        {/* ─── Prise en charge ─── */}
+        {/* ─── Promesse service ─── */}
         <section className="border-b border-border bg-surface">
-          <div className="container mx-auto px-6 py-24 md:px-12">
-            <div className="mx-auto max-w-xl text-center">
-              <div className="inline-flex items-center gap-3">
-                <span className="ruby-diamond" />
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">Prise en charge</p>
-                <span className="ruby-diamond" />
-              </div>
-              <h2 className="mt-5 font-display text-[clamp(1.6rem,4vw,3rem)] font-semibold leading-[1.06] tracking-tight text-foreground">
-                Ce que Yakout prend en charge
-              </h2>
-              <p className="mt-5 text-[15px] leading-7 text-muted-foreground">
-                Une offre complète pour les voyageurs et les propriétaires à Marrakech.
-              </p>
-            </div>
-            <div className="mt-16 grid gap-8 md:grid-cols-2">
-              <div className="rounded-sm border border-border bg-card p-8 shadow-elevation-1 hover:border-gold/10 transition-all duration-300">
-                <h3 className="font-display text-lg text-foreground">Pour les voyageurs</h3>
-                <div className="mt-6 grid gap-4">
-                  {coverageTravelers.map((c) => (
-                    <div key={c.title} className="flex gap-4">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gold/10">
-                        <c.icon className="h-4 w-4 text-gold" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{c.title}</p>
-                        <p className="text-xs text-muted-foreground">{c.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="rounded-sm border border-border bg-card p-8 shadow-elevation-1 hover:border-gold/10 transition-all duration-300">
-                <h3 className="font-display text-lg text-foreground">Pour les propriétaires</h3>
-                <div className="mt-6 grid gap-4">
-                  {coverageOwners.map((c) => (
-                    <div key={c.title} className="flex gap-4">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gold/10">
-                        <c.icon className="h-4 w-4 text-gold" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{c.title}</p>
-                        <p className="text-xs text-muted-foreground">{c.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Method V2 ─── */}
-        <MethodSectionV2 />
-
-        {/* ─── FAQ ─── */}
-        <section className="border-b border-border bg-surface-light">
-          <div className="container mx-auto px-6 py-24 md:px-12">
-            <div className="mx-auto max-w-xl text-center">
-              <div className="inline-flex items-center gap-3">
-                <span className="ruby-diamond" />
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">FAQ</p>
-                <span className="ruby-diamond" />
-              </div>
-              <h2 className="mt-5 font-display text-[clamp(1.6rem,4vw,3rem)] font-semibold leading-[1.06] tracking-tight text-foreground">
-                Questions fréquentes
-              </h2>
-              <p className="mt-5 text-[15px] leading-7 text-muted-foreground">
-                Tout ce que vous devez savoir avant de nous contacter.
-              </p>
-            </div>
-            <div className="mx-auto mt-16 max-w-3xl divide-y divide-border">
+          <div className="container mx-auto px-6 py-16 md:px-12 md:py-20">
+            <div className="grid gap-6 md:grid-cols-4">
               {[
-                ["Comment réserver un appartement à Marrakech ?", "Vous pouvez envoyer une demande via le formulaire de contact ou directement sur WhatsApp. Yakout vous répond avec les disponibilités, les informations du bien et les prochaines étapes pour organiser votre séjour."],
-                ["Proposez-vous un transfert depuis l'aéroport Marrakech Menara ?", "Oui. Yakout organise les transferts arrivée et départ avec chauffeur privé, selon votre horaire de vol et votre lieu de séjour. Prise en charge avec panneau nominatif à la sortie des bagages."],
-                ["Peut-on réserver une voiture avec chauffeur ?", "Oui. Yakout propose une Skoda Kodiaq avec chauffeur et peut également organiser des véhicules partenaires selon le nombre de personnes et le besoin."],
-                ["Comment confier mon appartement à Yakout ?", "Vous pouvez remplir le formulaire dédié aux propriétaires sur notre site. Yakout étudie le bien, son emplacement, son potentiel et les conditions de gestion possibles avant de vous proposer un accompagnement."],
-                ["Est-ce que Yakout accompagne les propriétaires ?", "Oui. Yakout accompagne les propriétaires sur la mise en valeur du bien, l'accueil voyageurs, le ménage, la maintenance et le suivi de l'activité via un tableau de bord dédié."],
-                ["Peut-on demander un service sur mesure ?", "Oui. Les demandes peuvent être étudiées selon votre besoin : séjour, transport, assistance, excursion ou service complémentaire. Contactez-nous pour en discuter."],
-                ["Yakout intervient uniquement à Marrakech ?", "Yakout est basée à Marrakech et concentre son activité principale sur Marrakech et ses environs. Des interventions à Agafay, Ourika ou Essaouira sont possibles sur demande."],
-              ].map(([q, a]) => (
-                <details key={q} className="group py-5">
-                  <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-medium text-foreground transition hover:text-gold [&::-webkit-details-marker]:hidden">
-                    {q}
-                    <span className="shrink-0 text-gold transition group-open:rotate-45 text-lg leading-none">+</span>
-                  </summary>
-                  <p className="mt-4 text-sm leading-7 text-muted-foreground">{a}</p>
-                </details>
+                { icon: Building2, title: "Appartements sélectionnés", desc: "Des logements vérifiés, bien situés et confortables pour vos séjours." },
+                { icon: Car, title: "Transport privé fiable", desc: "Transferts, chauffeur et circuits organisés par une équipe locale." },
+                { icon: Package, title: "Packs sur mesure", desc: "Des séjours prêts à l'emploi ou entièrement personnalisables." },
+                { icon: Sparkles, title: "Services & assistance", desc: "Accompagnement avant, pendant et après votre séjour." },
+              ].map((item) => (
+                <div key={item.title} className="rounded-sm border border-border/60 bg-card p-6 transition hover:border-gold/15">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-sm border border-gold/15 bg-gold/5">
+                    <item.icon className="h-4 w-4 text-gold" />
+                  </div>
+                  <h3 className="mt-4 font-display text-base text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.desc}</p>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─── Final CTA V2 ─── */}
-        <FinalCtaV2 />
-      </main>
+        {/* ─── Appartements ─── */}
+        {displayApts.length > 0 && (
+          <section className="border-b border-border bg-background">
+            <div className="container mx-auto px-6 py-16 md:px-12 md:py-24">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div className="max-w-lg">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Hébergement</p>
+                  <h2 className="mt-3 font-display text-2xl text-foreground md:text-3xl">Appartements sélectionnés</h2>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Des logements choisis avec soin pour vos séjours à Marrakech.</p>
+                </div>
+                <Link href="/apartments" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-gold transition hover:gap-2">
+                  Voir tout <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+              <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {displayApts.map((apt, i) => (
+                  <ApartmentCard key={apt.id} apartment={apt} priority={i === 0} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
+        {/* ─── Transport privé ─── */}
+        <section className="border-b border-border bg-surface">
+          <div className="container mx-auto px-6 py-16 md:px-12 md:py-24">
+            <div className="grid items-center gap-12 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Transport privé</p>
+                <h2 className="mt-3 font-display text-2xl text-foreground md:text-3xl">Déplacez-vous en toute sérénité</h2>
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                  Transfert aéroport, chauffeur privé, demi-journée ou journée complète : Yakout vous propose des véhicules confortables avec chauffeurs professionnels.
+                </p>
+                {vehicles.length > 0 && (
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    {vehicles.slice(0, 3).map((v) => (
+                      <span key={v.id} className="rounded-full border border-gold/10 bg-gold/5 px-3 py-1 text-xs text-gold">
+                        {v.public_name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <Link
+                    href="/transport"
+                    className="inline-flex h-12 items-center gap-2.5 rounded-sm bg-gold px-7 text-xs font-semibold uppercase tracking-[0.1em] text-primary-foreground shadow-elevation-2 shadow-gold/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-gold-light hover:shadow-glow-gold"
+                  >
+                    Découvrir le transport <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+              <div className="relative aspect-[4/3] hidden md:block">
+                <Image
+                  src={yakoutImages.skodaChauffeur}
+                  alt={yakoutImageAlts.skodaChauffeur}
+                  fill
+                  className="rounded-sm object-cover"
+                  sizes="(max-width: 768px) 0, 50vw"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Fonctionnement ─── */}
+        <section className="border-b border-border bg-background">
+          <div className="container mx-auto px-6 py-16 text-center md:px-12 md:py-24">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Fonctionnement</p>
+            <h2 className="mx-auto mt-3 max-w-lg font-display text-2xl text-foreground md:text-3xl">Comment Yakout organise votre séjour</h2>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {[
+                { icon: Heart, step: "01", title: "Vous nous parlez de votre projet", desc: "Dates, voyageurs, style de séjour : on écoute avant de proposer." },
+                { icon: Search, step: "02", title: "Nous composons la meilleure solution", desc: "Appartement, transport, services : on assemble les éléments adaptés." },
+                { icon: Send, step: "03", title: "Vous profitez de votre séjour", desc: "Coordination, assistance et suivi pendant toute la durée." },
+              ].map((item) => (
+                <div key={item.step} className="rounded-sm border border-border bg-card p-8 transition hover:border-gold/15">
+                  <span className="font-display text-5xl font-bold tracking-tight text-gold/[0.06]">{item.step}</span>
+                  <div className="relative -mt-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-sm border border-gold/15 bg-gold/5">
+                      <item.icon className="h-4 w-4 text-gold" />
+                    </div>
+                    <h3 className="mt-4 font-display text-base text-foreground">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Propriétaires ─── */}
+        <section className="border-b border-border bg-surface">
+          <div className="container mx-auto px-6 py-16 md:px-12 md:py-24">
+            <div className="grid items-center gap-12 md:grid-cols-2">
+              <div className="relative aspect-[4/3] hidden md:block">
+                <Image
+                  src={yakoutImages.ownerConcierge}
+                  alt={yakoutImageAlts.ownerConcierge}
+                  fill
+                  className="rounded-sm object-cover"
+                  sizes="(max-width: 768px) 0, 50vw"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Propriétaires</p>
+                <h2 className="mt-3 font-display text-2xl text-foreground md:text-3xl">Vous possédez un appartement à Marrakech ?</h2>
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                  Confiez-nous votre bien pour bénéficier d&rsquo;un accompagnement structuré : mise en valeur, traitement des demandes, accueil des voyageurs et suivi des recettes.
+                </p>
+                <div className="mt-8">
+                  <Link
+                    href="/contact?type=proprietaire"
+                    className="inline-flex h-12 items-center gap-2.5 rounded-sm bg-gold px-8 text-xs font-semibold uppercase tracking-[0.1em] text-primary-foreground shadow-elevation-2 shadow-gold/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-gold-light hover:shadow-glow-gold"
+                  >
+                    Confier mon bien <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── CTA final ─── */}
+        <section className="bg-background">
+          <div className="container mx-auto px-6 py-20 md:px-12 md:py-28">
+            <div className="relative mx-auto max-w-2xl overflow-hidden rounded-sm border border-gold/10 bg-surface px-10 py-16 text-center md:px-20 md:py-20">
+              <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl" />
+              <div className="relative">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Prêt à organiser votre séjour ?</p>
+                <h2 className="mt-4 font-display text-2xl text-foreground md:text-3xl">
+                  Envoyez votre demande, on s&rsquo;occupe du reste
+                </h2>
+                <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-muted-foreground">
+                  Appartements, transport, circuits, services : dites-nous ce dont vous avez besoin et nous composons la solution adaptée.
+                </p>
+                <div className="mt-10 flex flex-wrap justify-center gap-4">
+                  <PremiumButton href="/contact?type=general" variant="primary">
+                    Faire une demande <ArrowRight className="h-4 w-4" />
+                  </PremiumButton>
+                  <Link
+                    href={`https://wa.me/${site.whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(site.whatsappMessage)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-12 items-center gap-2.5 rounded-sm border border-border bg-card px-7 text-xs font-semibold uppercase tracking-[0.1em] text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 hover:shadow-elevation-2"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Contacter sur WhatsApp
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
       <SiteFooter />
     </div>
   );

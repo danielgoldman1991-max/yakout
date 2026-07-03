@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createBlogPostAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,21 +26,26 @@ export default function NewBlogPostPage() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Slug *</label>
-                <Input name="slug" required />
+                <Input name="slug" required placeholder="ex: sejour-marrakech-conseils" />
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Categorie *</label>
-                <Input name="category" required />
+                <Input name="category" required placeholder="ex: Voyage, Conseils" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Statut</label>
                 <select name="status" className="w-full rounded-md border bg-transparent px-3 py-2 text-sm">
                   <option value="draft">Brouillon</option>
                   <option value="published">Publie</option>
+                  <option value="archived">Archive</option>
                 </select>
               </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Auteur</label>
+              <Input name="author" placeholder="Yakout" />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-muted-foreground">Extrait *</label>
@@ -55,6 +61,7 @@ export default function NewBlogPostPage() {
             <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Contenu *</label>
                 <Textarea name="content" required rows={8} />
+                <p className="text-[11px] text-muted-foreground/60">Les paragraphes, listes numerotees et retours a la ligne seront conserves sur le site public.</p>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Date de publication</label>
@@ -73,7 +80,10 @@ export default function NewBlogPostPage() {
                   </div>
                 </div>
               </details>
-              <Button type="submit" className="w-full sm:w-auto">Creer l&apos;article</Button>
+              <div className="flex gap-3">
+                <Button type="submit" className="w-full sm:w-auto">Creer l&apos;article</Button>
+                <Link href="/dashboard/site/blog" className="inline-flex h-10 items-center rounded-sm border border-border px-4 text-sm text-muted-foreground transition hover:text-foreground">Annuler</Link>
+              </div>
           </form>
         </CardContent>
       </Card>

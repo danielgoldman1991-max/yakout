@@ -6,8 +6,9 @@ import { formatCurrency } from "@/lib/formatters";
 
 interface Vehicle {
   id: string;
-  brand: string;
-  model: string;
+  brand?: string;
+  model?: string;
+  public_name?: string;
   price_from: number;
 }
 
@@ -35,7 +36,7 @@ export function TransferSectionV2({ vehicle }: { vehicle?: Vehicle }) {
             {vehicle && (
               <div className="absolute bottom-5 left-5 right-5">
                 <div className="inline-flex items-center gap-2 rounded-sm bg-background/80 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.12em] backdrop-blur-sm">
-                  <span className="text-gold">{vehicle.brand} {vehicle.model}</span>
+                  <span className="text-gold">{[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || vehicle.public_name || "Vehicule avec chauffeur"}</span>
                   <span className="text-muted-foreground">— À partir de {formatCurrency(vehicle.price_from)}</span>
                 </div>
               </div>
@@ -70,10 +71,10 @@ export function TransferSectionV2({ vehicle }: { vehicle?: Vehicle }) {
             </div>
 
             <div className="mt-10 flex flex-wrap gap-4">
-              <PremiumButton href="/contact?type=chauffeur" variant="primary">
+              <PremiumButton href="/contact?type=transport" variant="primary">
                 Réserver un chauffeur <ArrowRight className="h-4 w-4" />
               </PremiumButton>
-              <PremiumButton href="/vehicles" variant="outline">
+              <PremiumButton href="/transport" variant="outline">
                 Voir les véhicules
               </PremiumButton>
             </div>

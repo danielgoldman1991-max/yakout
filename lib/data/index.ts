@@ -4,27 +4,43 @@ import { logger } from "@/lib/utils/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   apartments as mockApartments,
-  vehicles as mockVehicles,
   reservations as mockReservations,
-  trips as mockTrips,
   payments as mockPayments,
   expenses as mockExpenses,
   blogPosts as mockBlogPosts,
   services as mockServices,
   sitePages as mockSitePages,
 } from "@/lib/constants/mock-data";
-import type { Lead, Client, Apartment, Vehicle, Reservation, Trip, Payment, Expense, Partner } from "@/types/business";
+import type { Lead, Client, Apartment, Vehicle, VehicleImage, Reservation, Trip, Payment, Expense, Partner, Document } from "@/types/business";
 import type { BlogPost, PublicService, SitePage } from "@/types/cms";
+import { normalizeApartmentImage } from "@/lib/data/apartments";
 
 type ApartmentRow = Apartment & {
-  apartment_images?: Array<{ url: string; alt_text?: string | null; display_order?: number | null }>;
+  apartment_images?: Array<{ url?: string | null; alt_text?: string | null; display_order?: number | null; image_url?: string | null; image_alt_text?: string | null; sort_order?: number | null; is_cover?: boolean | null }>;
 };
+
+const publicApartmentSelect = [
+  "id", "company_id", "internal_name", "public_name", "slug", "district", "city", "public_district",
+  "address_public_hint", "property_type", "bedrooms", "bathrooms", "beds", "capacity", "floor",
+  "has_elevator", "surface_area", "has_terrace", "has_pool", "has_parking",
+  "price_from", "price_per_night", "currency", "cleaning_fee", "deposit_amount", "minimum_nights",
+  "short_description", "detailed_description", "description", "highlights", "amenities", "house_rules",
+  "check_in_time", "check_out_time",
+  "image_url", "image_alt_text",
+  "public_status", "is_published", "is_featured", "published_at",
+  "meta_title", "meta_description",
+  "created_at", "updated_at",
+].join(", ");
 
 type ApartmentImageRow = {
   apartment_id: string;
-  url: string;
+  url?: string | null;
+  image_url?: string | null;
   alt_text?: string | null;
+  image_alt_text?: string | null;
   display_order?: number | null;
+  sort_order?: number | null;
+  is_cover?: boolean | null;
 };
 
 function isServer() {
@@ -59,7 +75,7 @@ function demoWarning(_entity: string) {
 }
 
 function publicFallback<T>(entity: string, error: unknown, fallback: T): T {
-  logger.warn(`${entity} indisponible dans Supabase, fallback local utilise`, error);
+  logger.warn(`${entity} indisponible dans Supabase, retour de secours utilise`, error);
   return fallback;
 }
 
@@ -70,11 +86,20 @@ function isUUID(value: string): boolean {
 }
 
 function mapApartment(row: ApartmentRow): Apartment {
-  const primaryImage = row.apartment_images?.slice().sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))[0];
+  const primaryImage = row.apartment_images
+    ?.map((image) => normalizeApartmentImage(image as never))
+    .sort((a, b) => Number(Boolean(b.is_cover)) - Number(Boolean(a.is_cover)) || (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+  const publicStatus = row.public_status ?? (row.is_published ? "published" : "draft");
+  const pricePerNight = row.price_per_night ?? row.price_from;
   return {
     ...row,
-    image_url: row.image_url ?? primaryImage?.url,
-    image_alt_text: row.image_alt_text ?? primaryImage?.alt_text ?? undefined,
+    public_status: publicStatus,
+    is_published: row.is_published || publicStatus === "published",
+    price_per_night: pricePerNight,
+    price_from: row.price_from ?? pricePerNight ?? 0,
+    detailed_description: row.detailed_description ?? row.description,
+    image_url: row.image_url ?? primaryImage?.image_url ?? undefined,
+    image_alt_text: row.image_alt_text ?? primaryImage?.image_alt_text ?? undefined,
   };
 }
 
@@ -84,7 +109,7 @@ async function mapApartmentsWithImagesFrom(supabase: SupabaseClient, rows: Apart
   const ids = rows.map((row) => row.id);
   const { data, error } = await supabase
     .from("apartment_images")
-    .select("apartment_id, url, alt_text, display_order")
+    .select("apartment_id, url, alt_text, display_order, image_url, image_alt_text, sort_order, is_cover")
     .in("apartment_id", ids);
 
   if (error) {
@@ -305,7 +330,12 @@ export async function getDashboardApartmentById(id: string): Promise<Apartment |
 export async function getPublishedApartments(): Promise<Apartment[]> {
   if (isDemo()) { demoWarning("getPublishedApartments"); return mockApartments.filter((a) => a.is_published); }
   const supabase = (await getServerAdminClient()) ?? (await getClient());
-  const { data, error } = await supabase.from("apartments").select("*").eq("is_published", true).order("created_at", { ascending: false });
+  let { data, error } = await supabase.from("apartments").select(publicApartmentSelect).eq("public_status", "published").order("created_at", { ascending: false });
+  if (error || !data || data.length === 0) {
+    const fallback = await supabase.from("apartments").select(publicApartmentSelect).eq("is_published", true).order("created_at", { ascending: false });
+    data = fallback.data;
+    error = fallback.error;
+  }
   if (error) return publicFallback("getPublishedApartments", error, mockApartments.filter((a) => a.is_published));
   return mapApartmentsWithImagesFrom(supabase, data as ApartmentRow[]);
 }
@@ -314,19 +344,44 @@ export async function getPublicApartments(): Promise<Apartment[]> {
   if (isDemo()) { demoWarning("getPublicApartments"); return [...mockApartments]; }
 
   const supabase = (await getServerAdminClient()) ?? (await getClient());
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("apartments")
-    .select("*")
+    .select(publicApartmentSelect)
+    .eq("public_status", "published")
     .order("created_at", { ascending: false });
+
+  if (error || !data || data.length === 0) {
+    const fallback = await supabase
+      .from("apartments")
+      .select(publicApartmentSelect)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false });
+    data = fallback.data;
+    error = fallback.error;
+  }
 
   if (error) return publicFallback("getPublicApartments", error, [...mockApartments]);
   return mapApartmentsWithImagesFrom(supabase, data as ApartmentRow[]);
 }
 
+export function extractDistricts(apartments: Apartment[]): string[] {
+  const seen = new Set<string>();
+  return apartments.reduce<string[]>((acc, a) => {
+    const d = a.public_district || a.district;
+    if (d && !seen.has(d)) { seen.add(d); acc.push(d); }
+    return acc;
+  }, []).sort();
+}
+
 export async function getApartmentBySlug(slug: string): Promise<Apartment | null> {
   if (isDemo()) { demoWarning("getApartmentBySlug"); return mockApartments.find((a) => a.slug === slug) ?? null; }
   const supabase = (await getServerAdminClient()) ?? (await getClient());
-  const { data, error } = await supabase.from("apartments").select("*").eq("slug", slug).single();
+  let { data, error } = await supabase.from("apartments").select(publicApartmentSelect).eq("slug", slug).eq("public_status", "published").single();
+  if (error || !data) {
+    const fallback = await supabase.from("apartments").select(publicApartmentSelect).eq("slug", slug).eq("is_published", true).single();
+    data = fallback.data;
+    error = fallback.error;
+  }
   if (error) return publicFallback("getApartmentBySlug", error, mockApartments.find((a) => a.slug === slug) ?? null);
   const [apartment] = await mapApartmentsWithImagesFrom(supabase, [data as ApartmentRow]);
   return apartment;
@@ -358,41 +413,93 @@ export async function deleteApartment(id: string): Promise<{ ok: boolean; error?
 
 // ─── Vehicles ───
 
+type VehicleRow = Vehicle & { vehicle_images?: VehicleImage[] };
+
+function mapVehicle(row: VehicleRow): Vehicle {
+  const images = (row.vehicle_images ?? [])
+    .map((image) => ({
+      ...image,
+      image_url: image.image_url ?? image.url,
+      image_alt_text: image.image_alt_text ?? image.alt_text,
+      sort_order: image.sort_order ?? image.display_order ?? 0,
+    }))
+    .filter((image) => image.image_url)
+    .sort((a, b) => Number(Boolean(b.is_cover)) - Number(Boolean(a.is_cover)) || (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const cover = images[0];
+  const publicStatus = row.public_status ?? (row.is_published ? "published" : "draft");
+  const publicName = row.public_title ?? row.public_name ?? row.title ?? row.internal_name;
+  const internalName = row.title ?? row.internal_name ?? publicName;
+
+  return {
+    ...row,
+    internal_name: internalName,
+    public_name: publicName,
+    title: row.title ?? internalName,
+    public_title: row.public_title ?? publicName,
+    brand: row.brand ?? "",
+    model: row.model ?? "",
+    category: row.category ?? "other",
+    capacity: row.capacity ?? 1,
+    luggage_capacity: row.luggage_capacity ?? 0,
+    price_from: row.price_from ?? row.price_transfer ?? 0,
+    price_transfer: row.price_transfer ?? row.price_from ?? 0,
+    currency: row.currency ?? "MAD",
+    with_driver: row.with_driver ?? true,
+    driver_required: row.driver_required ?? row.with_driver ?? true,
+    public_status: publicStatus,
+    is_published: publicStatus === "published" || Boolean(row.is_published),
+    short_description: row.short_description ?? row.public_description,
+    description: row.description ?? row.public_description,
+    public_description: row.public_description ?? row.description ?? row.short_description,
+    plate_number: row.plate_number ?? row.registration,
+    internal_notes: row.internal_notes ?? row.private_notes,
+    image_url: row.image_url ?? cover?.image_url,
+    image_alt_text: row.image_alt_text ?? cover?.image_alt_text,
+    vehicle_images: images,
+  };
+}
+
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
-  if (isDemo()) { demoWarning("getVehicleById"); return mockVehicles.find((v) => v.id === id) ?? null; }
-  const supabase = await getClient();
-  if (!isUUID(id)) {
-    const { data: bySlug } = await supabase.from("vehicles").select("*").eq("slug", id).single();
-    if (!bySlug) return null;
-    return bySlug as Vehicle;
-  }
-  const { data, error } = await supabase.from("vehicles").select("*").eq("id", id).single();
-  if (error) return publicFallback("getVehicleById", error, mockVehicles.find((v) => v.id === id) ?? null);
-  return data as Vehicle;
+  if (!isUUID(id)) return null;
+  if (isDemo()) { demoWarning("getVehicleById"); return null; }
+  const supabase = (await getServerAdminClient()) ?? (await getClient());
+  const { data, error } = await supabase.from("vehicles").select("*, vehicle_images(*)").eq("id", id).single();
+  if (error) return publicFallback("getVehicleById", error, null);
+  return mapVehicle(data as VehicleRow);
 }
 
 export async function getVehicles(): Promise<Vehicle[]> {
-  if (isDemo()) { demoWarning("getVehicles"); return [...mockVehicles]; }
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("vehicles").select("*").order("created_at", { ascending: false });
-  if (error) return publicFallback("getVehicles", error, [...mockVehicles]);
-  return data as Vehicle[];
+  if (isDemo()) { demoWarning("getVehicles"); return []; }
+  const supabase = (await getServerAdminClient()) ?? (await getClient());
+  const { data, error } = await supabase.from("vehicles").select("*, vehicle_images(*)").order("created_at", { ascending: false });
+  if (error) return publicFallback("getVehicles", error, []);
+  return ((data ?? []) as VehicleRow[]).map(mapVehicle);
 }
 
 export async function getPublishedVehicles(): Promise<Vehicle[]> {
-  if (isDemo()) { demoWarning("getPublishedVehicles"); return mockVehicles.filter((v) => v.is_published); }
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("vehicles").select("*").eq("is_published", true).order("created_at", { ascending: false });
-  if (error) return publicFallback("getPublishedVehicles", error, mockVehicles.filter((v) => v.is_published));
-  return data as Vehicle[];
+  if (isDemo()) { demoWarning("getPublishedVehicles"); return []; }
+  const supabase = (await getServerAdminClient()) ?? (await getClient());
+  let { data, error } = await supabase.from("vehicles").select("*, vehicle_images(*)").eq("public_status", "published").order("created_at", { ascending: false });
+  if (error) {
+    const fallback = await supabase.from("vehicles").select("*, vehicle_images(*)").eq("is_published", true).order("created_at", { ascending: false });
+    data = fallback.data;
+    error = fallback.error;
+  }
+  if (error) return publicFallback("getPublishedVehicles", error, []);
+  return ((data ?? []) as VehicleRow[]).map(mapVehicle).filter((vehicle) => vehicle.image_url);
 }
 
 export async function getVehicleBySlug(slug: string): Promise<Vehicle | null> {
-  if (isDemo()) { demoWarning("getVehicleBySlug"); return mockVehicles.find((v) => v.slug === slug) ?? null; }
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("vehicles").select("*").eq("slug", slug).single();
-  if (error) return publicFallback("getVehicleBySlug", error, mockVehicles.find((v) => v.slug === slug) ?? null);
-  return data as Vehicle;
+  if (isDemo()) { demoWarning("getVehicleBySlug"); return null; }
+  const supabase = (await getServerAdminClient()) ?? (await getClient());
+  let { data, error } = await supabase.from("vehicles").select("*, vehicle_images(*)").eq("slug", slug).eq("public_status", "published").single();
+  if (error) {
+    const fallback = await supabase.from("vehicles").select("*, vehicle_images(*)").eq("slug", slug).eq("is_published", true).single();
+    data = fallback.data;
+    error = fallback.error;
+  }
+  if (error) return publicFallback("getVehicleBySlug", error, null);
+  return mapVehicle(data as VehicleRow);
 }
 
 export async function createVehicle(input: Partial<Vehicle>): Promise<{ ok: boolean; error?: string }> {
@@ -464,18 +571,19 @@ export async function deleteReservation(id: string): Promise<{ ok: boolean; erro
 // ─── Trips ───
 
 export async function getTripById(id: string): Promise<Trip | null> {
-  if (isDemo()) { demoWarning("getTripById"); return mockTrips.find((t) => t.id === id) ?? null; }
+  if (!isUUID(id)) return null;
+  if (isDemo()) { demoWarning("getTripById"); return null; }
   const supabase = await getClient();
   const { data, error } = await supabase.from("trips").select("*").eq("id", id).single();
-  if (error) return publicFallback("getTripById", error, mockTrips.find((t) => t.id === id) ?? null);
+  if (error) return publicFallback("getTripById", error, null);
   return data as Trip;
 }
 
 export async function getTrips(): Promise<Trip[]> {
-  if (isDemo()) { demoWarning("getTrips"); return [...mockTrips]; }
+  if (isDemo()) { demoWarning("getTrips"); return []; }
   const supabase = await getClient();
   const { data, error } = await supabase.from("trips").select("*").order("trip_date", { ascending: false });
-  if (error) return publicFallback("getTrips", error, [...mockTrips]);
+  if (error) return publicFallback("getTrips", error, []);
   return data as Trip[];
 }
 
@@ -589,16 +697,67 @@ export async function deleteExpense(id: string): Promise<{ ok: boolean; error?: 
 
 // ─── Blog Posts ───
 
+async function getCompanyIdForBlog(): Promise<string | null> {
+  const serverClient = await getClient();
+  const { data: { user }, error: userError } = await serverClient.auth.getUser();
+  if (userError || !user) {
+    logger.warn("getCompanyIdForBlog: utilisateur non authentifie", userError);
+    return null;
+  }
+  try {
+    const { createSupabaseAdminClient } = await import("@/lib/supabase/admin");
+    const admin = createSupabaseAdminClient();
+    const { data: profile, error: profileError } = await admin
+      .from("profiles")
+      .select("company_id")
+      .eq("user_id", user.id)
+      .single();
+    if (profileError || !profile?.company_id) {
+      logger.warn("getCompanyIdForBlog: profil entreprise introuvable", profileError);
+      return null;
+    }
+    return profile.company_id as string;
+  } catch (err) {
+    logger.error("getCompanyIdForBlog: admin client indisponible", err);
+    return null;
+  }
+}
+
+async function getAdminClientForBlog() {
+  try {
+    const { createSupabaseAdminClient } = await import("@/lib/supabase/admin");
+    return createSupabaseAdminClient();
+  } catch {
+    return null;
+  }
+}
+
 export async function getBlogPostById(id: string): Promise<BlogPost | null> {
   if (isDemo()) { demoWarning("getBlogPostById"); return mockBlogPosts.find((p) => p.id === id) ?? null; }
   const supabase = await getClient();
   const { data, error } = await supabase.from("blog_posts").select("*").eq("id", id).single();
-  if (error) return publicFallback("getBlogPostById", error, mockBlogPosts.find((p) => p.id === id) ?? null);
+  if (error) {
+    // Fallback: try admin client with company_id filter
+    const admin = await getAdminClientForBlog();
+    if (!admin) return null;
+    const companyId = await getCompanyIdForBlog();
+    if (!companyId) return null;
+    const { data: adminData } = await admin.from("blog_posts").select("*").eq("id", id).eq("company_id", companyId).single();
+    return adminData as BlogPost | null;
+  }
   return data as BlogPost;
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   if (isDemo()) { demoWarning("getBlogPosts"); return [...mockBlogPosts]; }
+  const admin = await getAdminClientForBlog();
+  if (admin) {
+    const companyId = await getCompanyIdForBlog();
+    if (companyId) {
+      const { data, error } = await admin.from("blog_posts").select("*").eq("company_id", companyId).order("created_at", { ascending: false });
+      if (!error) return data as BlogPost[];
+    }
+  }
   const supabase = await getClient();
   const { data, error } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
   if (error) return publicFallback("getBlogPosts", error, [...mockBlogPosts]);
@@ -606,18 +765,28 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
-  if (isDemo()) { demoWarning("getPublishedBlogPosts"); return mockBlogPosts.filter((p) => p.status === "published"); }
+  const admin = await getAdminClientForBlog();
+  if (admin) {
+    const { data, error } = await admin.from("blog_posts").select("*").eq("status", "published").order("published_at", { ascending: false, nullsFirst: false });
+    if (!error) return data as BlogPost[];
+    logger.error("getPublishedBlogPosts (admin) failed", error);
+  }
   const supabase = await getClient();
   const { data, error } = await supabase.from("blog_posts").select("*").eq("status", "published").order("published_at", { ascending: false });
-  if (error) return publicFallback("getPublishedBlogPosts", error, mockBlogPosts.filter((p) => p.status === "published"));
+  if (error) { logger.error("getPublishedBlogPosts failed", error); return []; }
   return data as BlogPost[];
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
-  if (isDemo()) { demoWarning("getBlogPostBySlug"); return mockBlogPosts.find((p) => p.slug === slug) ?? null; }
+  const admin = await getAdminClientForBlog();
+  if (admin) {
+    const { data, error } = await admin.from("blog_posts").select("*").eq("slug", slug).eq("status", "published").single();
+    if (!error && data) return data as BlogPost;
+  }
   const supabase = await getClient();
   const { data, error } = await supabase.from("blog_posts").select("*").eq("slug", slug).single();
-  if (error) return publicFallback("getBlogPostBySlug", error, mockBlogPosts.find((p) => p.slug === slug) ?? null);
+  if (error) return null;
+  if (data && data.status !== "published") return null;
   return data as BlogPost;
 }
 
@@ -751,4 +920,178 @@ export async function getPartners(): Promise<Partner[]> {
   const { data, error } = await supabase.from("partners").select("*").order("name", { ascending: true });
   if (error) return publicFallback("getPartners", error, []);
   return (data ?? []) as Partner[];
+}
+
+export async function getPartnersForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getPartnersForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase
+    .from("partners")
+    .select("id, name, partner_type, phone, city, status")
+    .order("name", { ascending: true });
+  if (error) { logger.error(`getPartnersForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  const LABELS: Record<string, string> = {
+    transport_company: "Transport", vehicle_owner: "Véhicule", driver: "Chauffeur",
+    guide: "Guide", tour_provider: "Excursion", restaurant: "Restaurant",
+    activity_provider: "Activité", cleaning: "Ménage", laundry: "Blanchisserie",
+    maintenance: "Maintenance", repair: "Réparation", real_estate_service: "Immobilier",
+    admin_supplier: "Fournisseur", other: "Autre",
+  };
+  return (data ?? []).map((p: Record<string, unknown>) => ({
+    id: p.id as string,
+    label: p.name as string,
+    description: [LABELS[p.partner_type as string] ?? (p.partner_type as string), p.phone as string, p.city as string].filter(Boolean).join(" · "),
+  }));
+}
+
+// ─── Documents ───
+
+// ─── Document Relation Select Loaders ───
+
+export type SelectOption = { id: string; label: string; description?: string };
+
+export async function getOwnersForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getOwnersForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("owners").select("id, full_name, phone, email").order("created_at", { ascending: false });
+  if (error) { logger.error(`getOwnersForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((o: Record<string, unknown>) => ({
+    id: o.id as string,
+    label: o.full_name as string,
+    description: [o.phone as string, o.email as string].filter(Boolean).join(" · "),
+  }));
+}
+
+export async function getApartmentsForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getApartmentsForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("apartments").select("id, internal_name, district, management_status").order("created_at", { ascending: false });
+  if (error) { logger.error(`getApartmentsForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((a: Record<string, unknown>) => ({
+    id: a.id as string,
+    label: a.internal_name as string,
+    description: [a.district as string, a.management_status as string].filter(Boolean).join(" · "),
+  }));
+}
+
+export async function getClientsForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getClientsForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("clients").select("id, full_name, phone, email").order("created_at", { ascending: false });
+  if (error) { logger.error(`getClientsForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((c: Record<string, unknown>) => ({
+    id: c.id as string,
+    label: c.full_name as string,
+    description: [c.phone as string, c.email as string].filter(Boolean).join(" · "),
+  }));
+}
+
+export async function getVehiclesForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getVehiclesForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("vehicles").select("id, internal_name, capacity").order("created_at", { ascending: false });
+  if (error) { logger.error(`getVehiclesForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((v: Record<string, unknown>) => ({
+    id: v.id as string,
+    label: v.internal_name as string,
+    description: v.capacity ? `${v.capacity} pers.` : undefined,
+  }));
+}
+
+export async function getReservationsForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getReservationsForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("reservations").select("id, client:client_id(full_name), check_in, check_out, reservation_status").order("created_at", { ascending: false });
+  if (error) { logger.error(`getReservationsForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((r: Record<string, unknown>) => {
+    const client = r.client as { full_name?: string } | null;
+    const clientName = client?.full_name ?? null;
+    return {
+      id: r.id as string,
+      label: clientName ? `Réservation ${clientName.slice(0, 20)}` : "Réservation",
+      description: [r.check_in as string, r.check_out as string, r.reservation_status as string].filter(Boolean).join(" → "),
+    };
+  });
+}
+
+export async function getPaymentsForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getPaymentsForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("payments").select("id, title, amount, status").order("created_at", { ascending: false });
+  if (error) { logger.error(`getPaymentsForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((p: Record<string, unknown>) => ({
+    id: p.id as string,
+    label: (p.title as string) ?? "Paiement",
+    description: p.amount ? `${p.amount} DH` : undefined,
+  }));
+}
+
+export async function getExpensesForSelect(): Promise<SelectOption[]> {
+  if (isDemo()) { demoWarning("getExpensesForSelect"); return []; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("expenses").select("id, title, amount, category").order("created_at", { ascending: false });
+  if (error) { logger.error(`getExpensesForSelect failed: ${error?.message ?? String(error)}`); return []; }
+  return (data ?? []).map((e: Record<string, unknown>) => ({
+    id: e.id as string,
+    label: (e.title as string) ?? "Dépense",
+    description: e.amount ? `${e.amount} DH` : undefined,
+  }));
+}
+
+function logSupabaseError(source: string, error: unknown) {
+  const ctor = (error as Record<string, unknown>)?.constructor?.name ?? typeof error;
+  const msg = (error as Record<string, unknown>)?.message ?? String(error);
+  console.error(`[Yakout] [${source}]`, { ctor, msg, raw: error });
+}
+
+export async function getDocuments(options?: { type?: string; relatedType?: string; relatedId?: string }): Promise<Document[]> {
+  if (isDemo()) { demoWarning("getDocuments"); return []; }
+  const supabase = await getClient();
+  try {
+    let query = supabase.from("documents").select("*").order("created_at", { ascending: false });
+    if (options?.type) query = query.eq("type", options.type);
+    if (options?.relatedType) query = query.eq("related_type", options.relatedType);
+    if (options?.relatedId) query = query.eq("related_id", options.relatedId);
+    const { data, error } = await query;
+    if (error) {
+      logSupabaseError("getDocuments", error);
+      return [];
+    }
+    return (data ?? []) as Document[];
+  } catch (err) {
+    console.error(`[Yakout] [getDocuments] threw`, err);
+    return [];
+  }
+}
+
+export async function getDocumentById(id: string): Promise<Document | null> {
+  if (isDemo()) { demoWarning("getDocumentById"); return null; }
+  const supabase = await getClient();
+  const { data, error } = await supabase.from("documents").select("*").eq("id", id).single();
+  if (error) { logSupabaseError("getDocumentById", error); return null; }
+  return data as Document;
+}
+
+export async function createDocument(input: Partial<Document>): Promise<{ ok: boolean; error?: string }> {
+  if (isDemo()) { demoWarning("createDocument"); return { ok: true }; }
+  const supabase = await getClient();
+  const { error } = await supabase.from("documents").insert([input]);
+  if (error) { logger.error("createDocument failed", error); return { ok: false, error: error.message }; }
+  return { ok: true };
+}
+
+export async function updateDocument(id: string, input: Partial<Document>): Promise<{ ok: boolean; error?: string }> {
+  if (isDemo()) { demoWarning("updateDocument"); return { ok: true }; }
+  const supabase = await getClient();
+  const { error } = await supabase.from("documents").update(input).eq("id", id);
+  if (error) { logger.error("updateDocument failed", error); return { ok: false, error: error.message }; }
+  return { ok: true };
+}
+
+export async function deleteDocument(id: string): Promise<{ ok: boolean; error?: string }> {
+  if (isDemo()) { demoWarning("deleteDocument"); return { ok: true }; }
+  const supabase = await getClient();
+  const { error } = await supabase.from("documents").delete().eq("id", id);
+  if (error) { logger.error("deleteDocument failed", error); return { ok: false, error: error.message }; }
+  return { ok: true };
 }

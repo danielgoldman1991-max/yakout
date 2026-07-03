@@ -1,107 +1,131 @@
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getVehicleById } from "@/lib/data";
+import { CreditCard, FileText, Fuel, Route, Wrench } from "lucide-react";
+import { getDocuments, getExpenses, getPayments } from "@/lib/data";
+import { getTransportPartners, getTransportTrips, getTransportVehicleById } from "@/lib/data/transport";
 import { updateVehicleAction, deleteVehicleAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/formatters";
-import { Textarea } from "@/components/ui/textarea";
-import { ImageUploadField } from "@/components/dashboard/image-upload-field";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
+import { KpiCard } from "@/components/dashboard/kpi-card";
+import { StatusBadge } from "@/components/dashboard/status-badge";
+import { VehicleForm } from "@/components/dashboard/vehicle-form";
 
 export default async function VehicleEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const vehicle = await getVehicleById(id);
+  const [vehicle, partners, trips, payments, expenses, documents] = await Promise.all([
+    getTransportVehicleById(id),
+    getTransportPartners(),
+    getTransportTrips(),
+    getPayments(),
+    getExpenses(),
+    getDocuments({ relatedType: "vehicle", relatedId: id }),
+  ]);
   if (!vehicle) notFound();
 
+  const relatedTrips = trips.filter((trip) => trip.vehicle_id === id);
+  const relatedPayments = payments.filter((payment) => payment.vehicle_id === id || relatedTrips.some((trip) => trip.id === payment.trip_id));
+  const relatedExpenses = expenses.filter((expense) => expense.vehicle_id === id || relatedTrips.some((trip) => trip.id === expense.trip_id));
+  const revenue = relatedPayments.reduce((sum, payment) => sum + Number(payment.amount ?? 0), 0);
+  const cost = relatedExpenses.reduce((sum, expense) => sum + Number(expense.amount ?? 0), 0);
+  const partner = partners.find((item) => item.id === vehicle.partner_id);
+
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="text-sm text-muted-foreground">Dashboard / Vehicules / {vehicle.internal_name}</p>
-        <h1 className="mt-2 text-3xl font-semibold">{vehicle.public_name}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Prix : {formatCurrency(vehicle.price_from)}</p>
+    <div className="space-y-6">
+      <div className="grid gap-5 lg:grid-cols-[280px_1fr]">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-sm border border-border bg-card">
+          {vehicle.image_url ? <Image src={vehicle.image_url} alt={vehicle.image_alt_text || vehicle.public_name} fill sizes="320px" className="object-cover" unoptimized /> : null}
+        </div>
+        <div className="flex flex-col justify-between gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Dashboard / Vehicules / {vehicle.internal_name}</p>
+            <h1 className="mt-2 text-3xl font-semibold">{vehicle.public_name}</h1>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusBadge status={vehicle.availability_status ?? "available"} />
+              <StatusBadge status={vehicle.public_status ?? "draft"} />
+              <StatusBadge status={vehicle.ownership_type ?? "partner"} />
+            </div>
+            <p className="mt-3 max-w-3xl text-sm text-muted-foreground">{vehicle.short_description ?? vehicle.public_description}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {vehicle.public_status === "published" || vehicle.is_published ? <Link href={`/vehicles/${vehicle.slug}`}><Button variant="secondary">Voir sur site</Button></Link> : null}
+            <Link href={`/dashboard/documents/new?type=vehicle&vehicle_id=${id}`}><Button variant="secondary">Ajouter document</Button></Link>
+            <Link href={`/dashboard/expenses/new?vehicle_id=${id}`}><Button variant="secondary">Ajouter depense</Button></Link>
+            <Link href={`/dashboard/trips/new?vehicle_id=${id}`}><Button variant="secondary">Creer trajet</Button></Link>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <KpiCard title="Recettes" value={formatCurrency(revenue)} icon={CreditCard} />
+        <KpiCard title="Depenses" value={formatCurrency(cost)} icon={Fuel} />
+        <KpiCard title="Net vehicule" value={formatCurrency(revenue - cost)} icon={Wrench} />
+        <KpiCard title="Trajets lies" value={String(relatedTrips.length)} icon={Route} />
+        <KpiCard title="Documents" value={String(documents.length)} icon={FileText} />
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader><CardTitle>Modifier le vehicule</CardTitle></CardHeader>
           <CardContent>
             <FormErrorBanner />
             <form action={updateVehicleAction.bind(null, id)} className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Nom interne *</label>
-                  <Input name="internal_name" defaultValue={vehicle.internal_name} required />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Nom public *</label>
-                  <Input name="public_name" defaultValue={vehicle.public_name} required />
-                </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Marque *</label>
-                  <Input name="brand" defaultValue={vehicle.brand} required />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Modele *</label>
-                  <Input name="model" defaultValue={vehicle.model} required />
-                </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Slug *</label>
-                  <Input name="slug" defaultValue={vehicle.slug} required />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Capacite</label>
-                  <Input name="capacity" type="number" min="1" defaultValue={vehicle.capacity || 1} />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Prix (DH)</label>
-                <Input name="price_from" type="number" min="0" defaultValue={vehicle.price_from || 0} />
-              </div>
-              <ImageUploadField
-                label="Image principale"
-                folder="vehicles"
-                name="image_url"
-                altName="image_alt_text"
-                defaultUrl={vehicle.image_url}
-                defaultAlt={vehicle.image_alt_text}
-                helperText="Remplace l'image affichee sur les pages publiques."
-              />
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Description publique</label>
-                <Textarea name="public_description" defaultValue={vehicle.public_description ?? ""} rows={5} />
-              </div>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" name="with_driver" defaultChecked={vehicle.with_driver} />
-                  Avec chauffeur
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" name="is_published" defaultChecked={vehicle.is_published} />
-                  Publie
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" name="is_featured" defaultChecked={vehicle.is_featured} />
-                  Mis en avant
-                </label>
-              </div>
+              <VehicleForm partners={partners} vehicle={vehicle} />
               <Button type="submit">Enregistrer</Button>
             </form>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader><CardTitle>Actions</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <form action={deleteVehicleAction.bind(null, id)}>
-              <Button type="submit" variant="danger" className="w-full">Supprimer ce vehicule</Button>
-            </form>
-          </CardContent>
-        </Card>
+        <div className="space-y-5">
+          <Card>
+            <CardHeader><CardTitle>Partenaire</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {partner ? (
+                <>
+                  <Link href={`/dashboard/partners/${partner.id}`} className="font-medium hover:text-gold hover:underline">{partner.name}</Link>
+                  <p className="text-muted-foreground">{partner.phone ?? "Telephone non renseigne"}</p>
+                  <p className="text-muted-foreground">{partner.email ?? "Email non renseigne"}</p>
+                  <p className="text-muted-foreground">Commission: {partner.commission_rate ?? partner.commission ?? 0}%</p>
+                </>
+              ) : <p className="text-muted-foreground">Aucun partenaire lie.</p>}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Documents</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {documents.length === 0 ? <p className="text-muted-foreground">Aucun document.</p> : documents.slice(0, 6).map((doc) => (
+                <Link key={doc.id} href={`/dashboard/documents/${doc.id}`} className="block rounded-sm border border-border p-3 hover:border-gold/40">
+                  <span className="font-medium">{doc.title}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{doc.expiry_date ? formatDate(doc.expiry_date) : doc.type}</span>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Trajets lies</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {relatedTrips.length === 0 ? <p className="text-muted-foreground">Aucun trajet lie.</p> : relatedTrips.slice(0, 5).map((trip) => (
+                <Link key={trip.id} href={`/dashboard/trips/${trip.id}`} className="block rounded-sm border border-border p-3 hover:border-gold/40">
+                  <span className="font-medium">{trip.title ?? trip.destination}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{trip.trip_date ? formatDate(trip.trip_date) : ""} · {formatCurrency(trip.sold_price - trip.cost_price)}</span>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Danger zone</CardTitle></CardHeader>
+            <CardContent>
+              <form action={deleteVehicleAction.bind(null, id)}>
+                <Button type="submit" variant="danger" className="w-full">Supprimer ce vehicule</Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

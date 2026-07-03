@@ -14,13 +14,13 @@ export const site = {
   tiktokUrl: "",
   googleMapsUrl: "",
   logo: "/logo/yakout_logo_transparent_cropped.webp",
-  heroTitle: "Séjours premium, appartements sélectionnés et chauffeur privé à Marrakech.",
+  heroTitle: "Séjours premium, appartements sélectionnés et transport privé à Marrakech.",
   heroSubtitle:
-    "Yakout Conciergerie et Services accompagne voyageurs et propriétaires avec une offre complète : location d'appartements, conciergerie immobilière, chauffeur privé, transferts aéroport et services touristiques sur mesure.",
+    "Yakout Conciergerie et Services accompagne voyageurs et propriétaires avec une offre complète : location d'appartements, conciergerie immobilière, transport privé, transferts aéroport et services touristiques sur mesure.",
   heroBadge: "Conciergerie premium à Marrakech",
   whatsappMessage:
     "Bonjour Yakout, je souhaite organiser un séjour à Marrakech. Pouvez-vous me renseigner ?",
-  metaTitle: "Yakout Conciergerie Marrakech | Appartements, Chauffeur Privé & Services Premium",
+  metaTitle: "Yakout Marrakech — Appartements, transport privé et séjours sur mesure",
   metaDescription:
-    "Yakout Conciergerie et Services accompagne vos séjours à Marrakech : location d'appartements, conciergerie immobilière, chauffeur privé, transfert aéroport et services touristiques sur mesure.",
+    "Yakout Conciergerie et Services accompagne vos séjours à Marrakech : location d'appartements, conciergerie immobilière, transport privé, transfert aéroport et services touristiques sur mesure.",
 };

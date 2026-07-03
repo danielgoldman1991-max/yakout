@@ -22,12 +22,16 @@ export type BlogPost = {
   excerpt: string;
   content: string;
   category: string;
-  status: "draft" | "published";
+  status: "draft" | "published" | "archived";
   published_at?: string;
   cover_image_url?: string;
   cover_image_alt?: string;
   meta_title?: string;
   meta_description?: string;
+  author?: string;
+  keywords?: string[];
+  created_at: string;
+  updated_at: string;
 };
 
 export type PublicService = {

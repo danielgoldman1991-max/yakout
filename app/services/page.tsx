@@ -8,8 +8,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { PremiumButton } from "@/components/ui/premium-button";
 
 export const metadata: Metadata = {
-  title: "Services de conciergerie, séjour et chauffeur privé à Marrakech",
-  description: "Découvrez tous les services Yakout à Marrakech : location d'appartements premium, conciergerie propriétaire, chauffeur privé, transfert aéroport, véhicules partenaires et services touristiques sur mesure.",
+  title: "Services de conciergerie, sejour et transport prive a Marrakech",
+  description: "Decouvrez les services Yakout a Marrakech : appartements premium, conciergerie proprietaire, transport prive, transfert aeroport, vehicule adapte avec chauffeur et services touristiques sur mesure.",
 };
 
 const services = [
@@ -27,21 +27,21 @@ const services = [
   },
   {
     icon: Car,
-    title: "Chauffeur privé",
-    desc: "Skoda Kodiaq avec chauffeur professionnel à Marrakech. Trajets privés, excursions et mise à disposition en toute discrétion.",
-    cta: { href: "/contact?type=chauffeur", label: "Réserver un trajet", type: "internal" as const },
+    title: "Transport prive",
+    desc: "Vehicule avec chauffeur professionnel a Marrakech : berline confort, SUV premium, 4x4 de luxe ou van touristique selon votre besoin.",
+    cta: { href: "/contact?type=transport", label: "Demander un transport", type: "internal" as const },
   },
   {
     icon: Plane,
     title: "Transfert aéroport Marrakech",
     desc: "Accueil personnalisé à l&apos;aéroport Marrakech Menara avec panneau nominatif et prise en charge jusqu&apos;à votre hébergement.",
-    cta: { href: "/contact?type=chauffeur", label: "Réserver un transfert", type: "internal" as const },
+    cta: { href: "/contact?type=transport", label: "Reserver un transfert", type: "internal" as const },
   },
   {
     icon: Car,
-    title: "Véhicules partenaires",
-    desc: "Une sélection de véhicules supplémentaires disponibles sur demande pour répondre à tous vos besoins de mobilité à Marrakech.",
-    cta: { href: "/contact?type=vehicule", label: "Demander un véhicule", type: "internal" as const },
+    title: "Vehicule adapte avec chauffeur",
+    desc: "Yakout propose la categorie de vehicule adaptee au trajet, aux passagers et aux bagages : berline confort, SUV premium, 4x4 de luxe ou van touristique selon disponibilite.",
+    cta: { href: "/contact?type=transport", label: "Demander un transport", type: "internal" as const },
   },
   {
     icon: Star,
@@ -63,7 +63,7 @@ export default async function ServicesPage() {
             <div className="max-w-2xl">
               <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">Services</p>
               <h1 className="mt-5 font-display text-[clamp(1.8rem,5vw,3.8rem)] font-semibold leading-[1.05] tracking-tight text-foreground">
-                Services de conciergerie, séjour et chauffeur privé <span className="text-gold">à Marrakech</span>
+                Services de conciergerie, sejour et transport prive <span className="text-gold">a Marrakech</span>
               </h1>
               <p className="mt-6 max-w-xl text-[15px] leading-8 text-muted-foreground">
                 Une gamme complète de services premium pensés pour les voyageurs exigeants

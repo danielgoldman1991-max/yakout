@@ -1,11 +1,20 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getBlogPostById } from "@/lib/data";
-import { updateBlogPostAction, deleteBlogPostAction } from "@/lib/data/actions";
+import { updateBlogPostAction, deleteBlogPostAction, toggleBlogPostStatusAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
+import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
+import { BlogDeleteButton } from "@/components/dashboard/blog-delete-button";
+
+const statusOptions = [
+  { value: "draft", label: "Brouillon" },
+  { value: "published", label: "Publie" },
+  { value: "archived", label: "Archive" },
+];
 
 export default async function BlogPostEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,13 +23,26 @@ export default async function BlogPostEditPage({ params }: { params: Promise<{ i
 
   return (
     <div className="space-y-5">
-      <div>
-        <p className="text-sm text-muted-foreground">Dashboard / Blog / {post.title}</p>
-        <h1 className="mt-2 text-3xl font-semibold">{post.title}</h1>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Dashboard / Blog / {post.title}</p>
+          <h1 className="mt-2 text-3xl font-semibold">{post.title}</h1>
+        </div>
+        {post.status === "published" && (
+          <Link
+            href={`/blog/${post.slug}`}
+            target="_blank"
+            className="inline-flex h-10 items-center gap-2 rounded-sm border border-gold/30 bg-gold/5 px-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-gold transition hover:bg-gold hover:text-primary-foreground"
+          >
+            Voir sur le site
+          </Link>
+        )}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <Card>
+      <FormErrorBanner />
+
+      <div className="grid gap-5 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
           <CardHeader><CardTitle>Modifier l&apos;article</CardTitle></CardHeader>
           <CardContent>
             <form action={updateBlogPostAction.bind(null, id)} className="space-y-4">
@@ -42,10 +64,15 @@ export default async function BlogPostEditPage({ params }: { params: Promise<{ i
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Statut</label>
                   <select name="status" defaultValue={post.status} className="w-full rounded-md border bg-transparent px-3 py-2 text-sm">
-                    <option value="draft">Brouillon</option>
-                    <option value="published">Publie</option>
+                    {statusOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Auteur</label>
+                <Input name="author" defaultValue={post.author ?? ""} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Extrait *</label>
@@ -63,6 +90,7 @@ export default async function BlogPostEditPage({ params }: { params: Promise<{ i
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Contenu *</label>
                 <Textarea name="content" defaultValue={post.content} rows={8} required />
+                <p className="text-[11px] text-muted-foreground/60">Les paragraphes, listes numerotees et retours a la ligne seront conserves sur le site public.</p>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Date de publication</label>
@@ -88,10 +116,25 @@ export default async function BlogPostEditPage({ params }: { params: Promise<{ i
 
         <Card>
           <CardHeader><CardTitle>Actions</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <form action={deleteBlogPostAction.bind(null, id)}>
-              <Button type="submit" variant="danger" className="w-full">Supprimer cet article</Button>
-            </form>
+          <CardContent className="space-y-3">
+            {post.status !== "published" && (
+              <form action={toggleBlogPostStatusAction.bind(null, id, "published")}>
+                <Button type="submit" className="w-full">Publier</Button>
+              </form>
+            )}
+            {post.status !== "draft" && (
+              <form action={toggleBlogPostStatusAction.bind(null, id, "draft")}>
+                <Button type="submit" variant="secondary" className="w-full">Mettre en brouillon</Button>
+              </form>
+            )}
+            {post.status !== "archived" && (
+              <form action={toggleBlogPostStatusAction.bind(null, id, "archived")}>
+                <Button type="submit" variant="secondary" className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10">Archiver</Button>
+              </form>
+            )}
+            <div className="border-t border-border pt-3">
+              <BlogDeleteButton action={deleteBlogPostAction.bind(null, id)} variant="full" />
+            </div>
           </CardContent>
         </Card>
       </div>

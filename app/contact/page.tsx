@@ -4,14 +4,23 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
 import { LeadForm } from "@/components/public/lead-form";
+import { PackageBuilder } from "@/components/public/package-builder/package-builder";
 import { site } from "@/lib/constants/site";
 import {
   leadRequestTypes,
   leadTypeDescriptions,
+  leadTypeTitles,
+  leadFormHelps,
   leadTypeLabels,
-  leadTypePlaceholders,
   normalizeLeadRequestType,
 } from "@/lib/leads";
+import { getPublicApartments, getPublishedVehicles } from "@/lib/data";
+import { getPublishedPackages, getTransportTrips } from "@/lib/data/transport";
+import { fallbackPublicPackages } from "@/lib/packages/public-packages";
+import type { ApartmentSelection, VehicleSelection, ExperienceItem } from "@/components/public/package-builder/types";
+import type { Package } from "@/types/business";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Organiser votre demande avec Yakout",
@@ -21,11 +30,126 @@ export const metadata: Metadata = {
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; apartment?: string; vehicle?: string; service?: string; package?: string; basePackage?: string; mode?: string }>;
 }) {
-  const { type } = await searchParams;
+  const params = await searchParams;
+  const { type, apartment: apartmentSlug, vehicle: vehicleSlug, package: packageSlug, basePackage: basePackageSlug, mode } = params;
   const requestType = normalizeLeadRequestType(type);
   const typeMessage = leadTypeDescriptions[requestType];
+  const typeTitle = leadTypeTitles[requestType];
+  const typeHelp = leadFormHelps[requestType];
+
+  let entityName: string | undefined;
+  let relatedType: string | undefined;
+  let relatedSlug: string | undefined;
+  let selectedPackageContext: PackageContext | undefined;
+  let basePackageContext: PackageContext | undefined;
+
+  if (requestType === "reservation" && apartmentSlug) {
+    relatedType = "apartment";
+    relatedSlug = apartmentSlug;
+    const apartments = await getPublicApartments();
+    const match = apartments.find((a) => a.slug === apartmentSlug);
+    entityName = match?.public_name;
+  }
+
+  if ((requestType === "vehicule" || requestType === "transport") && vehicleSlug) {
+    relatedType = "vehicle";
+    relatedSlug = vehicleSlug;
+    const vehicles = await getPublishedVehicles();
+    const match = vehicles.find((v) => v.slug === vehicleSlug);
+    entityName = match?.public_name;
+  }
+
+  if (requestType === "package" && packageSlug) {
+    relatedType = "package";
+    relatedSlug = packageSlug;
+    const packages = await getPublishedPackages();
+    const match = packages.find((pack) => pack.slug === packageSlug) ?? fallbackPublicPackages.find((pack) => pack.slug === packageSlug);
+    entityName = match?.public_title ?? match?.title;
+    if (match) selectedPackageContext = toPackageContext(match);
+  }
+
+  if (requestType === "package" && basePackageSlug) {
+    const packages = await getPublishedPackages();
+    const match = packages.find((pack) => pack.slug === basePackageSlug) ?? fallbackPublicPackages.find((pack) => pack.slug === basePackageSlug);
+    if (match) {
+      basePackageContext = toPackageContext(match);
+      entityName = entityName ?? match.public_title ?? match.title;
+    }
+  }
+
+  const apartments = requestType === "reservation" ? await getPublicApartments() : [];
+  const vehicles = requestType === "vehicule" || requestType === "transport" ? await getPublishedVehicles() : [];
+
+  // Load package builder data
+  let builderData: {
+    apartments: ApartmentSelection[];
+    vehicles: VehicleSelection[];
+    experiences: ExperienceItem[];
+  } | null = null;
+
+  if (requestType === "package") {
+    const [apts, vehs, trips] = await Promise.all([
+      getPublicApartments(),
+      getPublishedVehicles(),
+      getTransportTrips(),
+    ]);
+
+    builderData = {
+      apartments: apts.map((a) => ({
+        id: a.id,
+        slug: a.slug,
+        title: a.public_name,
+        district: a.public_district ?? a.district ?? "",
+        capacity: a.capacity,
+        bedrooms: a.bedrooms,
+        pricePerNight: a.price_per_night ?? a.price_from ?? 0,
+        imageUrl: a.image_url,
+      })),
+      vehicles: vehs.map((v) => ({
+        id: v.id,
+        slug: v.slug,
+        title: v.public_name,
+        capacity: v.capacity,
+        priceTransfer: v.price_transfer ?? v.price_from ?? 250,
+        priceHalfDay: v.price_half_day ?? v.price_from ?? 500,
+        priceFullDay: v.price_full_day ?? v.price_from ?? 800,
+        imageUrl: v.image_url,
+      })),
+      experiences: trips
+        .filter((t) => t.trip_type === "excursion" || t.trip_type === "experience" || t.trip_type === "circuit" || !t.trip_type)
+        .map((t) => ({
+          id: t.id,
+          title: t.title ?? t.destination ?? "Circuit",
+          slug: t.id,
+          destination: t.destination_label ?? t.destination ?? "",
+          durationLabel: t.trip_time
+            ? `${t.trip_time}${t.end_time ? ` - ${t.end_time}` : ""}`
+            : "",
+          price: Number(t.sold_price ?? t.amount ?? 0),
+          imageUrl: undefined,
+          date: t.trip_date ?? "",
+          people: t.passengers_count ?? 2,
+        })),
+    };
+  }
+
+  // If package builder, render immersive experience
+  if (requestType === "package" && builderData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <WhatsAppFloatingButton />
+        <main className="pt-[80px]">
+          {/* Premium hero */}
+
+          <PackageBuilder data={builderData} selectedPackage={selectedPackageContext} basePackage={basePackageContext} mode={normalizePackageMode(mode, selectedPackageContext, basePackageContext)} />
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,14 +172,18 @@ export default async function ContactPage({
           <div className="grid gap-12 lg:grid-cols-[1fr_420px]">
             <div>
               <div className="rounded-sm border border-border bg-card p-8 shadow-elevation-1">
-                <p className="text-sm font-medium text-foreground">Envoyez-nous un message</p>
-                <p className="mt-1 text-xs text-muted-foreground">Remplissez ce formulaire et nous vous répondons sous 24h.</p>
-                <p className="mt-4 flex items-center gap-2 rounded-sm border border-gold/10 bg-gold/5 px-4 py-2 text-[11px] font-medium text-gold">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gold/20 text-[9px]">i</span>
-                  Type de demande&thinsp;: <strong>{leadTypeLabels[requestType]}</strong>
-                </p>
+                <p className="text-sm font-medium text-foreground">{typeTitle}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{typeHelp}</p>
                 <div className="mt-6">
-                  <LeadForm requestType={requestType} source="contact_form" messagePlaceholder={leadTypePlaceholders[requestType]} />
+                  <LeadForm
+                    requestType={requestType}
+                    source="contact_form"
+                    relatedType={relatedType}
+                    relatedSlug={relatedSlug}
+                    entityName={entityName}
+                    apartments={apartments.map((a) => ({ id: a.id, slug: a.slug, public_name: a.public_name }))}
+                    vehicles={vehicles.map((v) => ({ id: v.id, slug: v.slug, public_name: v.public_name }))}
+                  />
                 </div>
               </div>
             </div>
@@ -145,4 +273,48 @@ export default async function ContactPage({
       <SiteFooter />
     </div>
   );
+}
+
+type PackageContext = {
+  slug: string;
+  title: string;
+  shortDescription?: string;
+  durationLabel?: string;
+  idealFor?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  priceFrom?: number | null;
+  items: Array<{
+    id: string;
+    title: string;
+    description?: string;
+    priceAmount?: number | null;
+    isOptional?: boolean;
+  }>;
+};
+
+function toPackageContext(pack: Package): PackageContext {
+  return {
+    slug: pack.slug,
+    title: pack.public_title ?? pack.title,
+    shortDescription: pack.short_description,
+    durationLabel: pack.duration_label,
+    imageUrl: pack.image_url,
+    imageAlt: pack.image_alt_text,
+    priceFrom: pack.price_from,
+    items: pack.package_items?.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      priceAmount: item.price_amount,
+      isOptional: item.is_optional,
+    })) ?? [],
+  };
+}
+
+function normalizePackageMode(mode: string | undefined, selectedPackage?: PackageContext, basePackage?: PackageContext) {
+  if (selectedPackage) return "order" as const;
+  if (basePackage) return "customize" as const;
+  if (mode === "order" || mode === "customize") return mode;
+  return "custom" as const;
 }
