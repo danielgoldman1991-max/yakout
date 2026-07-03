@@ -42,8 +42,8 @@ export function PackagesExperience({ packages, isFallback = false }: Props) {
     <>
       <section className="relative overflow-hidden border-b border-border/60">
         <div className="absolute inset-0">
-          <Image src="/images/yakout/yakout-brand-moroccan-bg-v2.webp" alt="" fill priority sizes="100vw" className="object-cover opacity-35" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(123,0,28,0.22),transparent_30%),linear-gradient(120deg,rgba(26,20,16,0.96),rgba(34,28,22,0.86)_52%,rgba(26,20,16,0.98))]" />
+          <Image src="/images/yakout/yakout-brand-moroccan-bg-v2.webp" alt="" fill priority sizes="100vw" className="object-cover opacity-55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/55" />
         </div>
 
         <div className="container relative mx-auto grid min-h-[calc(100vh-80px)] gap-10 px-4 py-12 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
@@ -52,7 +52,7 @@ export function PackagesExperience({ packages, isFallback = false }: Props) {
               <Sparkles className="h-3.5 w-3.5" />
               Sejours prives a Marrakech
             </div>
-            <h1 className="mt-6 font-display text-[clamp(2.4rem,7vw,5.7rem)] font-semibold leading-[0.98] tracking-tight">
+            <h1 className="mt-6 font-display text-[clamp(2.4rem,7vw,5.7rem)] font-semibold leading-[0.98] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
               Composez votre sejour a Marrakech avec Yakout
             </h1>
             <p className="mt-6 max-w-2xl text-[15px] leading-8 text-muted-foreground sm:text-base">

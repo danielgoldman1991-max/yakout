@@ -27,6 +27,8 @@
   --ruby-dark: #5c0014;
   --success: #22c55e;
   --warning: #f59e0b;
+  --popover: #2a221c;
+  --popover-foreground: #f8f5ef;
 
   /* Depth & elevation */
   --shadow-elevation-1: 0 1px 2px 0 rgba(0,0,0,0.50), 0 1px 1px 0 rgba(0,0,0,0.25);
@@ -75,6 +77,8 @@
   --ruby-dark: #5c0014;
   --success: #16a34a;
   --warning: #d97706;
+  --popover: #ffffff;
+  --popover-foreground: #18110b;
 
   /* Depth & elevation */
   --shadow-elevation-1: 0 1px 2px 0 rgba(24,17,11,0.06), 0 1px 1px 0 rgba(24,17,11,0.03);
@@ -121,6 +125,8 @@
   --color-ruby-dark: var(--ruby-dark);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
   /* Legacy tokens */
   --color-ink: var(--ink);

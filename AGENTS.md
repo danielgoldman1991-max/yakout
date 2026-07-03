@@ -1,57 +1,76 @@
 <!--
 ## Goal
-Améliorer le rendu du contenu blog (paragraphes/listes), personnaliser les formulaires de demande par type, réorganiser le menu dashboard par familles métier, et créer les modules Finance & Documents opérationnels avec upload réel, bucket privé et workflow propriétaire.
+Global audit et refonte UX/UI complète de l'écosystème Yakout : sites public + dashboard, cohérence dark/light, responsive, formulaires, SEO, accessibilité, performance.
 
 ## Constraints & Preferences
-- Blog : contenu stocké en `\n` brut, rendu via `dangerouslySetInnerHTML` → créer un renderer qui convertit `\n\n` en `<p>`, listes `1.`/`-` en `<ol>`/`<ul>`, sécurisé par `sanitizeHtml`.
-- Leads : formulaire `/contact` unique centralisé → `/api/leads` → Supabase `leads`. Mais formulaire dynamique selon `request_type` avec champs spécifiques stockés dans `metadata jsonb`.
-- Dashboard nav : remplacer le menu plat par 9 groupes métier.
-- Documents upload : vrai upload fichier (PDF, Word, Excel, CSV, images) avec drag & drop, validation client (10Mo max, formats autorisés), upload server action vers bucket `yakout-private` privé, signed URLs pour accès, lien aux entités métier.
-- Documents sécurité : bucket privé `yakout-private`, signed URLs 10min, pas de service role côté client, RLS storage pour authenticated + rôle admin/manager/staff.
-- Propriétaires & Biens confiés : module complet avec table `owners`, extension `apartments`, tables support (`maintenance_tasks`, `owner_statements`, `owner_payouts`), lead proprietaire → owner → bien confié → contrat → publication → réservations → recettes → dépenses → maintenance → rapport → reversement.
-- Aucune modification des pages publiques, auth, design global hors sidebar dashboard.
+- Aucun `select("*")` sur les routes publiques — colonnes restreintes uniquement.
+- Aucun champ privé exposé en public (`owner_id`, `address_private`, `wifi_password`, `access_instructions`, `internal_notes`, `commission_rate`, `cost_amount`, `rib`, `bank_name`).
+- Aucun `SERVICE_ROLE` dans le code client, aucune donnée mock, aucun faux témoignage/statistique, aucun `href="#"`, aucun `TODO`.
+- Utilisation de vrais caractères UTF-8 (pas d'entités HTML comme `&apos;` / `&thinsp;`).
+- Palette Yakout Moroccan Ruby Hospitality : or, rubis, espresso, ivoire, sable — premium, lisible.
+- Travail par passes : PASS 1 audit → LOT 1 corrections critiques → LOT 2 design system → LOT 3 pages → LOT 4 dashboard → LOT 5–7 tests/report.
+- Build validé après chaque lot.
 
 ## Progress
-### Done
-- **Blog renderer** : `components/blog/blog-content-renderer.tsx` — conversion texte→HTML sécurisé, rendu dans `app/blog/[slug]/page.tsx`.
-- **Formulaire leads dynamique** : `components/public/lead-form.tsx` réécrit — 6 types (réservation, chauffeur, véhicule, propriétaire, services, général) avec sections spécifiques, soumission POST `/api/leads`, metadata dans `metadata jsonb`. CTA mise à jour dans `app/apartments/[slug]/page.tsx` et `app/vehicles/[slug]/page.tsx`.
-- **Dashboard nav groupée** : `lib/constants/app.ts` → 9 groupes typés avec `DashboardNavGroup`. `components/layout/dashboard-layout.tsx` réécrit — rendu groupé via `NavGroup`, modules futurs désactivés avec badge "À venir", mobile drawer, active state gold.
-- **Payments CRUD** : 3 pages (`/dashboard/payments` liste/KPI, `/new` formulaire, `/[id]` détail) — statuts, badges, sélecteurs client/méthode/activité.
-- **Expenses CRUD** : 3 pages (`/dashboard/expenses` liste/KPI, `/new`, `/[id]`) — catégories, badges, sélecteurs appartement/véhicule/partenaire.
-- **Documents upload réel** : `lib/storage.ts` (upload/signed URL/delete bucket privé), `components/dashboard/document-upload-field.tsx` (drag & drop + validation + preview), 3 pages rewrite (`/dashboard/documents` KPI+9 filtres+signed URLs, `/new` upload réel, `/[id]` signed URLs+remplacement). `lib/data/actions.ts` modifié (upload rollback, cleanup on delete). `next.config.ts` → `serverActions.bodySizeLimit: "10mb"`.
-- **PostgrestError logging fix** : `lib/data/index.ts` → `logSupabaseError()` extrait `message`/`details`/`hint`/`code` explicitement contournant non-enumerabilité de `Error.message`.
-- **Lead metadata display** : `components/dashboard/lead-metadata-display.tsx` → affichage lisible metadata par type (labels FR, formatage dates/valeurs booléennes) intégré dans `app/dashboard/leads/[id]/page.tsx`.
-- **SQL migrations** : 4 migrations créées (`20260701_leads_metadata`, `20260701_finance_documents`, `20260701_documents_storage`, `20260701_owners_module`).
-- **Owners module types** : `Owner`, `MaintenanceTask`, `OwnerStatement`, `OwnerPayout` types ajoutés à `types/business.ts`. `owner_id` ajouté à `Lead` type.
-- **Owners data layer** : `lib/data/owners.ts` — CRUD owners, owner properties/documents/finances, maintenance tasks, statements & payouts, lead conversion (`convertLeadToOwner`), KPIs (`getOwnersKpi`).
-- **Owners server actions** : `lib/data/owner-actions.ts` — `createOwnerAction`, `updateOwnerAction`, `updateOwnerStatusAction` (pipeline), `deleteOwnerAction`, `convertLeadToOwnerAction`, `createPropertyFromOwnerAction`, `createMaintenanceTaskAction`.
-- **Owners pages** : `/dashboard/owners` (liste avec 4 KPIs, 6 filtres pipeline, search, table avec WhatsApp), `/dashboard/owners/[id]` (360° vue: header + infos + pipeline selector + biens + finances + documents + réservations + notes + danger zone delete).
-- **Lead→Owner conversion** : `app/dashboard/leads/[id]/page.tsx` → bouton "Convertir en propriétaire" pour `request_type=proprietaire`, lien vers `/dashboard/owners/[id]` si déjà converti.
-- Build: 0 errors, 50 pages, lint 1 warning (intentional `<img>` blob URL preview).
+### Done (pre-session)
+- **Blog renderer** : `components/blog/blog-content-renderer.tsx` — conversion texte→HTML sécurisé.
+- **Formulaire leads dynamique** : `components/public/lead-form.tsx` — 6 types avec sections spécifiques, metadata jsonb.
+- **Dashboard nav groupée** : 9 groupes métier, modules futurs désactivés, active state gold.
+- **Payments CRUD** : 3 pages (`/dashboard/payments`) — liste, form, détail.
+- **Expenses CRUD** : 3 pages (`/dashboard/expenses`) — liste, form, détail.
+- **Documents upload réel** : bucket privé `yakout-private`, drag & drop, validation, signed URLs 10min.
+- **Owners module** : types, data layer, server actions, pages 360°, lead→owner conversion.
+- **SQL migrations** : 4 migrations créées (non exécutées).
+- **PostgrestError fix** : extraction explicite des props `Error.message` (non-enumerable).
 
-### Not Done / Blocked
+### Done (this session)
+- **PASS 1 — Audit complet** : grep sur `select(*)`, données privées, SERVICE_ROLE, bg-white/text-black hardcodés, TODO, entités HTML, localhost, text-[9px]/[10px]. Résultats : 0 fuite sécurité, ~40 entités HTML, text sizes incohérents.
+- **LOT 1 — Corrections critiques appliquées** (build 57 pages, 0 errors, 0 lint) :
+  - Header nav : "Transport prive" → "Transport privé", "Packs & Sejours" → "Packs & Séjours", `text-[10px]` → `text-[13px]`.
+  - Footer : restructuré 4 colonnes (Découvrir / Propriétaires / Yakout / Contact). "Reponse rapide" → "Réponse rapide". "Tous droits reserves" → "Tous droits réservés". "Espace Maria" → "Accès professionnel" → `/login`. Réseaux factices supprimés.
+  - `lib/constants/site.ts` : meta title "Chauffeur Privé" → "transport privé". Hero text "chauffeur privé" → "transport privé".
+  - `app/page.tsx` : réécriture complète — hero texte spec, 6 sections, UTF-8 réel, imports harmonisés.
+  - `components/ui/select.tsx` : shadcn Radix Select créé. `ApartmentSearchBar` + `ApartmentFiltersDrawer` convertis.
+  - Globals.css : overrides select/option natifs + `@keyframes fade-out-up`.
+  - ESLint : 2 erreurs fixées (unescaped entities, unused imports).
+  - Dark mode : sélecteurs shadcn + CSS `color-scheme:dark` fonctionnels.
+- **Packages hero overlay** : `bg-black/70` remplacé par `bg-gradient-to-b from-black/20 via-black/35 to-black/55`, image passée à `opacity-55`, titre avec `drop-shadow` pour lisibilité.
+
+### In Progress
+- LOT 2 — Consolidation design system (design tokens, shadcn Dialog/Command/Popover, boutons/cards standardisés).
+
+### Blocked
 - Migrations SQL non exécutées (pas d'accès Supabase Dashboard).
-- Migration CRM 360 (`20260629_clients_crm_360.sql`) non exécutée.
 
 ## Key Decisions
-- **Blog renderer** : conversion texte→HTML plutôt que `white-space:pre-line` pour support listes sémantiques.
-- **Formulaire leads** : champs spécifiques dans `metadata jsonb`, soumission via POST `/api/leads` (pas action server).
-- **Document upload** : upload dans server action (pas avant soumission) pour éviter fichiers orphelins, rollback si DB échoue. Bucket privé `yakout-private` distinct.
-- **Signed URLs** : générées côté serveur via `createSupabaseAdminClient()`, durée 10min.
-- **Logger limitation** : `Error.message` non-enumerable, le spread ne le capture pas. Solution : extraction explicite des propriétés.
-- **Propriétaires** : table `owners` dédiée (pas `partners`). Bien confié = `apartments` avec `owner_id` + `management_status` (prospect→published→active→paused).
-- **Dashboard nav** : modules futurs intégrés avec `disabled: true`.
+- `localhost:3000` fallback conservé dans `robots.ts`, `sitemap.ts` — contrôlé par `NEXT_PUBLIC_SITE_URL` en production.
+- Ancien `components/public/apartment-card.tsx` non supprimé immédiatement — stabilité après changement d'import.
+- LOT 1 prioritaire avant refonte visuelle (comme demandé).
+- Overlay hero packages : gradient simple `black/20→35→55` + drop-shadow titre plutôt que le complexe radial+linéaire à 86-98% d'opacité.
 
 ## Next Steps
-1. Exécuter toutes les migrations SQL dans Supabase SQL Editor.
-2. Tester upload documents, soumission leads (6 types), CRUD propriétaires.
-3. `npm run dev` + test local avant push Vercel.
+1. LOT 2 — Consolider design system : tokens CSS, shadcn Dialog/Command/Popover, standardiser boutons/cards/layout.
+2. LOT 3 — Pages prioritaires : transport, services, contact, blog, créer `/proprietaires`.
+3. LOT 4 — Dashboard UX : sidebar labels, tableaux adaptatifs, fiches 360°, zone dangereuse séparée.
+4. LOT 5–7 — Tests responsive (360–1920px), accessibilité (WCAG AA), SEO, Lighthouse, rapport final.
+5. Exécuter migrations SQL dans Supabase SQL Editor.
 
 ## Critical Context
-- `Error.message` est non-enumerable en JavaScript. Le spread `...data` dans `logger.ts` ne capture pas `message`. Solution : extraction explicite des props.
-- Bucket `yakout-private` privé, signed URLs 10min.
-- `insertWithCompany()` = admin client + `getCurrentCompanyId()` → bypass RLS.
+- `Error.message` non-enumerable → extraction explicite des props dans logger.
+- Bucket `yakout-private` privé, signed URLs 10min, `insertWithCompany()` bypass RLS.
 - `desired_date` dans `leadSchema` : preprocess vide→undefined.
+- `schema.sql` n'a PAS `public_status` — migration `20260702_apartments_business_module.sql` non exécutée. Fallback `is_published`.
+- SEO localhost contrôlé par `NEXT_PUBLIC_SITE_URL` — définir sur Vercel pour prod.
+- Dark mode select fix en place : shadcn Select + `color-scheme:dark` sur `<html>` + classes document.
+
+## Relevant Files
+- `components/public/packages/packages-experience.tsx` : hero overlay corrigé.
+- `components/layout/site-header.tsx` : nav 13px, accents, CTA gold "Confier mon bien".
+- `components/layout/site-footer.tsx` : 4 colonnes, accents, pas "Espace Maria".
+- `lib/constants/site.ts` : meta/hero sans "Chauffeur Privé".
+- `app/page.tsx` : réécrit 6 sections, UTF-8, hero spec.
+- `components/ui/select.tsx` : créé, shadcn Select.
+- `app/globals.css` : select overrides + keyframes.
 -->
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
