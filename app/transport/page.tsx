@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, Briefcase, Bus, Car, Clock, Compass, MapPin, MessageCircle, Plane, Route, Shield, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Car, Clock, Compass, MapPin, MessageCircle, Plane, Route, Sparkles, Users } from "lucide-react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
@@ -23,14 +23,6 @@ const needs = [
   { icon: Route, title: "Circuit prive", desc: "Agafay, Ourika, Essaouira, Ouzoud, Imlil ou city tour avec organisation transport." },
   { icon: Users, title: "Famille ou groupe", desc: "Solution adaptee aux passagers, aux bagages et au niveau de confort souhaite." },
   { icon: Sparkles, title: "Vehicule premium", desc: "SUV premium, 4x4 de luxe ou van touristique sur demande et selon disponibilite." },
-];
-
-const categories = [
-  { title: "Berline confort", desc: "Transferts simples, rendez-vous et trajets courts en ville.", icon: Car },
-  { title: "SUV / 4x4 premium", desc: "Familles, circuits, Agafay, Ourika et deplacements confortables.", icon: Shield },
-  { title: "Van touristique", desc: "Groupes, familles nombreuses, bagages et circuits prives, type Mercedes Vito ou equivalent.", icon: Bus },
-  { title: "Vehicule familial", desc: "Solution pratique pour sejour avec enfants, bagages et horaires multiples.", icon: Users },
-  { title: "Partenaire sur mesure", desc: "Vehicule partenaire adapte selon capacite, disponibilite et confort souhaite.", icon: Briefcase },
 ];
 
 const circuits = ["Agafay", "Ourika", "Essaouira", "Ouzoud", "Imlil", "Marrakech city tour"];
@@ -99,17 +91,14 @@ export default function TransportPage() {
           </div>
         </section>
 
-        <TransportVehiclesSection />
-
         <section className="border-b border-border bg-surface">
           <div className="container mx-auto px-6 py-20 md:px-12 md:py-24">
-            <SectionHeader label="Categories disponibles" title="Types de vehicules disponibles" description="Selon disponibilite, nombre de passagers, bagages et niveau de confort souhaite." />
-            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {categories.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="rounded-sm border border-border bg-card p-5">
-                  <Icon className="h-5 w-5 text-gold" />
-                  <h3 className="mt-4 font-display text-sm text-foreground">{title}</h3>
-                  <p className="mt-2 text-xs leading-6 text-muted-foreground">{desc}</p>
+            <SectionHeader label="Comment ca marche" title="Simple pour le client, coordonne par Yakout" />
+            <div className="mt-12 grid gap-4 md:grid-cols-4">
+              {steps.map((step, index) => (
+                <div key={step} className="rounded-sm border border-border bg-card p-6">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">{String(index + 1).padStart(2, "0")}</p>
+                  <p className="mt-5 text-sm font-medium leading-6 text-foreground">{step}</p>
                 </div>
               ))}
             </div>
@@ -137,19 +126,7 @@ export default function TransportPage() {
           </div>
         </section>
 
-        <section className="border-b border-border bg-surface">
-          <div className="container mx-auto px-6 py-20 md:px-12 md:py-24">
-            <SectionHeader label="Comment ca marche" title="Simple pour le client, coordonne par Yakout" />
-            <div className="mt-12 grid gap-4 md:grid-cols-4">
-              {steps.map((step, index) => (
-                <div key={step} className="rounded-sm border border-border bg-card p-6">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">{String(index + 1).padStart(2, "0")}</p>
-                  <p className="mt-5 text-sm font-medium leading-6 text-foreground">{step}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <TransportVehiclesSection />
 
         <section className="bg-background">
           <div className="container mx-auto px-6 py-20 text-center md:px-12 md:py-24">

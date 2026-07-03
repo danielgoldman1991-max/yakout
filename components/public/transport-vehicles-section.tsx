@@ -1,16 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Briefcase, Car, HelpCircle, Shield, Users } from "lucide-react";
+import { ArrowRight, Briefcase, Bus, Car, HelpCircle, Shield, Users } from "lucide-react";
 import { SectionHeader } from "@/components/ui/section-header";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { fallbackImages } from "@/lib/images";
 import { formatCurrency } from "@/lib/formatters";
-import { getPublicTransportVehicles, type PublicVehicle } from "@/lib/data/public-vehicles";
+import { getPublicVehicles, type PublicVehicle } from "@/lib/data/public-vehicles";
 
 export async function TransportVehiclesSection() {
-  const vehicles = await getPublicTransportVehicles();
-
-  if (vehicles.length === 0) return null;
+  const vehicles = await getPublicVehicles();
 
   return (
     <section className="border-b border-border bg-surface">
@@ -20,11 +18,38 @@ export async function TransportVehiclesSection() {
           title="Des vehicules adaptes a chaque deplacement"
           description="Selon votre trajet, le nombre de passagers et vos bagages, Yakout vous propose le vehicule le plus adapte : berline confort, SUV premium, 4x4 de luxe ou van touristique type Mercedes Vito selon disponibilite."
         />
-        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {vehicles.map((vehicle) => (
-            <VehicleShowcaseCard key={vehicle.id} vehicle={vehicle} />
-          ))}
-        </div>
+
+        {vehicles.length > 0 ? (
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {vehicles.map((vehicle) => (
+              <VehicleShowcaseCard key={vehicle.id} vehicle={vehicle} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <FallbackCard
+              title="Berline confort"
+              description="Ideale pour transferts simples, rendez-vous et trajets courts en ville."
+              capacity="3 places"
+              price="A partir de 250 MAD"
+              icon={Car}
+            />
+            <FallbackCard
+              title="SUV / 4x4 premium"
+              description="Ideale pour familles, circuits, Agafay, Ourika et deplacements confortables."
+              capacity="6 places"
+              price="A partir de 350 MAD"
+              icon={Shield}
+            />
+            <FallbackCard
+              title="Van touristique"
+              description="Ideal pour groupes, familles nombreuses, bagages et circuits prives."
+              capacity="8 places"
+              price="A partir de 600 MAD"
+              icon={Bus}
+            />
+          </div>
+        )}
 
         <div className="mx-auto mt-16 max-w-2xl rounded-sm border border-gold/20 bg-gold/5 p-8 text-center">
           <HelpCircle className="mx-auto h-8 w-8 text-gold" />
@@ -50,6 +75,49 @@ export async function TransportVehiclesSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+function FallbackCard({
+  title,
+  description,
+  capacity,
+  price,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  capacity: string;
+  price: string;
+  icon: React.ElementType;
+}) {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-sm border border-border bg-card opacity-80">
+      <div className="relative flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-gold/5 to-gold/10">
+        <Icon className="h-16 w-16 text-gold/30" />
+      </div>
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-display text-lg text-foreground">{title}</h3>
+        <div className="mt-3 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5 text-gold" />
+            {capacity}
+          </span>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground line-clamp-2">{description}</p>
+        <div className="mt-auto border-t border-border pt-4">
+          <p className="text-lg font-light text-gold">{price}</p>
+        </div>
+        <div className="mt-4">
+          <Link
+            href="/contact?type=transport"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-sm bg-gold px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-gold-foreground transition hover:bg-gold/90"
+          >
+            Demander un transport prive <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 

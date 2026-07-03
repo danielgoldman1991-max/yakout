@@ -4,6 +4,7 @@ import { logger } from "@/lib/utils/logger";
 export type PublicVehicle = {
   id: string;
   display_name: string;
+  public_name: string | null;
   slug: string;
   category: string | null;
   vehicle_type: string | null;
@@ -17,6 +18,8 @@ export type PublicVehicle = {
   description: string | null;
   use_cases: string[] | null;
   amenities: string[] | null;
+  image_url: string | null;
+  image_alt_text: string | null;
   cover_image: string | null;
   cover_alt: string | null;
   public_status: string | null;
@@ -51,6 +54,57 @@ type PublicVehicleRow = {
   }> | null;
 };
 
+const publicVehicleSelect = `
+  id,
+  public_name,
+  public_title,
+  slug,
+  category,
+  vehicle_type,
+  capacity,
+  luggage_capacity,
+  price_from,
+  price_transfer,
+  currency,
+  with_driver,
+  short_description,
+  description,
+  use_cases,
+  amenities,
+  image_url,
+  image_alt_text,
+  public_status,
+  vehicle_images (
+    url,
+    image_url,
+    image_alt_text,
+    is_cover,
+    sort_order
+  )
+`;
+
+const publicVehicleSelectFlat = `
+  id,
+  public_name,
+  public_title,
+  slug,
+  category,
+  vehicle_type,
+  capacity,
+  luggage_capacity,
+  price_from,
+  price_transfer,
+  currency,
+  with_driver,
+  short_description,
+  description,
+  use_cases,
+  amenities,
+  image_url,
+  image_alt_text,
+  public_status
+`;
+
 function normalizePublicVehicle(row: PublicVehicleRow): PublicVehicle {
   const images = (row.vehicle_images ?? [])
     .map((img) => ({
@@ -70,6 +124,7 @@ function normalizePublicVehicle(row: PublicVehicleRow): PublicVehicle {
   return {
     id: row.id,
     display_name: row.public_title ?? row.public_name ?? "Vehicule",
+    public_name: row.public_name ?? null,
     slug: row.slug,
     category: row.category ?? null,
     vehicle_type: row.vehicle_type ?? null,
@@ -83,52 +138,50 @@ function normalizePublicVehicle(row: PublicVehicleRow): PublicVehicle {
     description: row.description ?? null,
     use_cases: row.use_cases ?? null,
     amenities: row.amenities ?? null,
+    image_url: coverImage,
+    image_alt_text: coverAlt,
     cover_image: coverImage,
     cover_alt: coverAlt,
     public_status: row.public_status ?? null,
   };
 }
 
-export async function getPublicTransportVehicles(): Promise<PublicVehicle[]> {
+export async function getPublicVehicles(): Promise<PublicVehicle[]> {
   const supabase = await createSupabaseServerClient();
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("vehicles")
-    .select(`
-      id,
-      public_name,
-      public_title,
-      slug,
-      category,
-      vehicle_type,
-      capacity,
-      luggage_capacity,
-      price_from,
-      price_transfer,
-      currency,
-      with_driver,
-      short_description,
-      description,
-      use_cases,
-      amenities,
-      image_url,
-      image_alt_text,
-      public_status,
-      vehicle_images (
-        url,
-        image_url,
-        image_alt_text,
-        is_cover,
-        sort_order
-      )
-    `)
+    .select(publicVehicleSelect)
     .eq("public_status", "published")
     .order("created_at", { ascending: false });
 
+  if (error || !data || data.length === 0) {
+    const fallback = await supabase
+      .from("vehicles")
+      .select(publicVehicleSelect)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false });
+    data = fallback.data;
+    error = fallback.error;
+  }
+
   if (error) {
-    logger.warn("getPublicTransportVehicles failed", { message: error.message, details: error.details });
-    return [];
+    const { data: flatData, error: flatError } = await supabase
+      .from("vehicles")
+      .select(publicVehicleSelectFlat)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false });
+
+    if (flatError) {
+      logger.warn("getPublicVehicles failed completely", { message: flatError.message, details: flatError.details });
+      return [];
+    }
+    return (flatData ?? []).map((row) => normalizePublicVehicle({ ...row as PublicVehicleRow, vehicle_images: null }));
   }
 
   return ((data ?? []) as PublicVehicleRow[]).map(normalizePublicVehicle);
+}
+
+export async function getPublicTransportVehicles(): Promise<PublicVehicle[]> {
+  return getPublicVehicles();
 }
