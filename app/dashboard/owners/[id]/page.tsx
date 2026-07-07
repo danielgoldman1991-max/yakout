@@ -393,14 +393,13 @@ export default async function OwnerDetailPage({
                       <td className="py-2 pr-4">{formatCurrency(reservation.total_amount)}</td>
                       <td className="py-2">
                         <Badge tone={
-                          reservation.reservation_status?.toLowerCase().includes("confirme") ||
-                          reservation.reservation_status?.toLowerCase().includes("paye")
+                          ["confirmed", "checked_in", "checked_out"].includes(reservation.status)
                             ? "success"
-                            : reservation.reservation_status?.toLowerCase().includes("annule")
+                            : ["cancelled", "no_show"].includes(reservation.status)
                               ? "ruby"
                               : "warning"
                         }>
-                          {reservation.reservation_status}
+                          {reservation.status}
                         </Badge>
                       </td>
                     </tr>

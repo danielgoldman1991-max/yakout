@@ -1,0 +1,405 @@
+# Yakout Full Site Audit
+
+Production audit: https://yakout-three.vercel.app
+Generated: 2026-07-07T10:27:28.237Z
+
+## Routes testées
+- /
+- /apartments
+- /transport
+- /vehicles
+- /packages
+- /services
+- /blog
+- /contact
+- /contact?type=reservation
+- /contact?type=transport
+- /contact?type=package
+- /contact?type=proprietaire
+- /proprietaires
+- /login
+- /apartments/appartement-confort-targa
+- /packages/essentiel-arrivee
+- /blog/marrakech-yakout
+- /vehicles/toyota-land-cruiser-excursion
+
+## Routes réussies
+- /
+- /apartments
+- /transport
+- /vehicles
+- /packages
+- /services
+- /blog
+- /contact
+- /contact?type=reservation
+- /contact?type=transport
+- /contact?type=package
+- /contact?type=proprietaire
+- /login
+- /apartments/appartement-confort-targa
+- /packages/essentiel-arrivee
+- /blog/marrakech-yakout
+- /vehicles/toyota-land-cruiser-excursion
+
+## Routes en erreur
+- /proprietaires
+
+## Liens cassés
+- Aucun.
+
+## Images cassées
+- / (768x1024/light) -> https://yakout-three.vercel.app/_next/image?url=%2Fimages%2Fyakout%2Fyakout-skoda-chauffeur.webp&w=384&q=75
+- / (768x1024/dark) -> https://yakout-three.vercel.app/_next/image?url=%2Fimages%2Fyakout%2Fyakout-skoda-chauffeur.webp&w=384&q=75
+
+## Erreurs console
+- / (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- / (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- / (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- / (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- / (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- / (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- / (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- / (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- / (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- / (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /apartments (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /transport (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /vehicles (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /packages (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /services (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /blog (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (390x844/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (390x844/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (768x1024/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (768x1024/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (1024x900/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (1024x900/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (1440x1000/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (1440x1000/dark) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (1920x1080/light) [pageerror] Cannot read properties of null (reading 'classList')
+- /contact (1920x1080/dark) [pageerror] Cannot read properties of null (reading 'classList')
+
+## Erreurs réseau
+- / (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=5CB68i4pnAekjehf
+- / (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=tXyZJ52UQVBCVsD3
+- / (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=tXyZJ52UQVBCVsD3
+- / (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=5CB68i4pnAekjehf
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=tXyZJ52UQVBCVsD3
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=tXyZJ52UQVBCVsD3
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=5CB68i4pnAekjehf
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=5CB68i4pnAekjehf
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=5CB68i4pnAekjehf
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=5CB68i4pnAekjehf
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=5CB68i4pnAekjehf
+- / (768x1024/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=5CB68i4pnAekjehf
+- / (768x1024/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (768x1024/dark) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (1024x900/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/light) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/light) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=5CB68i4pnAekjehf
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=tXyZJ52UQVBCVsD3
+- / (1024x900/dark) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/light) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=5CB68i4pnAekjehf
+- / (1440x1000/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/light) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/light) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/light) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=5CB68i4pnAekjehf
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=5CB68i4pnAekjehf
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=5CB68i4pnAekjehf
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=tXyZJ52UQVBCVsD3
+- / (1440x1000/dark) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (1920x1080/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=package&_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/light) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=5CB68i4pnAekjehf
+- / (1920x1080/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=tXyZJ52UQVBCVsD3
+- / (1920x1080/dark) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=tXyZJ52UQVBCVsD3
+- /apartments (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=vWH3rAcxoeBx-HoE
+- /apartments (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=vWH3rAcxoeBx-HoE
+- /apartments (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (390x844/light) net::ERR_ABORTED https://yakout-three.vercel.app/apartments?_rsc=0f9-wYOhmxIcok1-
+- /apartments (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/transport?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=vWH3rAcxoeBx-HoE
+- /apartments (390x844/dark) net::ERR_ABORTED https://yakout-three.vercel.app/blog?_rsc=vWH3rAcxoeBx-HoE
+- /apartments (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/contact?type=proprietaire&_rsc=SxU6M_xLrZpXmpwa
+- /apartments (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/apartments/appartement-confort-targa?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/apartments/terrasse-ourika-view?_rsc=SxU6M_xLrZpXmpwa
+- /apartments (768x1024/light) net::ERR_ABORTED https://yakout-three.vercel.app/?_rsc=SxU6M_xLrZpXmpwa
+
+## Problèmes SEO
+- / (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- / (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- / (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- / (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- / (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- / (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- / (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- / (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- / (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- / (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /apartments (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /transport (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /transport (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /transport (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /transport (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /transport (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /transport (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /transport (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /transport (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /transport (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /transport (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /vehicles (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /packages (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /packages (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /packages (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /packages (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /packages (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /packages (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /packages (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /packages (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /packages (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /packages (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /services (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /services (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /services (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /services (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /services (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /services (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /services (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /services (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /services (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /services (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /blog (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /blog (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /blog (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /blog (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /blog (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /blog (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /blog (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /blog (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /blog (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /blog (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+- /contact (390x844/light) title=true description=true canonical=false h1=1 localhost=true
+- /contact (390x844/dark) title=true description=true canonical=false h1=1 localhost=true
+- /contact (768x1024/light) title=true description=true canonical=false h1=1 localhost=true
+- /contact (768x1024/dark) title=true description=true canonical=false h1=1 localhost=true
+- /contact (1024x900/light) title=true description=true canonical=false h1=1 localhost=true
+- /contact (1024x900/dark) title=true description=true canonical=false h1=1 localhost=true
+- /contact (1440x1000/light) title=true description=true canonical=false h1=1 localhost=true
+- /contact (1440x1000/dark) title=true description=true canonical=false h1=1 localhost=true
+- /contact (1920x1080/light) title=true description=true canonical=false h1=1 localhost=true
+- /contact (1920x1080/dark) title=true description=true canonical=false h1=1 localhost=true
+
+## Problèmes responsive
+- /packages (390x844/light) WhatsApp chevauche "Packs"
+- /packages (390x844/dark) WhatsApp chevauche "Packs"
+- /contact?type=transport (1024x900/light) WhatsApp chevauche "Emailcontact@yakout.ma"
+- /contact?type=transport (1024x900/dark) WhatsApp chevauche "Emailcontact@yakout.ma"
+
+## Problèmes d'accessibilité
+- / (390x844/light) small-text: Targa
+- / (390x844/light) small-text: À partir de
+- / (390x844/light) small-text: Voir l'appartement
+- / (390x844/light) small-text: Demander ce logement
+- / (390x844/light) small-text: Route de l'Ourika
+- / (390x844/light) small-text: À partir de
+- / (390x844/light) small-text: Voir l'appartement
+- / (390x844/light) small-text: Demander ce logement
+- / (390x844/light) small-text: Palmeraie
+- / (390x844/light) small-text: À partir de
+- / (390x844/light) small-text: Voir l'appartement
+- / (390x844/light) small-text: Demander ce logement
+- / (390x844/light) small-text: Faire une demande
+- / (390x844/light) small-interactive: Activer le mode sombre
+- / (390x844/light) small-interactive: Ouvrir le menu
+- / (390x844/light) small-interactive: Voir tout
+- / (390x844/light) small-interactive: Appartement Confort Targa II
+- / (390x844/light) small-interactive: Demander ce logement
+- / (390x844/light) small-interactive: Terrasse Ourika View
+- / (390x844/light) small-interactive: Demander ce logement
+- / (390x844/light) small-interactive: Residence Palmeraie Prestige
+- / (390x844/light) small-interactive: Demander ce logement
+- / (390x844/light) small-interactive: Faire une demande
+- / (390x844/light) small-interactive: WhatsApp
+- / (390x844/light) small-interactive: Email
+- / (390x844/light) small-interactive: Téléphone
+- / (390x844/light) small-interactive: Appartements
+- / (390x844/light) small-interactive: Transport privé
+- / (390x844/light) small-interactive: Packs & Séjours
+- / (390x844/light) small-interactive: Services
+- / (390x844/light) small-interactive: Confier mon bien
+- / (390x844/light) small-interactive: Accueil
+- / (390x844/light) small-interactive: Blog
+- / (390x844/light) small-interactive: Contact
+- / (390x844/light) small-interactive: Accès professionnel
+- / (390x844/light) small-interactive: +212 6 66 56 71 33
+- / (390x844/light) small-interactive: contact@yakout.ma
+- / (390x844/light) small-interactive: Réponse rapide
+- / (390x844/light) low-contrast-possible: Votre séjour à Marrakech, pensé dans les moindres détails
+- / (390x844/light) low-contrast-possible: Organiser mon séjour
+- / (390x844/light) low-contrast-possible: Hébergement
+- / (390x844/light) low-contrast-possible: Voir tout
+- / (390x844/light) low-contrast-possible: 850 MAD /nuit
+- / (390x844/light) low-contrast-possible: Demander ce logement
+- / (390x844/light) low-contrast-possible: 1.050 MAD /nuit
+- / (390x844/light) low-contrast-possible: Demander ce logement
+- / (390x844/light) low-contrast-possible: 1.800 MAD /nuit
+- / (390x844/light) low-contrast-possible: Demander ce logement
+- / (390x844/light) low-contrast-possible: Transport privé
+- / (390x844/light) low-contrast-possible: Toyota Land Cruiser Excursion
+- / (390x844/light) low-contrast-possible: Renault Trafic Private Van
+- / (390x844/light) low-contrast-possible: Mercedes Sprinter Groupe
+- / (390x844/light) low-contrast-possible: Découvrir le transport
+- / (390x844/light) low-contrast-possible: Fonctionnement
+- / (390x844/light) low-contrast-possible: Propriétaires
+- / (390x844/light) low-contrast-possible: Confier mon bien
+- / (390x844/light) low-contrast-possible: Prêt à organiser votre séjour ?
+- / (390x844/light) low-contrast-possible: Faire une demande
+- / (390x844/light) low-contrast-possible: Réponse rapide
+- / (390x844/dark) small-text: Targa
+- / (390x844/dark) small-text: À partir de
+- / (390x844/dark) small-text: Voir l'appartement
+- / (390x844/dark) small-text: Demander ce logement
+- / (390x844/dark) small-text: Route de l'Ourika
+- / (390x844/dark) small-text: À partir de
+- / (390x844/dark) small-text: Voir l'appartement
+- / (390x844/dark) small-text: Demander ce logement
+- / (390x844/dark) small-text: Palmeraie
+- / (390x844/dark) small-text: À partir de
+- / (390x844/dark) small-text: Voir l'appartement
+- / (390x844/dark) small-text: Demander ce logement
+- / (390x844/dark) small-text: Faire une demande
+- / (390x844/dark) small-interactive: Activer le mode clair
+- / (390x844/dark) small-interactive: Ouvrir le menu
+- / (390x844/dark) small-interactive: Voir tout
+- / (390x844/dark) small-interactive: Appartement Confort Targa II
+- / (390x844/dark) small-interactive: Demander ce logement
+- / (390x844/dark) small-interactive: Terrasse Ourika View
+- / (390x844/dark) small-interactive: Demander ce logement
+- / (390x844/dark) small-interactive: Residence Palmeraie Prestige
+
+## Problèmes de mode sombre
+- Aucun.
+
+## Éléments non testables
+- Aucun.
+
+## Totaux
+- Routes uniques: 18
+- Audits page: 180
+- Liens collectés: 6610
+- Boutons collectés: 860
+- Images collectées: 950
+- Images sans alt visible: 20
+- Erreurs console: 190
+- Erreurs réseau: 1159
+- Problèmes responsive: 4
+- Problèmes accessibilité: 11871

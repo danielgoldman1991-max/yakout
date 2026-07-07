@@ -198,19 +198,85 @@ export type Vehicle = {
 
 export type Reservation = {
   id: string;
+  company_id?: string;
+  reservation_number?: string;
   client_id?: string;
-  client_name?: string;
   apartment_id?: string;
-  apartment_name?: string;
+  lead_id?: string;
+  package_id?: string;
   check_in: string;
   check_out: string;
+  nights: number;
   source?: string;
-  guests_count?: number;
-  people_count?: number;
+  external_reference?: string;
+  external_url?: string;
+  status: string;
+  option_expires_at?: string;
+  check_in_notes?: string;
+  check_out_notes?: string;
+  currency?: string;
+  nightly_rate?: number;
+  accommodation_subtotal?: number;
+  cleaning_fee?: number;
+  tourist_tax?: number;
+  services_total?: number;
+  discount_amount?: number;
   total_amount: number;
   deposit_amount: number;
-  payment_status?: string;
-  reservation_status: string;
+  deposit_required?: number;
+  remaining_amount: number;
+  payment_status: string;
+  arrival_time?: string;
+  departure_time?: string;
+  adults?: number;
+  children?: number;
+  infants?: number;
+  total_guests?: number;
+  people_count: number;
+  guests_count?: number;
+  guest_name?: string;
+  guest_email?: string;
+  guest_phone?: string;
+  guest_country?: string;
+  special_requests?: string;
+  internal_notes?: string;
+  cancellation_reason?: string;
+  cancelled_at?: string;
+  checked_in_at?: string;
+  checked_out_at?: string;
+  created_by?: string;
+  updated_by?: string;
+  created_at: string;
+  updated_at: string;
+  // Joined fields (not in DB)
+  client_name?: string;
+  apartment_name?: string;
+};
+
+export type ReservationEvent = {
+  id: string;
+  reservation_id: string;
+  event_type: string;
+  description: string;
+  old_values?: Record<string, unknown>;
+  new_values?: Record<string, unknown>;
+  created_by?: string;
+  created_at: string;
+};
+
+export type ReservationItem = {
+  id: string;
+  reservation_id: string;
+  item_type: string;
+  label: string;
+  quantity: number;
+  unit_price: number;
+  total_amount: number;
+  source_type?: string;
+  source_id?: string;
+  notes?: string;
+  sort_order: number;
+  created_at: string;
 };
 
 export type Trip = {

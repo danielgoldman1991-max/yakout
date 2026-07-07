@@ -1,0 +1,1582 @@
+[
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/transport",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/services",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 ()",
+    "location": {
+      "url": "https://yakout-three.vercel.app/proprietaires",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/login",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "390x844",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "390x844",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "768x1024",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1024x900",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "type": "pageerror",
+    "text": "Cannot read properties of null (reading 'classList')",
+    "stack": "TypeError: Cannot read properties of null (reading 'classList')\n    at <anonymous>:4:30\n    at <anonymous>:6:5\n    at <anonymous>:7:7"
+  }
+]

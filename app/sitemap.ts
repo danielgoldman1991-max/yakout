@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://yakout-three.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
@@ -10,6 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/apartments`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.9 },
     { url: `${BASE}/transport`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.9 },
     { url: `${BASE}/vehicles`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.8 },
+    { url: `${BASE}/proprietaires`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.8 },
     { url: `${BASE}/concierge`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE}/blog`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${BASE}/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.6 },
@@ -20,11 +21,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let blogSlugs: { slug: string }[] = [];
 
   try {
-    const [{ getPublishedApartments }, { getPublishedVehicles }, { getPublishedBlogPosts }] = await Promise.all([
-      import("@/lib/data"), import("@/lib/data"), import("@/lib/data"),
+    const [{ getPublishedApartments, getPublishedBlogPosts }, { getPublicVehicles }] = await Promise.all([
+      import("@/lib/data"), import("@/lib/data/public-vehicles"),
     ]);
     [apartmentSlugs, vehicleSlugs, blogSlugs] = await Promise.all([
-      getPublishedApartments(), getPublishedVehicles(), getPublishedBlogPosts(),
+      getPublishedApartments(), getPublicVehicles(), getPublishedBlogPosts(),
     ]);
   } catch {}
 

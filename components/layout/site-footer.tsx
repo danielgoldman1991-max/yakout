@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageCircle, Mail, Phone, ArrowRight } from "lucide-react";
+import { MessageCircle, Mail, Phone, ArrowRight, LogIn } from "lucide-react";
 import { site } from "@/lib/constants/site";
 import { YakoutLogo } from "@/components/brand/yakout-logo";
 
@@ -50,7 +50,12 @@ export function SiteFooter() {
               <li><Link href="/" className="text-sm text-muted-foreground transition hover:text-foreground">Accueil</Link></li>
               <li><Link href="/blog" className="text-sm text-muted-foreground transition hover:text-foreground">Blog</Link></li>
               <li><Link href="/contact" className="text-sm text-muted-foreground transition hover:text-foreground">Contact</Link></li>
-              <li><Link href="/login" className="text-sm text-muted-foreground transition hover:text-foreground">Accès professionnel</Link></li>
+              <li>
+                <Link href="/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground">
+                  <LogIn className="h-4 w-4" />
+                  Espace équipe
+                </Link>
+              </li>
             </ul>
           </div>
 

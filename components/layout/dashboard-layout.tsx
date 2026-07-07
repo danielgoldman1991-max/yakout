@@ -118,7 +118,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/50 bg-background/90 px-5 shadow-sm backdrop-blur-md sm:px-8">
           <div className="pl-12 lg:pl-0">
-            <h2 className="text-sm font-medium text-foreground">Espace Maria</h2>
+            <h2 className="text-sm font-medium text-foreground">Espace équipe</h2>
             <p className="text-[10px] text-muted-foreground/60 tracking-[0.12em] uppercase">
               {company.city} &middot; {company.currency}
             </p>

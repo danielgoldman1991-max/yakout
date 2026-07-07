@@ -78,7 +78,7 @@ export function calculatePricing(state: PackageState): PricingBreakdown {
   return { entries, subtotals, estimatedTotal };
 }
 
-export function formatPrice(amount: number): string {
-  if (amount === 0) return "Gratuit";
+export function formatPrice(amount: number | null | undefined): string {
+  if (amount == null || amount <= 0) return "—";
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "MAD", maximumFractionDigits: 0 }).format(amount);
 }

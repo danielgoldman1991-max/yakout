@@ -207,8 +207,8 @@ export const clients: Client[] = [
 ];
 
 export const reservations: Reservation[] = [
-  { id: "res-1", client_name: "Sarah Martin", apartment_name: "Appartement Majorelle Signature", check_in: "2026-07-12", check_out: "2026-07-18", people_count: 4, total_amount: 5700, deposit_amount: 2000, reservation_status: "Confirmee" },
-  { id: "res-2", client_name: "Fatima Benali", apartment_name: "Appartement Hivernage Ã‰lÃ©gance", check_in: "2026-08-01", check_out: "2026-08-10", people_count: 5, total_amount: 10800, deposit_amount: 0, reservation_status: "Pre-reservation" },
+  { id: "res-1", reservation_number: "RES-2026-000001", client_name: "Sarah Martin", apartment_name: "Appartement Majorelle Signature", check_in: "2026-07-12", check_out: "2026-07-18", nights: 6, source: "direct", status: "confirmed", people_count: 4, adults: 4, children: 0, infants: 0, total_guests: 4, total_amount: 5700, deposit_amount: 2000, deposit_required: 2000, remaining_amount: 3700, payment_status: "partial", currency: "MAD", nightly_rate: 950, accommodation_subtotal: 5700, cleaning_fee: 0, tourist_tax: 0, services_total: 0, discount_amount: 0, created_at: "2026-06-20T09:00:00Z", updated_at: "2026-06-20T09:00:00Z" },
+  { id: "res-2", reservation_number: "RES-2026-000002", client_name: "Fatima Benali", apartment_name: "Appartement Hivernage Élégance", check_in: "2026-08-01", check_out: "2026-08-10", nights: 9, source: "direct", status: "draft", people_count: 5, adults: 5, children: 0, infants: 0, total_guests: 5, total_amount: 10800, deposit_amount: 0, deposit_required: 0, remaining_amount: 10800, payment_status: "unpaid", currency: "MAD", nightly_rate: 1200, accommodation_subtotal: 10800, cleaning_fee: 0, tourist_tax: 0, services_total: 0, discount_amount: 0, created_at: "2026-07-01T10:00:00Z", updated_at: "2026-07-01T10:00:00Z" },
 ];
 
 export const trips: Trip[] = [

@@ -29,6 +29,20 @@ export class InvalidUuidError extends Error {
   }
 }
 
+export function normalizeOptionalUuid(value: unknown): string | null {
+  if (value === null || value === undefined) return null;
+  const normalized = String(value).trim();
+  if (!normalized) return null;
+  if (!uuidRegex.test(normalized)) throw new InvalidUuidError(value);
+  return normalized;
+}
+
+export function normalizeRequiredUuid(value: unknown, message: string): string {
+  const normalized = normalizeOptionalUuid(value);
+  if (!normalized) throw new Error(message);
+  return normalized;
+}
+
 export function requireUuid(value: unknown, label: string): string | null {
   if (
     value === undefined ||

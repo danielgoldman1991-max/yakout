@@ -11,7 +11,7 @@ export default async function ReportsPage() {
 
   const revenue = payments.filter((p) => p.status === "Paye").reduce((sum, item) => sum + item.amount, 0);
   const expenseTotal = expenses.reduce((sum, item) => sum + item.amount, 0);
-  const confirmedReservations = reservations.filter((item) => item.reservation_status === "Confirmee").length;
+  const confirmedReservations = reservations.filter((item) => item.status === "confirmed").length;
   const confirmedTrips = trips.filter((item) => item.status === "Confirme").length;
 
   return (

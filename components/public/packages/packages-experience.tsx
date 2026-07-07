@@ -251,7 +251,7 @@ export function PackagesExperience({ packages, isFallback = false }: Props) {
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/88 px-4 py-3 backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/88 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex max-w-xl gap-2">
           <PremiumButton href="/contact?type=package&mode=custom" variant="primary" className="flex-1">
             Composer
@@ -308,11 +308,11 @@ function PackageCard({ pack }: { pack: PublicPackageModel }) {
           <p className="mt-1 text-xs leading-6 text-muted-foreground">{pack.idealFor}</p>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-4">
+        <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <PriceChip value={pack.price_from} />
-          <div className="flex gap-2">
-            <PremiumButton href={`/contact?type=package&basePackage=${pack.slug}&mode=customize`} variant="outline" size="sm">Personnaliser</PremiumButton>
-            <PremiumButton href={`/contact?type=package&package=${pack.slug}&mode=order`} variant="primary" size="sm">Demander</PremiumButton>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <PremiumButton href={`/contact?type=package&package=${pack.slug}&mode=order`} variant="primary" size="sm" className="min-h-11 w-full px-4 text-center">Demander</PremiumButton>
+            <PremiumButton href={`/contact?type=package&basePackage=${pack.slug}&mode=customize`} variant="outline" size="sm" className="min-h-11 w-full px-4 text-center">Personnaliser</PremiumButton>
           </div>
         </div>
       </div>
@@ -374,7 +374,7 @@ function FilterRail({
 
 function PriceChip({ value }: { value?: number | null }) {
   return (
-    <div className="shrink-0 rounded-sm border border-gold/20 bg-gold/8 px-3 py-2 text-right">
+    <div className="rounded-sm border border-gold/20 bg-gold/8 px-3 py-2 text-left sm:shrink-0 sm:text-right">
       <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">A partir de</p>
       <p className="text-sm font-semibold text-gold">{formatPrice(value)}</p>
     </div>

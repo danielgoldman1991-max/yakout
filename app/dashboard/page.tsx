@@ -32,7 +32,7 @@ export default async function DashboardPage() {
   const margin = revenue - expenseTotal;
   const marginRate = revenue > 0 ? Math.round((margin / revenue) * 100) : 0;
   const newLeads = leads.filter((l) => l.status === "Nouveau").length;
-  const confirmedReservations = reservations.filter((r) => r.reservation_status === "Confirmee").length;
+  const confirmedReservations = reservations.filter((r) => r.status === "confirmed").length;
   const confirmedTrips = trips.filter((t) => t.status === "Confirme").length;
   const conversion = leads.length ? Math.round((leads.filter((l) => l.status === "Confirme").length / leads.length) * 100) : 0;
 
@@ -115,10 +115,10 @@ export default async function DashboardPage() {
                 {reservations.slice(0, 5).map((r) => (
                   <div key={r.id} className="flex items-center justify-between rounded-sm border border-border/50 bg-accent/5 px-4 py-3 shadow-elevation-1 transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/15 hover:shadow-elevation-2">
                     <div>
-                      <p className="text-sm font-medium text-foreground">{r.client_name}</p>
-                      <p className="text-xs text-muted-foreground/70">{r.apartment_name} — {formatDate(r.check_in)}</p>
+                      <p className="text-sm font-medium text-foreground">{r.guest_name ?? r.reservation_number}</p>
+                      <p className="text-xs text-muted-foreground/70">{formatDate(r.check_in)} — {formatDate(r.check_out)}</p>
                     </div>
-                    <StatusBadge status={r.reservation_status} />
+                    <StatusBadge status={r.status} />
                   </div>
                 ))}
               </div>

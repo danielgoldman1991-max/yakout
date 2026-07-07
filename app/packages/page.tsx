@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PackagesExperience } from "@/components/public/packages/packages-experience";
@@ -16,7 +17,7 @@ export default async function PublicPackagesPage() {
   const packages = publishedPackages.length > 0 ? publishedPackages : fallbackPublicPackages;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ "--yakout-floating-bottom": "5.5rem" } as CSSProperties}>
       <SiteHeader />
       <WhatsAppFloatingButton />
       <main className="pt-[80px]">

@@ -2,17 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deletePackageAction, updatePackageAction } from "@/lib/data/actions";
 import { getPackageById } from "@/lib/data/transport";
+import { getPackageReservations } from "@/lib/data/reservations";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
 import { PackageForm } from "@/components/dashboard/package_form";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 
 export default async function PackageDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const pack = await getPackageById(id);
   if (!pack) notFound();
+  const reservations = await getPackageReservations(id);
   const required = pack.package_items?.filter((item) => !item.is_optional) ?? [];
   const revenue = required.reduce((sum, item) => sum + Number(item.price_amount ?? 0), 0);
   const cost = required.reduce((sum, item) => sum + Number(item.cost_amount ?? 0), 0);
@@ -28,6 +30,9 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
         <div className="space-y-5">
           <Card><CardHeader><CardTitle>Composition</CardTitle></CardHeader><CardContent className="space-y-3 text-sm">{pack.package_items?.length ? pack.package_items.map((item) => <div key={item.id} className="rounded-sm border border-border p-3"><p className="font-medium">{item.title}</p><p className="text-xs text-muted-foreground">{item.item_type} · {formatCurrency(item.price_amount ?? 0)} · cout {formatCurrency(item.cost_amount ?? 0)}</p></div>) : <p className="text-muted-foreground">Aucun item.</p>}</CardContent></Card>
           <Card><CardHeader><CardTitle>Demande client</CardTitle></CardHeader><CardContent><Link href={`/contact?type=package&package=${pack.slug}`}><Button variant="secondary" className="w-full">Tester le CTA contact</Button></Link></CardContent></Card>
+          {reservations.length > 0 && (
+            <Card><CardHeader><CardTitle>Reservations ({reservations.length})</CardTitle></CardHeader><CardContent className="space-y-3 text-sm">{reservations.map((r) => <Link key={r.id} href={`/dashboard/reservations/${r.id}`} className="block rounded-sm border border-border p-3 transition hover:border-gold/30 hover:bg-gold/5"><p className="font-medium text-gold">{r.reservation_number}</p><p className="mt-1 text-xs text-muted-foreground">{r.guest_name} · {formatDate(r.check_in)} - {formatDate(r.check_out)}</p><p className="text-xs text-muted-foreground">{r.status} · {formatCurrency(Number(r.total_amount ?? 0))}</p></Link>)}</CardContent></Card>
+          )}
           <Card><CardHeader><CardTitle>Actions</CardTitle></CardHeader><CardContent><form action={deletePackageAction.bind(null, id)}><Button type="submit" variant="danger" className="w-full">Supprimer ce pack</Button></form></CardContent></Card>
         </div>
       </div>

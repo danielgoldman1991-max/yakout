@@ -12,7 +12,11 @@ export function WhatsAppFloatingButton({ phone }: { phone?: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-elevation-3 shadow-[#25D366]/20 transition-all duration-300 hover:scale-105 hover:shadow-glow-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] max-sm:bottom-4 max-sm:right-4 max-sm:h-12 max-sm:w-12"
+      style={{
+        bottom: "calc(var(--yakout-floating-bottom, 1.5rem) + env(safe-area-inset-bottom))",
+        right: "calc(var(--yakout-floating-right, 1rem) + env(safe-area-inset-right))",
+      }}
+      className="fixed z-50 flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-elevation-3 shadow-[#25D366]/20 transition-all duration-300 hover:scale-105 hover:shadow-glow-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] sm:h-14 sm:w-14 max-sm:h-12 max-sm:w-12"
       aria-label="Contacter sur WhatsApp"
     >
       <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-0 transition-opacity duration-500 hover:animate-glowing" />

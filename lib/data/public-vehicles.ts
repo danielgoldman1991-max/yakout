@@ -185,3 +185,42 @@ export async function getPublicVehicles(): Promise<PublicVehicle[]> {
 export async function getPublicTransportVehicles(): Promise<PublicVehicle[]> {
   return getPublicVehicles();
 }
+
+export async function getPublicVehicleBySlug(slug: string): Promise<PublicVehicle | null> {
+  const supabase = await createSupabaseServerClient();
+
+  let { data, error } = await supabase
+    .from("vehicles")
+    .select(publicVehicleSelect)
+    .eq("slug", slug)
+    .eq("public_status", "published")
+    .single();
+
+  if (error || !data) {
+    const fallback = await supabase
+      .from("vehicles")
+      .select(publicVehicleSelect)
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .single();
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  if (error || !data) {
+    const { data: flatData, error: flatError } = await supabase
+      .from("vehicles")
+      .select(publicVehicleSelectFlat)
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .single();
+
+    if (flatError || !flatData) {
+      logger.warn("getPublicVehicleBySlug failed completely", { slug, message: flatError?.message });
+      return null;
+    }
+    return normalizePublicVehicle({ ...flatData as PublicVehicleRow, vehicle_images: null });
+  }
+
+  return normalizePublicVehicle(data as PublicVehicleRow);
+}

@@ -5,14 +5,15 @@ import { redirect } from "next/navigation";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { createSupabaseActionClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { normalizeUuid } from "@/lib/utils/uuid";
+import { normalizeUuid, normalizeOptionalUuid } from "@/lib/utils/uuid";
 import { slugify } from "@/lib/utils/slug";
 import { normalizeStringArray } from "@/lib/utils/lists";
 import { logger } from "@/lib/utils/logger";
 import { canPublishApartmentWithCounts, MAX_APARTMENT_IMAGES } from "@/lib/data/apartments";
 import {
   leadSchema, clientSchema, apartmentSchema, vehicleSchema,
-  reservationSchema, tripSchema, transferSchema, partnerSchema, packageSchema, paymentSchema,
+  reservationDraftSchema, reservationOptionSchema, reservationConfirmSchema,
+  tripSchema, transferSchema, partnerSchema, packageSchema, paymentSchema, accommodationRevenueSchema,
   expenseSchema, documentSchema, blogPostSchema, serviceSchema, sitePageSchema,
   clientNoteSchema, clientFollowupSchema, clientReviewSchema,
 } from "@/lib/validations/schemas";
@@ -169,11 +170,20 @@ function firstValidationMessage(error: { issues: Array<{ message: string }> }) {
   return error.issues[0]?.message ?? "Formulaire incomplet.";
 }
 
-function databaseErrorMessage(error: { message?: string }) {
-  const message = error.message ?? "Erreur de sauvegarde.";
-  if (message.toLowerCase().includes("duplicate")) return "Cette valeur existe deja. Changez le slug ou l'identifiant.";
-  if (message.toLowerCase().includes("permission")) return "Droits Supabase insuffisants pour sauvegarder.";
-  return message;
+function databaseErrorMessage(error: { message?: string; code?: string }) {
+  const common: Record<string, string> = {
+    "42703": "La base de donnees n'a pas les colonnes attendues. Contactez l'administrateur.",
+    "23503": "Impossible de lier l'enregistrement : la reference n'existe pas.",
+    "23505": "Cette valeur existe deja.",
+    "42501": "Droits Supabase insuffisants.",
+    "42P01": "Table introuvable. Contactez l'administrateur.",
+  };
+  if (error.code && common[error.code]) return common[error.code];
+  const msg = (error.message ?? "").toLowerCase();
+  if (msg.includes("duplicate")) return "Cette valeur existe deja.";
+  if (msg.includes("permission")) return "Droits Supabase insuffisants.";
+  if (msg.includes("does not exist") || msg.includes("not found")) return "Une ressource requise est introuvable.";
+  return "Erreur de sauvegarde.";
 }
 
 function redirectFormError(path: string, message: string): never {
@@ -310,6 +320,9 @@ export async function deleteLeadAction(id: string): Promise<void> {
 
 export async function updateLeadAction(id: string, formData: FormData): Promise<void> {
   const raw = Object.fromEntries(formData);
+  delete raw.owner_id;
+  delete raw.client_id;
+  delete raw.converted_at;
   const parsed = leadSchema.safeParse(raw);
   if (!parsed.success) { logger.warn("updateLeadAction: validation echec", parsed.error.flatten()); redirectFormError(`/dashboard/leads/${id}`, firstValidationMessage(parsed.error)); }
   if (isDemo()) { redirectFormError(`/dashboard/leads/${id}`, "Supabase n'est pas configure."); }
@@ -821,47 +834,193 @@ export async function deleteVehicleAction(id: string): Promise<void> {
 
 // ─── Reservations ───
 
+function normalizeReservationInput(formData: FormData, parsed: Record<string, unknown>) {
+  const people = Number(parsed.adults ?? 1) + Number(parsed.children ?? 0) + Number(parsed.infants ?? 0);
+  return {
+    client_id: normalizeUuid(parsed.client_id),
+    apartment_id: normalizeUuid(parsed.apartment_id),
+    check_in: parsed.check_in,
+    check_out: parsed.check_out,
+    people_count: Math.max(people, Number(parsed.people_count ?? 1)),
+    total_amount: Number(parsed.total_amount ?? 0),
+    deposit_amount: Number(parsed.deposit_amount ?? 0),
+    reservation_status: (formData.get("intent") as string) || "draft",
+    check_in_notes: parsed.check_in_notes || null,
+    check_out_notes: parsed.check_out_notes || null,
+  };
+}
+
 export async function createReservationAction(formData: FormData): Promise<void> {
   const raw = Object.fromEntries(formData);
-  const parsed = reservationSchema.safeParse(raw);
-  if (!parsed.success) { logger.warn("createReservationAction: validation echec", parsed.error.flatten()); redirectFormError("/dashboard/reservations/new", firstValidationMessage(parsed.error)); }
-  if (isDemo()) { logger.info("[DEMO] createReservationAction", parsed.data); revalidatePath("/dashboard/reservations"); redirect("/dashboard/reservations"); }
-  const input = {
-    ...parsed.data,
-    client_id: normalizeUuid(parsed.data.client_id),
-    apartment_id: normalizeUuid(parsed.data.apartment_id),
-    guests_count: parsed.data.guests_count ?? parsed.data.people_count,
-  };
-  const { error } = await insertWithCompany("reservations", input);
-  if (error) { logger.error("createReservationAction failed", error); redirectFormError("/dashboard/reservations/new", databaseErrorMessage(error)); }
-  revalidatePath("/dashboard/reservations");
-  redirect("/dashboard/reservations");
+  const intent = (formData.get("intent") as string) || "draft";
+
+  let parsed;
+  if (intent === "confirmed") {
+    parsed = reservationConfirmSchema.safeParse(raw);
+  } else if (intent === "option") {
+    parsed = reservationOptionSchema.safeParse(raw);
+  } else {
+    parsed = reservationDraftSchema.safeParse(raw);
+  }
+
+  if (!parsed.success) {
+    logger.warn("createReservationAction: validation echec", { intent, errors: parsed.error.flatten() });
+    redirectFormError("/dashboard/reservations/new", firstValidationMessage(parsed.error));
+  }
+
+  if (isDemo()) {
+    logger.info("[DEMO] createReservationAction", { intent, ...parsed.data });
+    revalidatePath("/dashboard/reservations");
+    redirect("/dashboard/reservations");
+  }
+
+  const input = normalizeReservationInput(formData, parsed.data);
+  const supabaseAdmin = createSupabaseAdminClient();
+  const companyId = await getCurrentCompanyId();
+  if (!companyId) redirectFormError("/dashboard/reservations/new", "Profil entreprise introuvable.");
+  const { data, error } = await supabaseAdmin
+    .from("reservations")
+    .insert([{ ...input, company_id: companyId }])
+    .select("id");
+  if (error) {
+    logger.error("createReservationAction failed", { code: error.code, message: error.message });
+    redirectFormError("/dashboard/reservations/new", databaseErrorMessage(error));
+  }
+  const reservationId = data?.[0]?.id;
+  if (!reservationId) {
+    logger.error("createReservationAction: no id returned");
+    redirectFormError("/dashboard/reservations/new", "Erreur de sauvegarde.");
+  }
+  revalidateReservationPaths(reservationId);
+  redirect(`/dashboard/reservations/${reservationId}`);
 }
 
 export async function updateReservationAction(id: string, formData: FormData): Promise<void> {
   requireValidUUID(id, "reservation");
   const raw = Object.fromEntries(formData);
-  const parsed = reservationSchema.safeParse(raw);
-  if (!parsed.success) { logger.warn("updateReservationAction: validation echec", parsed.error.flatten()); redirectFormError(`/dashboard/reservations/${id}`, firstValidationMessage(parsed.error)); }
-  if (isDemo()) { logger.info("[DEMO] updateReservationAction", { id, ...parsed.data }); revalidatePath("/dashboard/reservations"); return; }
+  const parsed = reservationDraftSchema.safeParse(raw);
+  if (!parsed.success) {
+    logger.warn("updateReservationAction: validation echec", parsed.error.flatten());
+    redirectFormError(`/dashboard/reservations/${id}`, firstValidationMessage(parsed.error));
+  }
+  if (isDemo()) {
+    logger.info("[DEMO] updateReservationAction", { id, ...parsed.data });
+    revalidatePath("/dashboard/reservations");
+    return;
+  }
   const supabase = await getClient();
-  const input = {
-    ...parsed.data,
-    client_id: normalizeUuid(parsed.data.client_id),
-    apartment_id: normalizeUuid(parsed.data.apartment_id),
-    guests_count: parsed.data.guests_count ?? parsed.data.people_count,
-  };
+  const input = normalizeReservationInput(formData, parsed.data);
   const { error } = await supabase.from("reservations").update(input).eq("id", id);
-  if (error) { logger.error("updateReservationAction failed", error); redirectFormError(`/dashboard/reservations/${id}`, databaseErrorMessage(error)); }
-  revalidatePath("/dashboard/reservations");
+  if (error) {
+    logger.error("updateReservationAction failed", { code: error.code, message: error.message });
+    redirectFormError(`/dashboard/reservations/${id}`, databaseErrorMessage(error));
+  }
+  revalidateReservationPaths(id);
+  redirect(`/dashboard/reservations/${id}`);
+}
+
+export async function changeReservationStatusAction(id: string, formData: FormData): Promise<void> {
+  requireValidUUID(id, "reservation");
+  const newStatus = formData.get("status") as string;
+  if (!newStatus) {
+    redirectFormError(`/dashboard/reservations/${id}`, "Le statut est requis.");
+  }
+
+  if (isDemo()) {
+    logger.info("[DEMO] changeReservationStatusAction", { id, newStatus });
+    revalidatePath("/dashboard/reservations");
+    return;
+  }
+
+  const supabase = await getClient();
+
+  // Verify the transition is allowed
+  const { data: current } = await supabase.from("reservations").select("reservation_status").eq("id", id).single();
+  if (!current) {
+    redirectFormError(`/dashboard/reservations/${id}`, "Reservation introuvable.");
+  }
+
+  const updateData: Record<string, unknown> = { reservation_status: newStatus };
+
+  const { error } = await supabase.from("reservations").update(updateData).eq("id", id);
+  if (error) {
+    logger.error("changeReservationStatusAction failed", { code: error.code, message: error.message });
+    redirectFormError(`/dashboard/reservations/${id}`, databaseErrorMessage(error));
+  }
+
+  revalidateReservationPaths(id);
+  redirect(`/dashboard/reservations/${id}`);
+}
+
+export async function checkReservationAvailabilityAction(formData: FormData): Promise<{ available: boolean; conflictMessage?: string }> {
+  const apartmentId = normalizeUuid(formData.get("apartment_id"));
+  const checkIn = formData.get("check_in") as string;
+  const checkOut = formData.get("check_out") as string;
+  const excludeId = normalizeUuid(formData.get("exclude_id"));
+
+  if (!apartmentId || !checkIn || !checkOut) {
+    return { available: false, conflictMessage: "Parametres manquants." };
+  }
+
+  const supabase = createSupabaseAdminClient();
+  let query = supabase
+    .from("reservations")
+    .select("id, reservation_status, check_in, check_out")
+    .eq("apartment_id", apartmentId)
+    .in("reservation_status", ["option", "confirmed", "checked_in"])
+    .or(`and(check_in.lt.${checkOut},check_out.gt.${checkIn})`);
+
+  if (excludeId) {
+    query = query.neq("id", excludeId);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    logger.warn("checkReservationAvailabilityAction failed", error);
+    return { available: false, conflictMessage: "Erreur de verification." };
+  }
+
+  if (data && data.length > 0) {
+    const conflicts = data.map((r: Record<string, unknown>) =>
+      `${r.check_in as string} → ${r.check_out as string} [${r.reservation_status as string ?? r.status as string}]`
+    ).join("; ");
+    return {
+      available: false,
+      conflictMessage: `Cet appartement est deja reserve : ${conflicts}`,
+    };
+  }
+
+  return { available: true };
 }
 
 export async function deleteReservationAction(id: string): Promise<void> {
   if (isDemo()) { logger.info("[DEMO] deleteReservationAction", { id }); revalidatePath("/dashboard/reservations"); return; }
-  const supabase = await getClient();
-  const { error } = await supabase.from("reservations").delete().eq("id", id);
+  const supabaseAdmin = createSupabaseAdminClient();
+
+  // Check for linked payments first
+  const { data: payments } = await supabaseAdmin.from("payments").select("id").eq("reservation_id", id).limit(1);
+  if (payments && payments.length > 0) {
+    logger.warn("deleteReservationAction: reservation has linked payments", { id });
+    redirectFormError(`/dashboard/reservations/${id}`, "Impossible de supprimer une reservation avec des paiements lies. Annulez la reservation ou supprimez les paiements d'abord.");
+  }
+
+  const { error } = await supabaseAdmin.from("reservations").delete().eq("id", id);
   if (error) { logger.error("deleteReservationAction failed", error); return; }
+  revalidateReservationPaths();
+}
+
+function revalidateReservationPaths(reservationId?: string) {
   revalidatePath("/dashboard/reservations");
+  revalidatePath("/dashboard/reservations/calendar");
+  revalidatePath("/dashboard/apartments");
+  revalidatePath("/dashboard/clients");
+  revalidatePath("/dashboard/leads");
+  revalidatePath("/dashboard/payments");
+  revalidatePath("/dashboard/reports");
+  revalidatePath("/dashboard");
+  if (reservationId) {
+    revalidatePath(`/dashboard/reservations/${reservationId}`);
+  }
 }
 
 // ─── Trips ───
@@ -1149,6 +1308,115 @@ export async function deletePackageAction(id: string): Promise<void> {
   revalidatePath("/dashboard/packages");
 }
 
+export async function createAccommodationRevenueAction(formData: FormData): Promise<{ success: boolean; message?: string; fieldErrors?: Record<string, string[]> }> {
+  const raw = Object.fromEntries(formData);
+  const parsed = accommodationRevenueSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    console.error("createAccommodationRevenueAction:validation_failed", fieldErrors);
+    return { success: false, message: "Certains champs sont incomplets ou invalides.", fieldErrors };
+  }
+  if (isDemo()) {
+    logger.info("[DEMO] createAccommodationRevenueAction", parsed.data);
+    revalidatePath("/dashboard/payments");
+    return { success: true };
+  }
+  const supabase = await getClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.error("createAccommodationRevenueAction:auth", userError);
+    return { success: false, message: "Votre session a expire. Reconnectez-vous." };
+  }
+  const companyId = await getCurrentCompanyId();
+  if (!companyId) return { success: false, message: "Profil entreprise introuvable." };
+
+  const data = parsed.data;
+
+  // 1. Verify apartment exists
+  const { data: apartment, error: apartmentError } = await supabase
+    .from("apartments")
+    .select("id, owner_id")
+    .eq("id", data.apartment_id)
+    .maybeSingle();
+  if (apartmentError) {
+    console.error("createAccommodationRevenueAction:apartment_lookup", { code: apartmentError.code, message: apartmentError.message, details: apartmentError.details, hint: apartmentError.hint });
+    return { success: false, message: "Impossible de verifier l'appartement selectionne." };
+  }
+  if (!apartment) {
+    return { success: false, message: "L'appartement selectionne est introuvable." };
+  }
+
+  // 2. Build explicit payload
+  const payload: Record<string, unknown> = {
+    company_id: companyId,
+    apartment_id: apartment.id,
+    owner_id: normalizeOptionalUuid(data.owner_id) ?? normalizeOptionalUuid(apartment.owner_id),
+    reservation_id: normalizeOptionalUuid(data.reservation_id),
+    client_id: normalizeOptionalUuid(data.client_id),
+    amount: Number(data.amount),
+    currency: data.currency || "MAD",
+    payment_type: "accommodation",
+    payment_part: data.payment_part,
+    status: data.status,
+    paid_at: data.payment_date,
+    source: data.source?.trim() || "dashboard",
+    description: data.description?.trim() || "Recette d'hebergement",
+    notes: data.notes?.trim() || null,
+    activity_type: data.activity_type || "apartment",
+    payment_method: data.payment_method || "bank_transfer",
+    title: data.title?.trim() || null,
+    stay_check_in: data.stay_check_in || null,
+    stay_check_out: data.stay_check_out || null,
+    guests_count: data.guests_count || null,
+  };
+
+  if (payload.paid_at) {
+    // paid_at is a date column — ensure ISO date
+    const d = new Date(String(payload.paid_at));
+    if (!isNaN(d.getTime())) {
+      payload.paid_at = d.toISOString().slice(0, 10);
+    }
+  }
+
+  // 3. Remove undefined values
+  for (const key of Object.keys(payload)) {
+    if (payload[key] === undefined) delete payload[key];
+  }
+
+  // 4. Insert
+  const { data: payment, error: insertError } = await supabase
+    .from("payments")
+    .insert([payload])
+    .select("id, apartment_id, reservation_id, amount, payment_type, status, paid_at")
+    .single();
+
+  if (insertError) {
+    console.error("createAccommodationRevenueAction:insert_failed", {
+      code: insertError.code,
+      message: insertError.message,
+      details: insertError.details,
+      hint: insertError.hint,
+      payloadColumns: Object.keys(payload),
+    });
+    return { success: false, message: "La recette d'hebergement n'a pas pu etre enregistree." };
+  }
+
+  if (!payment?.id) {
+    return { success: false, message: "La recette a ete creee sans identifiant exploitable." };
+  }
+
+  // 5. Revalidate
+  revalidatePath("/dashboard/payments");
+  revalidatePath("/dashboard/finance");
+  revalidatePath(`/dashboard/apartments/${apartment.id}`);
+  if (payload.reservation_id) {
+    revalidatePath(`/dashboard/reservations/${payload.reservation_id}`);
+  }
+  revalidatePath("/dashboard/reports");
+
+  return { success: true };
+}
+
 export async function createPaymentAction(formData: FormData): Promise<void> {
   const errorPath = paymentFormPath(formData, "/dashboard/payments/new");
   const raw = Object.fromEntries(formData);
@@ -1192,11 +1460,9 @@ export async function createPaymentAction(formData: FormData): Promise<void> {
         check_in: parsed.data.stay_check_in,
         check_out: parsed.data.stay_check_out,
         people_count: parsed.data.guests_count || 1,
-        guests_count: parsed.data.guests_count || 1,
         total_amount: totalAmount || Number(parsed.data.amount || 0),
         deposit_amount: depositAmount,
-        source: paymentInput.source,
-        reservation_status: parsed.data.status === "pending" ? "Pre-reservation" : "Confirmee",
+        reservation_status: parsed.data.status === "pending" ? "draft" : "confirmed",
       }])
       .select("id")
       .single();
@@ -1212,7 +1478,23 @@ export async function createPaymentAction(formData: FormData): Promise<void> {
     .insert([{ ...paymentInput, company_id: companyId }])
     .select("id, apartment_id, reservation_id")
     .single();
-  if (error) { logger.error("createPaymentAction failed", error); redirectFormError(errorPath, databaseErrorMessage(error)); }
+  if (error) {
+    logger.error("createPaymentAction:insert", {
+      step: "insert_payment",
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    console.error("PAYMENT_CREATION_FAILED", {
+      apartmentId: paymentInput.apartment_id,
+      paymentType: paymentInput.payment_type,
+      columns: Object.keys(paymentInput),
+      code: error.code,
+      message: error.message,
+    });
+    redirectFormError(errorPath, databaseErrorMessage(error));
+  }
   revalidatePath("/dashboard/payments");
   if (payment?.apartment_id) revalidatePath(`/dashboard/apartments/${payment.apartment_id}`);
   if (payment?.reservation_id) revalidatePath(`/dashboard/reservations/${payment.reservation_id}`);

@@ -1,49 +1,48 @@
-import { createReservationAction } from "@/lib/data/actions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
+import type { Client, Lead } from "@/types/business";
+import { getClients, getApartmentsForSelect } from "@/lib/data";
+import { getLeads } from "@/lib/data";
+import { getPackages } from "@/lib/data/transport";
+import ReservationWizard from "@/components/dashboard/reservation-wizard";
 
-export default function NewReservationPage() {
+export default async function NewReservationPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ apartmentId?: string; clientId?: string; leadId?: string; packageId?: string }>;
+}) {
+  const [clients, apartments, leads, packagesData, query] = await Promise.all([
+    getClients(),
+    getApartmentsForSelect(),
+    getLeads(),
+    getPackages(),
+    searchParams ?? Promise.resolve({} as { apartmentId?: string; clientId?: string; leadId?: string; packageId?: string }),
+  ]);
+
+  const clientOptions = clients.map((c: Client) => ({ id: c.id, label: c.full_name ?? "Client", description: c.email ?? c.phone ?? undefined }));
+  const leadOptions = leads.map((l: Lead) => ({ id: l.id, label: l.name ?? "Lead", description: l.request_type ?? undefined }));
+  const packageOptions = packagesData.map((p: { id: string; title?: string; name?: string; internal_name?: string }) => ({
+    id: p.id,
+    label: p.title ?? p.name ?? p.internal_name ?? "Pack",
+    description: undefined,
+  }));
+
   return (
     <div className="space-y-5">
       <div>
         <p className="text-sm text-muted-foreground">Dashboard / Reservations / Nouvelle</p>
         <h1 className="mt-2 text-3xl font-semibold">Nouvelle reservation</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Assistant de reservation en 4 etapes</p>
       </div>
-      <Card className="max-w-2xl">
-        <CardHeader><CardTitle>Informations</CardTitle></CardHeader>
-        <CardContent>
-          <FormErrorBanner />
-          <form action={createReservationAction} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Arrivee *</label>
-                <Input name="check_in" type="date" required />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Depart *</label>
-                <Input name="check_out" type="date" required />
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Personnes</label>
-                <Input name="people_count" type="number" min="1" defaultValue="1" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Total (DH)</label>
-                <Input name="total_amount" type="number" min="0" defaultValue="0" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Acompte (DH)</label>
-                <Input name="deposit_amount" type="number" min="0" defaultValue="0" />
-              </div>
-            </div>
-            <Button type="submit" className="w-full sm:w-auto">Creer la reservation</Button>
-          </form>
-        </CardContent>
-      </Card>
+
+      <ReservationWizard
+        clients={clientOptions}
+        apartments={apartments}
+        leads={leadOptions}
+        packages={packageOptions}
+        defaultApartmentId={query.apartmentId}
+        defaultClientId={query.clientId}
+        defaultLeadId={query.leadId}
+        defaultPackageId={query.packageId}
+      />
     </div>
   );
 }

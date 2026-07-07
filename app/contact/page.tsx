@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { ArrowRight, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -14,7 +15,8 @@ import {
   leadTypeLabels,
   normalizeLeadRequestType,
 } from "@/lib/leads";
-import { getPublicApartments, getPublishedVehicles } from "@/lib/data";
+import { getPublicApartments } from "@/lib/data";
+import { getPublicVehicles } from "@/lib/data/public-vehicles";
 import { getPublishedPackages, getTransportTrips } from "@/lib/data/transport";
 import { fallbackPublicPackages } from "@/lib/packages/public-packages";
 import type { ApartmentSelection, VehicleSelection, ExperienceItem } from "@/components/public/package-builder/types";
@@ -56,9 +58,9 @@ export default async function ContactPage({
   if ((requestType === "vehicule" || requestType === "transport") && vehicleSlug) {
     relatedType = "vehicle";
     relatedSlug = vehicleSlug;
-    const vehicles = await getPublishedVehicles();
+    const vehicles = await getPublicVehicles();
     const match = vehicles.find((v) => v.slug === vehicleSlug);
-    entityName = match?.public_name;
+    entityName = match?.display_name;
   }
 
   if (requestType === "package" && packageSlug) {
@@ -80,7 +82,7 @@ export default async function ContactPage({
   }
 
   const apartments = requestType === "reservation" ? await getPublicApartments() : [];
-  const vehicles = requestType === "vehicule" || requestType === "transport" ? await getPublishedVehicles() : [];
+  const vehicles = requestType === "vehicule" || requestType === "transport" ? await getPublicVehicles() : [];
 
   // Load package builder data
   let builderData: {
@@ -92,7 +94,7 @@ export default async function ContactPage({
   if (requestType === "package") {
     const [apts, vehs, trips] = await Promise.all([
       getPublicApartments(),
-      getPublishedVehicles(),
+      getPublicVehicles(),
       getTransportTrips(),
     ]);
 
@@ -110,12 +112,12 @@ export default async function ContactPage({
       vehicles: vehs.map((v) => ({
         id: v.id,
         slug: v.slug,
-        title: v.public_name,
+        title: v.display_name,
         capacity: v.capacity,
         priceTransfer: v.price_transfer ?? v.price_from ?? 250,
-        priceHalfDay: v.price_half_day ?? v.price_from ?? 500,
-        priceFullDay: v.price_full_day ?? v.price_from ?? 800,
-        imageUrl: v.image_url,
+        priceHalfDay: v.price_from ?? 500,
+        priceFullDay: v.price_from ?? 800,
+        imageUrl: v.cover_image ?? v.image_url ?? undefined,
       })),
       experiences: trips
         .filter((t) => t.trip_type === "excursion" || t.trip_type === "experience" || t.trip_type === "circuit" || !t.trip_type)
@@ -138,7 +140,7 @@ export default async function ContactPage({
   // If package builder, render immersive experience
   if (requestType === "package" && builderData) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ "--yakout-floating-bottom": "5.5rem" } as CSSProperties}>
         <SiteHeader />
         <WhatsAppFloatingButton />
         <main className="pt-[80px]">
@@ -152,7 +154,7 @@ export default async function ContactPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ "--yakout-floating-bottom": "4rem" } as CSSProperties}>
       <SiteHeader />
       <WhatsAppFloatingButton />
       <main className="pt-[80px]">
@@ -182,7 +184,7 @@ export default async function ContactPage({
                     relatedSlug={relatedSlug}
                     entityName={entityName}
                     apartments={apartments.map((a) => ({ id: a.id, slug: a.slug, public_name: a.public_name }))}
-                    vehicles={vehicles.map((v) => ({ id: v.id, slug: v.slug, public_name: v.public_name }))}
+                    vehicles={vehicles.map((v) => ({ id: v.id, slug: v.slug, public_name: v.display_name }))}
                   />
                 </div>
               </div>

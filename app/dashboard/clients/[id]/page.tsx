@@ -219,7 +219,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             <div className="space-y-4">
               {reservations.map((reservation) => (
                 <div key={reservation.id} className="border-t border-border/40 pt-3 first:border-t-0 first:pt-0">
-                  <p className="font-medium">Appartement - {reservation.reservation_status}</p>
+                  <p className="font-medium">Appartement - {reservation.status}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{formatDate(reservation.check_in)} - {formatDate(reservation.check_out)} | {formatCurrency(reservation.total_amount)}</p>
                 </div>
               ))}

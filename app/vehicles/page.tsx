@@ -7,11 +7,10 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { PremiumButton } from "@/components/ui/premium-button";
-import { getPublishedVehicles } from "@/lib/data";
+import { getPublicVehicles, type PublicVehicle } from "@/lib/data/public-vehicles";
 import { fallbackImages } from "@/lib/images";
 import { formatCurrency } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/utils/whatsapp";
-import type { Vehicle } from "@/types/business";
 
 export const metadata: Metadata = {
   title: "Types de vehicules disponibles | Transport prive Yakout",
@@ -26,7 +25,7 @@ const categories = [
 ];
 
 export default async function VehiclesPage() {
-  const vehicles = await getPublishedVehicles();
+  const vehicles = await getPublicVehicles();
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,17 +114,19 @@ export default async function VehiclesPage() {
   );
 }
 
-function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
+function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
   const safeCapacity = vehicle.capacity ? `${vehicle.capacity} places` : "Capacite sur demande";
   const safePrice = vehicle.price_from ? `${formatCurrency(vehicle.price_from)} / trajet` : "Prix sur demande";
+  const imageSrc = vehicle.cover_image || vehicle.image_url || fallbackImages.vehicle.url;
+  const imageAlt = vehicle.cover_alt || vehicle.image_alt_text || `Categorie de vehicule ${vehicle.display_name} pour transport prive`;
 
   return (
     <Link href={`/vehicles/${vehicle.slug}`} className="group overflow-hidden rounded-sm border border-border bg-card transition-all duration-300 hover:border-gold/20 hover:shadow-lg hover:shadow-gold/5">
       <div className="relative aspect-[16/10] overflow-hidden">
-        <Image src={vehicle.image_url || fallbackImages.vehicle.url} alt={`Categorie de vehicule ${vehicle.public_name} pour transport prive`} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
+        <Image src={imageSrc} alt={imageAlt} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
       </div>
       <div className="p-5">
-        <h3 className="font-display text-lg text-foreground transition-colors duration-300 group-hover:text-gold">{vehicle.public_name}</h3>
+        <h3 className="font-display text-lg text-foreground transition-colors duration-300 group-hover:text-gold">{vehicle.display_name}</h3>
         <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-gold" />{safeCapacity}</span>
           {vehicle.with_driver && <span className="inline-flex items-center gap-1.5"><Car className="h-3.5 w-3.5 text-gold" />Avec chauffeur</span>}

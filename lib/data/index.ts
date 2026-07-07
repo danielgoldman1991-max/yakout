@@ -4,14 +4,13 @@ import { logger } from "@/lib/utils/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   apartments as mockApartments,
-  reservations as mockReservations,
   payments as mockPayments,
   expenses as mockExpenses,
   blogPosts as mockBlogPosts,
   services as mockServices,
   sitePages as mockSitePages,
 } from "@/lib/constants/mock-data";
-import type { Lead, Client, Apartment, Vehicle, VehicleImage, Reservation, Trip, Payment, Expense, Partner, Document } from "@/types/business";
+import type { Lead, Client, Apartment, Vehicle, VehicleImage, Trip, Payment, Expense, Partner, Document } from "@/types/business";
 import type { BlogPost, PublicService, SitePage } from "@/types/cms";
 import { normalizeApartmentImage } from "@/lib/data/apartments";
 
@@ -140,13 +139,19 @@ export async function getLeads(): Promise<Lead[]> {
 }
 
 export async function getLeadById(id: string): Promise<Lead | null> {
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("leads").select("*").eq("id", id).single();
+  const supabase = (await getServerAdminClient()) ?? (await getClient());
+  const { data, error } = await supabase.from("leads").select("*").eq("id", id).maybeSingle();
   if (error) {
-    logger.error("getLeadById failed", error);
+    logger.error("getLeadById failed", {
+      id,
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
     return null;
   }
-  return data as Lead;
+  return (data as Lead | null) ?? null;
 }
 
 export async function createLead(input: Partial<Lead>): Promise<{ ok: boolean; error?: string }> {
@@ -526,47 +531,19 @@ export async function deleteVehicle(id: string): Promise<{ ok: boolean; error?: 
   return { ok: true };
 }
 
-// ─── Reservations ───
-
-export async function getReservationById(id: string): Promise<Reservation | null> {
-  if (isDemo()) { demoWarning("getReservationById"); return mockReservations.find((r) => r.id === id) ?? null; }
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("reservations").select("*").eq("id", id).single();
-  if (error) return publicFallback("getReservationById", error, mockReservations.find((r) => r.id === id) ?? null);
-  return data as Reservation;
-}
-
-export async function getReservations(): Promise<Reservation[]> {
-  if (isDemo()) { demoWarning("getReservations"); return [...mockReservations]; }
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("reservations").select("*").order("check_in", { ascending: false });
-  if (error) return publicFallback("getReservations", error, [...mockReservations]);
-  return data as Reservation[];
-}
-
-export async function createReservation(input: Partial<Reservation>): Promise<{ ok: boolean; error?: string }> {
-  if (isDemo()) { demoWarning("createReservation"); return { ok: true }; }
-  const supabase = await getClient();
-  const { error } = await supabase.from("reservations").insert([input]);
-  if (error) { logger.error("createReservation failed", error); return { ok: false, error: error.message }; }
-  return { ok: true };
-}
-
-export async function updateReservation(id: string, input: Partial<Reservation>): Promise<{ ok: boolean; error?: string }> {
-  if (isDemo()) { demoWarning("updateReservation"); return { ok: true }; }
-  const supabase = await getClient();
-  const { error } = await supabase.from("reservations").update(input).eq("id", id);
-  if (error) { logger.error("updateReservation failed", error); return { ok: false, error: error.message }; }
-  return { ok: true };
-}
-
-export async function deleteReservation(id: string): Promise<{ ok: boolean; error?: string }> {
-  if (isDemo()) { demoWarning("deleteReservation"); return { ok: true }; }
-  const supabase = await getClient();
-  const { error } = await supabase.from("reservations").delete().eq("id", id);
-  if (error) { logger.error("deleteReservation failed", error); return { ok: false, error: error.message }; }
-  return { ok: true };
-}
+// ─── Reservations (re-exported from dedicated module) ───
+export {
+  getReservationById,
+  getReservations,
+  getReservationEvents,
+  getReservationItems,
+  getApartmentReservations,
+  getClientReservations,
+  getLeadReservations,
+  getPackageReservations,
+  getReservationsForSelect,
+  checkAvailability,
+} from "@/lib/data/reservations";
 
 // ─── Trips ───
 
@@ -998,21 +975,7 @@ export async function getVehiclesForSelect(): Promise<SelectOption[]> {
   }));
 }
 
-export async function getReservationsForSelect(): Promise<SelectOption[]> {
-  if (isDemo()) { demoWarning("getReservationsForSelect"); return []; }
-  const supabase = await getClient();
-  const { data, error } = await supabase.from("reservations").select("id, client:client_id(full_name), check_in, check_out, reservation_status").order("created_at", { ascending: false });
-  if (error) { logger.error(`getReservationsForSelect failed: ${error?.message ?? String(error)}`); return []; }
-  return (data ?? []).map((r: Record<string, unknown>) => {
-    const client = r.client as { full_name?: string } | null;
-    const clientName = client?.full_name ?? null;
-    return {
-      id: r.id as string,
-      label: clientName ? `Réservation ${clientName.slice(0, 20)}` : "Réservation",
-      description: [r.check_in as string, r.check_out as string, r.reservation_status as string].filter(Boolean).join(" → "),
-    };
-  });
-}
+// getReservationsForSelect is re-exported from @/lib/data/reservations
 
 export async function getPaymentsForSelect(): Promise<SelectOption[]> {
   if (isDemo()) { demoWarning("getPaymentsForSelect"); return []; }

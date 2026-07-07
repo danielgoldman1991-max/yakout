@@ -6,7 +6,7 @@ import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { createSupabaseActionClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { logger } from "@/lib/utils/logger";
-import { convertLeadToOwner, createOwner as createOwnerData, updateOwner as updateOwnerData, deleteOwner as deleteOwnerData } from "@/lib/data/owners";
+import { createOwner as createOwnerData, updateOwner as updateOwnerData, deleteOwner as deleteOwnerData } from "@/lib/data/owners";
 
 async function getClient() {
   return createSupabaseActionClient();
@@ -153,24 +153,130 @@ export async function deleteOwnerAction(id: string): Promise<void> {
 
 // ─── Lead Conversion ───
 
-export async function convertLeadToOwnerAction(leadId: string): Promise<void> {
-  requireValidUUID(leadId, "lead");
-  if (!hasSupabaseEnv()) { logger.error("convertLeadToOwnerAction: Supabase non configure"); redirectFormError(`/dashboard/leads/${leadId}`, "Supabase n'est pas configure."); }
+type ConversionResult = {
+  success: boolean;
+  error?: string;
+  ownerId?: string;
+  debugCode?: string;
+  debugMessage?: string;
+  debugDetails?: string | null;
+  debugHint?: string | null;
+};
 
-  const result = await convertLeadToOwner(leadId);
-  if (result.error) {
-    logger.error("convertLeadToOwnerAction failed", { leadId, error: result.error });
-    redirectFormError(`/dashboard/leads/${leadId}`, result.error);
+function serializeSupabaseError(error: unknown) {
+  const value = error as {
+    code?: string;
+    message?: string;
+    details?: string;
+    hint?: string;
+    stack?: string;
+  };
+  return {
+    code: value?.code ?? "UNKNOWN",
+    message: value?.message ?? String(error),
+    details: value?.details ?? null,
+    hint: value?.hint ?? null,
+    stack: value?.stack ?? null,
+  };
+}
+
+export async function convertLeadToOwnerAction(leadId: string, _prev: unknown, _formData: FormData): Promise<ConversionResult> {
+  void _prev; void _formData;
+  requireValidUUID(leadId, "lead");
+
+  const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+    : "MISSING";
+  console.log("SUPABASE_TARGET", {
+    hostname: supabaseHostname,
+    environment: process.env.VERCEL_ENV,
+    commit: process.env.VERCEL_GIT_COMMIT_SHA,
+  });
+
+  if (!hasSupabaseEnv()) {
+    logger.error("convertLeadToOwnerAction: Supabase non configure");
+    return { success: false, error: "Supabase n'est pas configuree.", debugCode: "NO_SUPABASE_ENV" };
   }
-  if (!result.ownerId || !isValidUUID(result.ownerId)) {
-    logger.error("convertLeadToOwnerAction: ownerId invalide apres conversion", { leadId, ownerId: result.ownerId });
-    redirectFormError(`/dashboard/leads/${leadId}`, "La conversion n'a pas retourne de proprietaire valide.");
+
+  const supabase = await getClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    logger.error("convertLeadToOwnerAction: session expiree", userError ?? new Error("No user"));
+    return { success: false, error: "Votre session a expire. Reconnectez-vous.", debugCode: "NO_SESSION" };
+  }
+
+  const { data: rpcResult, error: rpcError } = await supabase.rpc("convert_lead_to_owner", { p_lead_id: leadId });
+
+  if (rpcError) {
+    const serialized = serializeSupabaseError(rpcError);
+    logger.error("convertLeadToOwnerAction:rpc", {
+      leadId,
+      userId: user.id,
+      ...serialized,
+    });
+    console.error("LEAD_TO_OWNER_CONVERSION_FAILED", {
+      leadId,
+      userId: user.id,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      error: serialized,
+    });
+
+    let message = "La conversion en proprietaire n'a pas pu etre effectuee.";
+
+    if (rpcError.code === "42501") {
+      message = "Votre session n'est pas valide. Reconnectez-vous.";
+    } else if (rpcError.code === "P0002") {
+      message = "Ce lead est introuvable.";
+    } else if (rpcError.code === "P0004") {
+      message = rpcError.message ?? "Aucune entreprise rattachee a votre compte.";
+    } else if (rpcError.code === "P0001") {
+      message = rpcError.message ?? "Le proprietaire n'a pas pu etre cree.";
+    } else if (
+      rpcError.code === "42883" || rpcError.code === "404" || rpcError.code === "PGRST108"
+      || (rpcError.message ?? "").toLowerCase().includes("could not find the function")
+      || (rpcError.message ?? "").toLowerCase().includes("does not exist")
+    ) {
+      message = "La conversion proprietaire n'est pas encore disponible. Contactez l'administrateur.";
+    }
+
+    return {
+      success: false,
+      error: message,
+      debugCode: serialized.code,
+      debugMessage: serialized.message,
+      debugDetails: serialized.details,
+      debugHint: serialized.hint,
+    };
+  }
+
+  if (!rpcResult || typeof rpcResult !== "object" || !rpcResult.success) {
+    logger.error("convertLeadToOwnerAction: resultat RPC invalide", { leadId, rpcResult });
+    return {
+      success: false,
+      error: "La base n'a pas retourne le proprietaire cree.",
+      debugCode: "INVALID_RPC_RESULT",
+      debugMessage: JSON.stringify(rpcResult),
+    };
+  }
+
+  const ownerId: string = rpcResult.owner_id;
+
+  if (!ownerId || !isValidUUID(ownerId)) {
+    logger.error("convertLeadToOwnerAction: owner_id invalide dans le resultat RPC", { leadId, rpcResult });
+    return {
+      success: false,
+      error: "La conversion n'a pas retourne de proprietaire valide.",
+      debugCode: "INVALID_OWNER_ID",
+      debugMessage: JSON.stringify(rpcResult),
+    };
   }
 
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${leadId}`);
   revalidatePath("/dashboard/owners");
-  redirect(`/dashboard/owners/${result.ownerId}`);
+  revalidatePath(`/dashboard/owners/${ownerId}`);
+  redirect(`/dashboard/owners/${ownerId}`);
 }
 
 // ─── Owner Properties ───

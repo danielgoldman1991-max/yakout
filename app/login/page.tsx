@@ -1,7 +1,9 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { signInWithPassword } from "@/lib/auth/actions";
 import { company } from "@/lib/constants/app";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +12,11 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error: errorParam } = await searchParams;
   const configured = hasSupabaseEnv();
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/dashboard/ecosystem");
+  }
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
@@ -23,13 +30,13 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <Card className="w-full max-w-md border-border bg-card/80 shadow-elevation-3 backdrop-blur-xl">
         <CardHeader className="text-center">
           <Image src={company.logo} alt="Yakout" width={58} height={58} className="mx-auto rounded shadow-elevation-1" />
-          <CardTitle className="pt-4 text-2xl">Espace Maria</CardTitle>
-          <CardDescription>Connexion securisee a Yakout Digital Ecosystem V1.</CardDescription>
+          <CardTitle className="pt-4 text-2xl">Espace équipe</CardTitle>
+          <CardDescription>Connexion sécurisée à Yakout Digital Ecosystem V1.</CardDescription>
         </CardHeader>
         <CardContent>
           {!configured ? (
             <div className="rounded-sm border border-gold/20 bg-gold/5 p-4 text-sm text-gold">
-              Supabase n&apos;est pas encore configure. Renseignez les variables d&apos;environnement, puis Maria pourra se connecter.
+              Supabase n&apos;est pas encore configuré. Renseignez les variables d&apos;environnement, puis l&apos;équipe pourra se connecter.
             </div>
           ) : (
             <form action={signInWithPassword} className="space-y-4">

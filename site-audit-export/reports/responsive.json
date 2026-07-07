@@ -1,0 +1,3794 @@
+[
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 205,
+          "y": 5678,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 205,
+          "y": 5678,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      },
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 559,
+          "y": 4537,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      },
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 559,
+          "y": 4537,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 205,
+          "y": 8095,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/apartments",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 205,
+          "y": 8095,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/apartments",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      },
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 559,
+          "y": 4647,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/apartments",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      },
+      {
+        "tag": "div",
+        "text": "",
+        "className": "pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/5 blur-3xl",
+        "rect": {
+          "x": 559,
+          "y": 4647,
+          "width": 240,
+          "height": 240
+        }
+      }
+    ]
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/transport",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/transport",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/transport",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "button",
+        "text": "Nature",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 394,
+          "y": 1768,
+          "width": 81,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Decouverte",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 487,
+          "y": 1768,
+          "width": 110,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Court sejour",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 609,
+          "y": 1768,
+          "width": 122,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 744,
+          "y": 1768,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour confort",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 327,
+          "y": 1847,
+          "width": 139,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Decouverte accompagnee",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 478,
+          "y": 1847,
+          "width": 203,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Experience premium",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 693,
+          "y": 1847,
+          "width": 165,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 869,
+          "y": 1847,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sur mesure",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 1019,
+          "y": 1847,
+          "width": 109,
+          "height": 35
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 3052,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 3052,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 3942,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 3942,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 4833,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 4833,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 5701,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 5701,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 6600,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 6600,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 7554,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 7554,
+          "width": 103,
+          "height": 33
+        }
+      }
+    ]
+  },
+  {
+    "issue": "whatsapp-overlap",
+    "route": "/packages",
+    "viewport": "390x844",
+    "theme": "light",
+    "whatsappText": "Contacter sur WhatsApp",
+    "ctaText": "Packs",
+    "whatsappRect": {
+      "x": 326,
+      "y": 780,
+      "width": 48,
+      "height": 48
+    },
+    "ctaRect": {
+      "x": 198,
+      "y": 790,
+      "width": 176,
+      "height": 43
+    }
+  },
+  {
+    "route": "/packages",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "button",
+        "text": "Nature",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 394,
+          "y": 1768,
+          "width": 81,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Decouverte",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 487,
+          "y": 1768,
+          "width": 110,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Court sejour",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 609,
+          "y": 1768,
+          "width": 122,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 744,
+          "y": 1768,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour confort",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 327,
+          "y": 1847,
+          "width": 139,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Decouverte accompagnee",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 478,
+          "y": 1847,
+          "width": 203,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Experience premium",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 693,
+          "y": 1847,
+          "width": 165,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 869,
+          "y": 1847,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sur mesure",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 1019,
+          "y": 1847,
+          "width": 109,
+          "height": 35
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 3052,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 3052,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 3942,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 3942,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 4833,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 4833,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 5701,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 5701,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 6600,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 6600,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 167,
+          "y": 7554,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 307,
+          "y": 7554,
+          "width": 103,
+          "height": 33
+        }
+      }
+    ]
+  },
+  {
+    "issue": "whatsapp-overlap",
+    "route": "/packages",
+    "viewport": "390x844",
+    "theme": "dark",
+    "whatsappText": "Contacter sur WhatsApp",
+    "ctaText": "Packs",
+    "whatsappRect": {
+      "x": 326,
+      "y": 780,
+      "width": 48,
+      "height": 48
+    },
+    "ctaRect": {
+      "x": 198,
+      "y": 790,
+      "width": 176,
+      "height": 43
+    }
+  },
+  {
+    "route": "/packages",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 744,
+          "y": 1647,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Experience premium",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 693,
+          "y": 1726,
+          "width": 165,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 869,
+          "y": 1726,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sur mesure",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 1019,
+          "y": 1726,
+          "width": 109,
+          "height": 35
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 545,
+          "y": 2818,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 685,
+          "y": 2818,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 545,
+          "y": 3685,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 685,
+          "y": 3685,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 545,
+          "y": 4663,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 685,
+          "y": 4663,
+          "width": 103,
+          "height": 33
+        }
+      }
+    ]
+  },
+  {
+    "route": "/packages",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 744,
+          "y": 1647,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Experience premium",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 693,
+          "y": 1726,
+          "width": 165,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sejour complet",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 869,
+          "y": 1726,
+          "width": 137,
+          "height": 35
+        }
+      },
+      {
+        "tag": "button",
+        "text": "Sur mesure",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 1019,
+          "y": 1726,
+          "width": 109,
+          "height": 35
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 545,
+          "y": 2818,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 685,
+          "y": 2818,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 545,
+          "y": 3685,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 685,
+          "y": 3685,
+          "width": 103,
+          "height": 33
+        }
+      },
+      {
+        "tag": "div",
+        "text": "PersonnaliserDemander",
+        "className": "flex gap-2",
+        "rect": {
+          "x": 545,
+          "y": 4663,
+          "width": 243,
+          "height": 33
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Demander",
+        "className": "inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-fore",
+        "rect": {
+          "x": 685,
+          "y": 4663,
+          "width": 103,
+          "height": 33
+        }
+      }
+    ]
+  },
+  {
+    "route": "/packages",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "button",
+        "text": "Sur mesure",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 1019,
+          "y": 1289,
+          "width": 109,
+          "height": 35
+        }
+      },
+      {
+        "tag": "table",
+        "text": "PackHebergementTransfertChauffeurCircuitPrixEssentiel Arrivee---Sur estimationSejour Confo",
+        "className": "w-full text-left text-sm",
+        "rect": {
+          "x": 433,
+          "y": 4459,
+          "width": 592,
+          "height": 488
+        }
+      },
+      {
+        "tag": "thead",
+        "text": "PackHebergementTransfertChauffeurCircuitPrix",
+        "className": "bg-gold/8 text-[10px] uppercase tracking-[0.13em] text-muted-foreground",
+        "rect": {
+          "x": 433,
+          "y": 4459,
+          "width": 592,
+          "height": 39
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "PackHebergementTransfertChauffeurCircuitPrix",
+        "className": "",
+        "rect": {
+          "x": 433,
+          "y": 4459,
+          "width": 592,
+          "height": 39
+        }
+      },
+      {
+        "tag": "th",
+        "text": "Prix",
+        "className": "px-4 py-3 font-medium",
+        "rect": {
+          "x": 928,
+          "y": 4459,
+          "width": 97,
+          "height": 39
+        }
+      },
+      {
+        "tag": "tbody",
+        "text": "Essentiel Arrivee---Sur estimationSejour Confort Marrakech-Sur estimationDecouverte Marrak",
+        "className": "",
+        "rect": {
+          "x": 433,
+          "y": 4498,
+          "width": 592,
+          "height": 450
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Essentiel Arrivee---Sur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4498,
+          "width": 592,
+          "height": 65
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4498,
+          "width": 97,
+          "height": 65
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Sejour Confort Marrakech-Sur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4563,
+          "width": 592,
+          "height": 85
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4563,
+          "width": 97,
+          "height": 85
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Decouverte MarrakechSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4648,
+          "width": 592,
+          "height": 65
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4648,
+          "width": 97,
+          "height": 65
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Ourika EvasionSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4713,
+          "width": 592,
+          "height": 65
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4713,
+          "width": 97,
+          "height": 65
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Agafay Sunset PremiumSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4778,
+          "width": 592,
+          "height": 85
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4778,
+          "width": 97,
+          "height": 85
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Marrakech Full ExperienceSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4863,
+          "width": 592,
+          "height": 85
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4863,
+          "width": 97,
+          "height": 85
+        }
+      }
+    ]
+  },
+  {
+    "route": "/packages",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "button",
+        "text": "Sur mesure",
+        "className": "shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition border-border bg-background/50 text-",
+        "rect": {
+          "x": 1019,
+          "y": 1289,
+          "width": 109,
+          "height": 35
+        }
+      },
+      {
+        "tag": "table",
+        "text": "PackHebergementTransfertChauffeurCircuitPrixEssentiel Arrivee---Sur estimationSejour Confo",
+        "className": "w-full text-left text-sm",
+        "rect": {
+          "x": 433,
+          "y": 4459,
+          "width": 592,
+          "height": 488
+        }
+      },
+      {
+        "tag": "thead",
+        "text": "PackHebergementTransfertChauffeurCircuitPrix",
+        "className": "bg-gold/8 text-[10px] uppercase tracking-[0.13em] text-muted-foreground",
+        "rect": {
+          "x": 433,
+          "y": 4459,
+          "width": 592,
+          "height": 39
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "PackHebergementTransfertChauffeurCircuitPrix",
+        "className": "",
+        "rect": {
+          "x": 433,
+          "y": 4459,
+          "width": 592,
+          "height": 39
+        }
+      },
+      {
+        "tag": "th",
+        "text": "Prix",
+        "className": "px-4 py-3 font-medium",
+        "rect": {
+          "x": 928,
+          "y": 4459,
+          "width": 97,
+          "height": 39
+        }
+      },
+      {
+        "tag": "tbody",
+        "text": "Essentiel Arrivee---Sur estimationSejour Confort Marrakech-Sur estimationDecouverte Marrak",
+        "className": "",
+        "rect": {
+          "x": 433,
+          "y": 4498,
+          "width": 592,
+          "height": 450
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Essentiel Arrivee---Sur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4498,
+          "width": 592,
+          "height": 65
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4498,
+          "width": 97,
+          "height": 65
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Sejour Confort Marrakech-Sur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4563,
+          "width": 592,
+          "height": 85
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4563,
+          "width": 97,
+          "height": 85
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Decouverte MarrakechSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4648,
+          "width": 592,
+          "height": 65
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4648,
+          "width": 97,
+          "height": 65
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Ourika EvasionSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4713,
+          "width": 592,
+          "height": 65
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4713,
+          "width": 97,
+          "height": 65
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Agafay Sunset PremiumSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4778,
+          "width": 592,
+          "height": 85
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4778,
+          "width": 97,
+          "height": 85
+        }
+      },
+      {
+        "tag": "tr",
+        "text": "Marrakech Full ExperienceSur estimation",
+        "className": "border-t border-border/60",
+        "rect": {
+          "x": 433,
+          "y": 4863,
+          "width": 592,
+          "height": 85
+        }
+      },
+      {
+        "tag": "td",
+        "text": "Sur estimation",
+        "className": "px-4 py-3 text-gold",
+        "rect": {
+          "x": 928,
+          "y": 4863,
+          "width": 97,
+          "height": 85
+        }
+      }
+    ]
+  },
+  {
+    "route": "/packages",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/services",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/services",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/blog",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/blog",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=reservation",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "issue": "whatsapp-overlap",
+    "route": "/contact?type=transport",
+    "viewport": "1024x900",
+    "theme": "light",
+    "whatsappText": "Contacter sur WhatsApp",
+    "ctaText": "Emailcontact@yakout.ma",
+    "whatsappRect": {
+      "x": 944,
+      "y": 820,
+      "width": 56,
+      "height": 56
+    },
+    "ctaRect": {
+      "x": 581,
+      "y": 762,
+      "width": 370,
+      "height": 74
+    }
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "issue": "whatsapp-overlap",
+    "route": "/contact?type=transport",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "whatsappText": "Contacter sur WhatsApp",
+    "ctaText": "Emailcontact@yakout.ma",
+    "whatsappRect": {
+      "x": 944,
+      "y": 820,
+      "width": 56,
+      "height": 56
+    },
+    "ctaRect": {
+      "x": 581,
+      "y": 762,
+      "width": 370,
+      "height": 74
+    }
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=transport",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=package",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/contact?type=proprietaire",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/proprietaires",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "",
+        "className": "absolute left-1/4 top-1/4 h-96 w-96 animate-glow-pulse rounded-full bg-gold/3 blur-3xl",
+        "rect": {
+          "x": 98,
+          "y": 211,
+          "width": 384,
+          "height": 384
+        }
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "",
+        "className": "absolute left-1/4 top-1/4 h-96 w-96 animate-glow-pulse rounded-full bg-gold/3 blur-3xl",
+        "rect": {
+          "x": 98,
+          "y": 211,
+          "width": 384,
+          "height": 384
+        }
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/login",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/apartments/appartement-confort-targa",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/packages/essentiel-arrivee",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/blog/marrakech-yakout",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "390x844",
+    "theme": "light",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "390x844",
+    "theme": "dark",
+    "documentWidth": 390,
+    "viewportWidth": 390,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "768x1024",
+    "theme": "light",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "768x1024",
+    "theme": "dark",
+    "documentWidth": 768,
+    "viewportWidth": 768,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Confier mon bien",
+        "className": "flex items-center gap-3",
+        "rect": {
+          "x": 574,
+          "y": 17,
+          "width": 206,
+          "height": 46
+        }
+      },
+      {
+        "tag": "a",
+        "text": "Confier mon bien",
+        "className": "items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] transition-all duration-300 bg-gold text-primary-foreground shado",
+        "rect": {
+          "x": 650,
+          "y": 17,
+          "width": 130,
+          "height": 46
+        }
+      }
+    ]
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1024x900",
+    "theme": "light",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Retour aux véhiculesToyota Land Cruiser6 placesAvec chauffeurToyota Land Cruiser Excursion",
+        "className": "relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/9] max-h-[70vh] min-h-[320px] md:min-h-[460px]",
+        "rect": {
+          "x": 0,
+          "y": 80,
+          "width": 1073,
+          "height": 460
+        }
+      },
+      {
+        "tag": "img",
+        "text": "",
+        "className": "object-cover",
+        "rect": {
+          "x": 0,
+          "y": 80,
+          "width": 1073,
+          "height": 460
+        }
+      },
+      {
+        "tag": "div",
+        "text": "",
+        "className": "absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent",
+        "rect": {
+          "x": 0,
+          "y": 80,
+          "width": 1073,
+          "height": 460
+        }
+      },
+      {
+        "tag": "div",
+        "text": "Retour aux véhiculesToyota Land Cruiser6 placesAvec chauffeurToyota Land Cruiser Excursion",
+        "className": "absolute bottom-0 left-0 right-0",
+        "rect": {
+          "x": 0,
+          "y": 378,
+          "width": 1073,
+          "height": 162
+        }
+      },
+      {
+        "tag": "div",
+        "text": "Retour aux véhiculesToyota Land Cruiser6 placesAvec chauffeurToyota Land Cruiser Excursion",
+        "className": "container mx-auto px-6 pb-8 md:px-12 md:pb-12",
+        "rect": {
+          "x": 25,
+          "y": 378,
+          "width": 1024,
+          "height": 162
+        }
+      }
+    ]
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1024x900",
+    "theme": "dark",
+    "documentWidth": 1024,
+    "viewportWidth": 1024,
+    "hasOverflow": false,
+    "elements": [
+      {
+        "tag": "div",
+        "text": "Retour aux véhiculesToyota Land Cruiser6 placesAvec chauffeurToyota Land Cruiser Excursion",
+        "className": "relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/9] max-h-[70vh] min-h-[320px] md:min-h-[460px]",
+        "rect": {
+          "x": 0,
+          "y": 80,
+          "width": 1073,
+          "height": 460
+        }
+      },
+      {
+        "tag": "img",
+        "text": "",
+        "className": "object-cover",
+        "rect": {
+          "x": 0,
+          "y": 80,
+          "width": 1073,
+          "height": 460
+        }
+      },
+      {
+        "tag": "div",
+        "text": "",
+        "className": "absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent",
+        "rect": {
+          "x": 0,
+          "y": 80,
+          "width": 1073,
+          "height": 460
+        }
+      },
+      {
+        "tag": "div",
+        "text": "Retour aux véhiculesToyota Land Cruiser6 placesAvec chauffeurToyota Land Cruiser Excursion",
+        "className": "absolute bottom-0 left-0 right-0",
+        "rect": {
+          "x": 0,
+          "y": 378,
+          "width": 1073,
+          "height": 162
+        }
+      },
+      {
+        "tag": "div",
+        "text": "Retour aux véhiculesToyota Land Cruiser6 placesAvec chauffeurToyota Land Cruiser Excursion",
+        "className": "container mx-auto px-6 pb-8 md:px-12 md:pb-12",
+        "rect": {
+          "x": 25,
+          "y": 378,
+          "width": 1024,
+          "height": 162
+        }
+      }
+    ]
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "documentWidth": 1440,
+    "viewportWidth": 1440,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1920x1080",
+    "theme": "light",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  },
+  {
+    "route": "/vehicles/toyota-land-cruiser-excursion",
+    "viewport": "1920x1080",
+    "theme": "dark",
+    "documentWidth": 1920,
+    "viewportWidth": 1920,
+    "hasOverflow": false,
+    "elements": []
+  }
+]

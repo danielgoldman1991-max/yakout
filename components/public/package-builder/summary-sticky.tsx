@@ -12,6 +12,7 @@ type Props = {
 
 export function SummarySticky({ state, pricing }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const priceLabel = getPricingLabel(pricing);
 
   return (
     <>
@@ -27,7 +28,7 @@ export function SummarySticky({ state, pricing }: Props) {
             <span className="text-sm font-medium text-foreground">Votre séjour</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-gold">{formatPrice(pricing.estimatedTotal)}</span>
+            <span className="text-sm font-semibold text-gold">{priceLabel}</span>
             {mobileOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronUp className="h-4 w-4 text-muted-foreground" />}
           </div>
         </button>
@@ -115,11 +116,17 @@ function SummaryContent({ state, pricing }: Props) {
         </div>
       )}
 
-      {pricing.estimatedTotal === 0 && (
+      {pricing.entries.length === 0 && (
         <p className="text-xs italic text-muted-foreground/50">Composez votre séjour pour voir le total estimatif.</p>
       )}
     </div>
   );
+}
+
+function getPricingLabel(pricing: PricingBreakdown) {
+  if (pricing.entries.length === 0) return "Estimation en attente";
+  if (pricing.estimatedTotal <= 0) return "Sur estimation";
+  return formatPrice(pricing.estimatedTotal);
 }
 
 function SummaryLine({ icon, label, price, sub }: { icon?: React.ReactNode; label: string; price?: number; sub?: string }) {

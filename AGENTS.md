@@ -36,8 +36,42 @@ Global audit et refonte UX/UI complète de l'écosystème Yakout : sites public 
   - Dark mode : sélecteurs shadcn + CSS `color-scheme:dark` fonctionnels.
 - **Packages hero overlay** : `bg-black/70` remplacé par `bg-gradient-to-b from-black/20 via-black/35 to-black/55`, image passée à `opacity-55`, titre avec `drop-shadow` pour lisibilité.
 
-### In Progress
-- LOT 2 — Consolidation design system (design tokens, shadcn Dialog/Command/Popover, boutons/cards standardisés).
+### Done (this session)
+- **Base schema compatibility — Réservations** (build 59 pages, 0 errors, 0 lint) :
+  - Cause racine identifiée : migration `20260710_reservations_module_lot1.sql` jamais exécutée → `RESERVATION_COLUMNS` référençait 40 colonnes dont ~30 inexistantes
+  - `RESERVATION_COLUMNS` réduit aux 10 colonnes du schéma base
+  - `mapReservation` : mappe `reservation_status` DB → `status` code
+  - Type `Reservation` : champs enrichis rendus optionnels
+  - `normalizeReservationInput` : seulement colonnes base ; `nights` (generated) exclu
+  - `changeReservationStatusAction` / `checkReservationAvailabilityAction` : `reservation_status` au lieu de `status`
+  - `createPaymentAction` : statuts anglais (`draft`, `confirmed`) au lieu du français
+  - Event handlers interdits extraits en client components : `ReservationFilters`, `DeleteReservationForm`
+  - Détail réservation : sections adaptées aux colonnes disponibles
+- **Accommodation revenue** : `createAccommodationRevenueAction` avec payload explicite ; `AccommodationRevenueForm` client component ; UUID helpers ; `optionalUuid` dans schéma paiement
+- **Package reservations** : `getPackageReservations` ajoutée dans data layer
+- **Lead detail page** : section réservations liées ajoutée
+- **Package detail page** : section réservations liées ajoutée
+  - Tokens CSS : `--popover`/`--popover-foreground` ajoutés (dark + light) et enregistrés dans `@theme inline`.
+  - Composants shadcn créés : `dialog.tsx`, `popover.tsx`, `tooltip.tsx`, `command.tsx`, `dropdown-menu.tsx` — tous avec `bg-popover text-popover-foreground`, animations `fade-in-down`/`fade-out-up`, hover gold, palette Yakout.
+  - `button.tsx` : `hover:bg-[#e8c86a]` → `hover:bg-gold-light` (hardcoded hex supprimé).
+  - `@radix-ui/react-dialog`, `@radix-ui/react-popover`, `@radix-ui/react-tooltip`, `@radix-ui/react-dropdown-menu`, `cmdk` installés.
+  - Dépendances : 5 packages ajoutés, `package.json` à jour.
+- **Conversion Lead → Propriétaire corrigée V3** (build 62 pages, 0 errors, 0 lint) :
+  - **Migration V3** (`20260708_atomic_lead_owner_conversion_v3.sql`) :
+    - RPC `convert_lead_to_owner` : `security definer` + `set search_path = public, auth`
+    - `auth.uid()` check au début (rejette les appels non authentifiés avec code `42501`)
+    - `revoke execute from public, anon` + `grant execute to authenticated`
+    - Colonnes adaptées au schéma réel : `owners.full_name` (pas `name`), `owners.company_id`, `leads.updated_at`
+    - Normalisation téléphone simplifiée : chiffres uniquement
+    - Flow atomique : FOR UPDATE → lookup lead_id/email/phone → create si nécessaire → link → return
+  - **Action Next.js** (`owner-actions.ts`) :
+    - Utilise `createSupabaseActionClient()` (client serveur auth, cookies) au lieu du client admin
+    - Vérifie la session auth avant d'appeler la RPC
+    - Log complet de l'erreur RPC (code, message, details, hint)
+    - Messages d'erreur contextualisés : "La conversion en proprietaire n'a pas pu etre effectuee."
+  - **Page lead** : `FormErrorBanner` déplacé au niveau page (hors carte "Modifier le lead")
+  - `updateLeadAction` supprime déjà `owner_id`/`converted_at` (inchangé, confirmé)
+  - `dropdown-menu.tsx` : imports inutilisés nettoyés
 
 ### Blocked
 - Migrations SQL non exécutées (pas d'accès Supabase Dashboard).

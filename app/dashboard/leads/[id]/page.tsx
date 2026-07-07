@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarDays, Mail, MessageCircle, Package, Phone, Users } from "lucide-react";
 import { getLeadById } from "@/lib/data";
+import { getLeadReservations } from "@/lib/data/reservations";
 import { updateLeadAction, deleteLeadAction, convertLeadToClientAction } from "@/lib/data/actions";
-import { convertLeadToOwnerAction } from "@/lib/data/owner-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,7 @@ import { formatDate } from "@/lib/formatters";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
 import { getLeadTypeLabel, leadRequestTypes, leadTypeLabels } from "@/lib/leads";
 import { MetadataDisplay } from "@/components/dashboard/lead-metadata-display";
+import { ConvertLeadToOwnerForm } from "@/components/dashboard/convert-lead-to-owner-form";
 
 const LEAD_STATUSES = ["new", "Nouveau", "A qualifier", "Contacte", "Devis envoye", "Confirme", "Perdu", "A relancer"];
 
@@ -197,6 +198,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const lead = await getLeadById(id);
   if (!lead) notFound();
 
+  const reservations = await getLeadReservations(id);
   const isPackage = lead.request_type === "package";
   const isTransport = lead.request_type === "transport" || lead.request_type === "chauffeur";
   const meta = lead.metadata as Record<string, unknown> | null;
@@ -218,12 +220,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         <p className="mt-1 text-sm text-muted-foreground">Cree le {formatDate(lead.created_at)} - {getLeadTypeLabel(lead.request_type)}</p>
       </div>
 
+      <FormErrorBanner />
+
       <div className="grid gap-5 xl:grid-cols-2">
         <div className="space-y-5">
           <Card>
             <CardHeader><CardTitle>Modifier le lead</CardTitle></CardHeader>
             <CardContent>
-              <FormErrorBanner />
               <form action={updateLeadAction.bind(null, id)} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1">
@@ -286,9 +289,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   Voir le proprietaire
                 </Link>
               ) : lead.request_type === "proprietaire" ? (
-                <form action={convertLeadToOwnerAction.bind(null, id)}>
-                  <Button type="submit" className="w-full">Convertir en proprietaire</Button>
-                </form>
+                <ConvertLeadToOwnerForm leadId={id} />
               ) : lead.client_id ? (
                 <Link href={`/dashboard/clients/${lead.client_id}`} className="inline-flex h-10 w-full items-center justify-center rounded-sm bg-gold px-5 text-sm font-semibold text-primary-foreground hover:-translate-y-0.5 transition-all duration-300 shadow-elevation-1 shadow-gold/10 hover:bg-gold-light hover:shadow-glow-gold">
                   Voir le client
@@ -341,6 +342,21 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
         <div className="space-y-5">
           {isPackage && meta && <PackageSummaryCard metadata={meta} />}
+
+          {reservations.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>Reservations ({reservations.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {reservations.map((r) => (
+                  <Link key={r.id} href={`/dashboard/reservations/${r.id}`} className="block rounded-sm border border-border p-3 transition hover:border-gold/30 hover:bg-gold/5">
+                    <p className="text-sm font-medium text-gold">{r.reservation_number}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{r.guest_name} · {formatDate(r.check_in)} - {formatDate(r.check_out)}</p>
+                    <p className="text-xs text-muted-foreground">{r.status} · {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "MAD", maximumFractionDigits: 0 }).format(Number(r.total_amount ?? 0))}</p>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {lead.metadata && typeof lead.metadata === "object" && !isPackage && Object.keys(lead.metadata).length > 0 && (
             <Card>

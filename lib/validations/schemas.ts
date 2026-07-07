@@ -163,20 +163,85 @@ export const apartmentSchema = z.object({
   owner_id: z.string().optional(),
 });
 
-export const reservationSchema = z.object({
+const emptyStringToUndefined = (value: unknown) => {
+  if (typeof value !== "string") return value;
+  return value.trim() === "" ? undefined : value;
+};
+
+const optionalText = z.preprocess(emptyStringToUndefined, z.string().optional());
+
+const dateString = z.string().min(1, "La date est requise.");
+
+const positiveNumber = (defaultValue: number) =>
+  z.preprocess((value) => (value === "" || value == null ? defaultValue : value), z.coerce.number().min(0));
+
+const guestNumber = (defaultValue: number) =>
+  z.preprocess((value) => (value === "" || value == null ? defaultValue : value), z.coerce.number().int().min(0));
+
+// Shared base: fields common to all reservation statuses
+const reservationBaseSchema = z.object({
   client_id: optionalUuid,
   apartment_id: optionalUuid,
-  check_in: z.string().min(1),
-  check_out: z.string().min(1),
-  source: z.string().optional(),
-  guests_count: optionalNumber(1, 1).optional(),
-  people_count: optionalNumber(1, 1),
-  total_amount: optionalNumber(0),
-  deposit_amount: optionalNumber(0),
-}).refine((data) => new Date(data.check_out).getTime() > new Date(data.check_in).getTime(), {
-  message: "La date de depart doit etre apres la date d'arrivee.",
-  path: ["check_out"],
-});
+  lead_id: optionalUuid,
+  package_id: optionalUuid,
+  check_in: dateString,
+  check_out: dateString,
+  source: optionalText,
+  external_reference: optionalText,
+  external_url: optionalText,
+  adults: guestNumber(1),
+  children: guestNumber(0),
+  infants: guestNumber(0),
+  guest_name: optionalText,
+  guest_email: optionalText,
+  guest_phone: optionalText,
+  guest_country: optionalText,
+  arrival_time: optionalText,
+  departure_time: optionalText,
+  currency: optionalText,
+  nightly_rate: positiveNumber(0),
+  total_amount: positiveNumber(0),
+  deposit_amount: positiveNumber(0),
+  cleaning_fee: positiveNumber(0),
+  tourist_tax: positiveNumber(0),
+  services_total: positiveNumber(0),
+  discount_amount: positiveNumber(0),
+  special_requests: optionalText,
+  internal_notes: optionalText,
+}).refine((data) => {
+  if (!data.check_in || !data.check_out) return true;
+  return new Date(data.check_out).getTime() > new Date(data.check_in).getTime();
+}, { message: "La date de depart doit etre posterieure a la date d'arrivee.", path: ["check_out"] });
+
+// Draft: minimal validation, most fields optional via preprocess
+export const reservationDraftSchema = reservationBaseSchema;
+
+// Option: dates + apartment required, guest name preferred
+export const reservationOptionSchema = reservationBaseSchema.safeExtend({
+  apartment_id: z.string().uuid("Selectionnez un appartement."),
+  check_in: dateString.min(1, "La date d'arrivee est requise."),
+  check_out: dateString.min(1, "La date de depart est requise."),
+  guest_name: z.string().min(1, "Le nom du voyageur est requis.").optional(),
+}).refine((data) => {
+  if (!data.check_in || !data.check_out) return false;
+  return new Date(data.check_out).getTime() > new Date(data.check_in).getTime();
+}, { message: "La date de depart doit etre posterieure a la date d'arrivee.", path: ["check_out"] });
+
+// Confirmation: all required fields validated
+export const reservationConfirmSchema = reservationBaseSchema.safeExtend({
+  client_id: z.string().uuid("Selectionnez ou creez un client."),
+  apartment_id: z.string().uuid("Selectionnez un appartement."),
+  check_in: dateString.min(1, "La date d'arrivee est requise."),
+  check_out: dateString.min(1, "La date de depart est requise."),
+  guest_name: z.string().min(1, "Le nom du voyageur est requis."),
+  adults: guestNumber(1).refine((v) => v >= 1, { message: "Au moins 1 adulte." }),
+  total_amount: positiveNumber(0).refine((v) => v > 0, { message: "Le montant total doit etre superieur a 0." }),
+}).refine((data) => {
+  return new Date(data.check_out).getTime() > new Date(data.check_in).getTime();
+}, { message: "La date de depart doit etre posterieure a la date d'arrivee.", path: ["check_out"] });
+
+// Backward-compatible alias
+export const reservationSchema = reservationDraftSchema;
 
 export const vehicleSchema = z.object({
   internal_name: z.string().min(2),
@@ -329,11 +394,11 @@ export const packageSchema = z.object({
 export const paymentSchema = z.object({
   client_name: z.string().optional(),
   client_id: optionalUuid,
-  lead_id: z.string().uuid().optional().nullable(),
-  reservation_id: z.string().uuid().optional().nullable(),
+  lead_id: optionalUuid,
+  reservation_id: optionalUuid,
   apartment_id: optionalUuid,
   owner_id: optionalUuid,
-  trip_id: z.string().uuid().optional().nullable(),
+  trip_id: optionalUuid,
   vehicle_id: optionalUuid,
   partner_id: optionalUuid,
   transfer_id: optionalUuid,
@@ -367,6 +432,27 @@ export const paymentSchema = z.object({
   if (data.stay_check_in && data.stay_check_out && new Date(data.stay_check_out).getTime() <= new Date(data.stay_check_in).getTime()) {
     ctx.addIssue({ code: "custom", message: "La date de depart doit etre apres la date d'arrivee.", path: ["stay_check_out"] });
   }
+});
+
+export const accommodationRevenueSchema = z.object({
+  apartment_id: z.string().uuid("Selectionnez un appartement valide."),
+  reservation_id: optionalUuid,
+  client_id: optionalUuid,
+  owner_id: optionalUuid,
+  amount: z.coerce.number().positive("Le montant doit etre superieur a zero."),
+  currency: z.string().trim().min(1, "Selectionnez une devise."),
+  payment_part: z.string().trim().min(1, "Selectionnez le type de paiement."),
+  status: z.string().trim().min(1, "Selectionnez un statut."),
+  payment_date: z.string().trim().min(1, "La date est obligatoire."),
+  source: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  description: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  notes: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  activity_type: z.string().optional(),
+  payment_method: z.string().optional(),
+  title: z.string().optional(),
+  stay_check_in: z.string().optional(),
+  stay_check_out: z.string().optional(),
+  guests_count: optionalNumber(1, 1).optional(),
 });
 
 export const expenseSchema = z.object({
@@ -428,8 +514,8 @@ export const documentSchema = z.object({
 export const blogPostSchema = z.object({
   title: z.string().min(2, "Le titre est obligatoire."),
   slug: z.string().min(2, "Le slug est obligatoire.").regex(/^[a-z0-9-]+$/, "Le slug ne doit contenir que des lettres minuscules, chiffres et tirets."),
-  excerpt: z.string().min(5, "L'extrait doit contenir au moins 5 caracteres."),
-  content: z.string().min(10, "Le contenu doit contenir au moins 10 caracteres."),
+  excerpt: z.string().optional(),
+  content: z.string().optional(),
   category: z.string().min(2, "La categorie est obligatoire."),
   cover_image_url: optionalImageUrl,
   cover_image_alt: z.string().optional(),
@@ -438,6 +524,23 @@ export const blogPostSchema = z.object({
   meta_title: z.string().max(70).optional(),
   meta_description: z.string().max(170).optional(),
   author: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.status !== "published") return;
+
+  const title = data.title.trim();
+  const excerpt = data.excerpt?.trim() ?? "";
+  const content = data.content?.trim() ?? "";
+  const looksLikeTest = /^(test|tttt+|lorem ipsum|demo)$/i;
+
+  if (title.length < 5 || looksLikeTest.test(title)) {
+    ctx.addIssue({ code: "custom", path: ["title"], message: "Le titre public doit contenir au moins 5 caracteres utiles." });
+  }
+  if (excerpt.length < 40 || looksLikeTest.test(excerpt)) {
+    ctx.addIssue({ code: "custom", path: ["excerpt"], message: "L'extrait public doit contenir au moins 40 caracteres utiles." });
+  }
+  if (content.length < 160 || looksLikeTest.test(content)) {
+    ctx.addIssue({ code: "custom", path: ["content"], message: "Le contenu public doit contenir au moins 160 caracteres utiles." });
+  }
 });
 
 export const serviceSchema = z.object({
