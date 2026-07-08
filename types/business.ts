@@ -547,7 +547,13 @@ export type OwnerPayout = {
   owner_id: string;
   apartment_id?: string;
   statement_id?: string;
+  reference?: string;
+  period_start?: string;
+  period_end?: string;
   amount: number;
+  gross_amount?: number;
+  deductions?: number;
+  net_amount?: number;
   currency: string;
   payout_method?: string;
   payout_status: string;
@@ -555,6 +561,94 @@ export type OwnerPayout = {
   notes?: string;
   created_at: string;
   updated_at?: string;
+};
+
+export type OwnerDashboardKPIs = {
+  propertyCount: number;
+  availableNights: number;
+  occupiedNights: number;
+  occupancyRate: number;
+  accommodationRevenue: number;
+  collectedRevenue: number;
+  ownerExpenses: number;
+  yakoutCommission: number;
+  netOwner: number;
+  payoutsMade: number;
+  balanceDue: number;
+  futureReservations: number;
+  openIncidents: number;
+};
+
+export type OwnerFinancialSummary = {
+  reservedAmount: number;
+  invoicedAmount: number;
+  collectedAmount: number;
+  remainingAmount: number;
+  refundedAmount: number;
+  expensesAmount: number;
+  commissionAmount: number;
+  ownerAmount: number;
+  payoutsMade: number;
+  balanceDue: number;
+};
+
+export type OwnerPropertyPerformance = {
+  apartmentId: string;
+  apartmentName: string;
+  availableNights: number;
+  blockedNights: number;
+  occupiedNights: number;
+  occupancyRate: number;
+  adr: number;
+  revpar: number;
+  avgStayDays: number;
+  reservationCount: number;
+  cancellationCount: number;
+  revenue: number;
+  prevPeriodRevenue?: number;
+  prevPeriodOccupancy?: number;
+};
+
+export type OwnerReport = {
+  id: string;
+  company_id?: string;
+  owner_id: string;
+  apartment_id?: string;
+  report_type: string;
+  label: string;
+  period_start: string;
+  period_end: string;
+  accounting_basis?: string;
+  currency?: string;
+  status: string;
+  version: number;
+  snapshot: Record<string, unknown>;
+  generated_at?: string;
+  finalized_at?: string;
+  pdf_storage_path?: string;
+  created_at: string;
+  updated_at?: string;
+};
+
+export type OwnerReportGeneration = {
+  ownerId: string;
+  apartmentId?: string;
+  reportType: string;
+  periodStart: string;
+  periodEnd: string;
+  accountingBasis?: string;
+  currency?: string;
+};
+
+export type OwnerPayoutItem = {
+  id: string;
+  company_id?: string;
+  payout_id: string;
+  source_type: string;
+  source_id: string;
+  amount: number;
+  description?: string;
+  created_at: string;
 };
 
 export type Document = {

@@ -411,6 +411,66 @@ export async function toggleApartmentPublishAction(id: string): Promise<void> {
 
 // ─── Attach Apartment to Owner ───
 
+// ─── Owner Reports ───
+
+export async function createOwnerReportAction(_prev: unknown, formData: FormData): Promise<{ success: boolean; message?: string }> {
+  if (isDemo()) return { success: false, message: "Supabase n'est pas configure." };
+  try {
+    const raw = Object.fromEntries(formData);
+    const ownerId = String(raw.ownerId ?? "").trim();
+    if (!ownerId || !isValidUUID(ownerId)) return { success: false, message: "ID proprietaire invalide." };
+
+    const admin = createSupabaseAdminClient();
+    const { data, error } = await admin.from("owner_reports").insert([{
+      owner_id: ownerId,
+      report_type: raw.reportType ?? "monthly_owner_statement",
+      label: `Rapport ${raw.reportType ?? ""} — ${raw.periodStart ?? ""} → ${raw.periodEnd ?? ""}`,
+      period_start: raw.periodStart ?? "",
+      period_end: raw.periodEnd ?? "",
+      accounting_basis: raw.accountingBasis ?? "activity",
+      currency: raw.currency ?? "MAD",
+      status: "draft",
+      version: 1,
+      snapshot: {},
+    }]).select("id").single();
+
+    if (error) {
+      logger.error("createOwnerReportAction failed", error);
+      return { success: false, message: "Erreur de sauvegarde." };
+    }
+
+    logger.info("Owner report created", { id: data.id, ownerId });
+    return { success: true };
+  } catch (err) {
+    logger.error("createOwnerReportAction threw", err);
+    return { success: false, message: "Erreur lors de la creation du rapport." };
+  }
+}
+
+export async function finalizeOwnerReportAction(reportId: string): Promise<void> {
+  requireValidUUID(reportId, "report");
+  if (isDemo()) { logger.info("[DEMO] finalizeOwnerReportAction", { reportId }); revalidatePath("/dashboard/owners"); return; }
+  const admin = createSupabaseAdminClient();
+  const { error } = await admin.from("owner_reports").update({ status: "finalized", finalized_at: new Date().toISOString() }).eq("id", reportId);
+  if (error) { logger.error("finalizeOwnerReportAction failed", error); return; }
+  logger.info("Owner report finalized", { reportId });
+  revalidatePath("/dashboard/owners");
+}
+
+export async function regenerateOwnerReportPdfAction(reportId: string): Promise<void> {
+  requireValidUUID(reportId, "report");
+  if (isDemo()) { logger.info("[DEMO] regenerateOwnerReportPdfAction", { reportId }); revalidatePath("/dashboard/owners"); return; }
+  try {
+    const { generateOwnerReportPdf } = await import("@/lib/pdf/generate-owner-report");
+    const result = await generateOwnerReportPdf(reportId);
+    if (!result.ok) { logger.error("regenerateOwnerReportPdfAction failed", new Error(result.error)); return; }
+    logger.info("Owner report PDF regenerated", { reportId, path: result.pdfPath });
+  } catch (err) {
+    logger.error("regenerateOwnerReportPdfAction threw", err);
+  }
+  revalidatePath("/dashboard/owners");
+}
+
 export async function attachApartmentToOwnerAction(ownerId: string, formData: FormData): Promise<void> {
   requireValidUUID(ownerId, "propriétaire");
   if (isDemo()) { logger.info("[DEMO] attachApartmentToOwnerAction", { ownerId }); revalidatePath(`/dashboard/owners/${ownerId}`); return; }
