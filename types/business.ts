@@ -253,6 +253,33 @@ export type Reservation = {
   apartment_name?: string;
 };
 
+export type ReservationListItem = {
+  id: string;
+  reservationLabel: string;
+  status: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  peopleCount: number;
+  totalAmount: number;
+  depositAmount: number;
+  remainingAmount: number;
+  paymentStatus: string;
+  source: string | null;
+  createdAt: string;
+  guest: {
+    name: string;
+    phone: string | null;
+    email: string | null;
+  } | null;
+  apartment: {
+    id: string;
+    title: string;
+    district: string | null;
+    imageUrl: string | null;
+  } | null;
+};
+
 export type ReservationEvent = {
   id: string;
   reservation_id: string;

@@ -14,12 +14,36 @@ export type ReservationStatus = (typeof RESERVATION_STATUS)[keyof typeof RESERVA
 export const RESERVATION_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
   option: "Option",
-  confirmed: "Confirmee",
-  checked_in: "Voyageur arrive",
-  checked_out: "Sejour termine",
-  cancelled: "Annulee",
-  no_show: "Non-presentation",
-  expired: "Option expiree",
+  confirmed: "Confirmée",
+  checked_in: "En séjour",
+  checked_out: "Séjour terminé",
+  cancelled: "Annulée",
+  no_show: "Non-présentation",
+  expired: "Option expirée",
+};
+
+export const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  "Non payé": "Non payé",
+  "Non paye": "Non payé",
+  Partiel: "Partiel",
+  Payé: "Payé",
+  Paye: "Payé",
+  unpaid: "Non payé",
+  partial: "Partiel",
+  paid: "Payé",
+  refunded: "Remboursé",
+};
+
+export const PAYMENT_STATUS_TONES: Record<string, "default" | "gold" | "ruby" | "muted" | "success" | "warning" | "info"> = {
+  "Non payé": "muted",
+  "Non paye": "muted",
+  Partiel: "warning",
+  Payé: "success",
+  Paye: "success",
+  unpaid: "muted",
+  partial: "warning",
+  paid: "success",
+  refunded: "info",
 };
 
 export const ALLOWED_TRANSITIONS: Record<string, string[]> = {
