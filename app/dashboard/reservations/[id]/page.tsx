@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPayments, getReservationById, getReservationEvents } from "@/lib/data";
 import { getReservationItems } from "@/lib/data/reservations";
-import { deleteReservationAction, changeReservationStatusAction } from "@/lib/data/actions";
+import { changeReservationStatusAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { RESERVATION_STATUS_LABELS } from "@/lib/constants/reservations";
+import { CancelReservationForm } from "@/components/dashboard/cancel-reservation-form";
+import { DeleteReservationForm } from "@/components/dashboard/delete-reservation-form";
 
 type BadgeTone = "default" | "gold" | "ruby" | "muted" | "success" | "warning" | "info";
 const STATUS_TONES: Record<string, BadgeTone> = {
@@ -142,29 +144,26 @@ export default async function ReservationDetailPage({ params }: { params: Promis
             {canCheckIn && (
               <form action={changeReservationStatusAction.bind(null, id)}>
                 <input type="hidden" name="status" value="checked_in" />
-                <Button type="submit" variant="primary" className="text-sm">Marquer arrive</Button>
+                <Button type="submit" variant="primary" className="text-sm">Marquer arrivée</Button>
               </form>
             )}
             {canCheckOut && (
               <form action={changeReservationStatusAction.bind(null, id)}>
                 <input type="hidden" name="status" value="checked_out" />
-                <Button type="submit" variant="primary" className="text-sm">Marquer parti</Button>
+                <Button type="submit" variant="primary" className="text-sm">Marquer départ</Button>
               </form>
             )}
             {canCancel && (
-              <form action={changeReservationStatusAction.bind(null, id)} onSubmit={(e) => { if (!prompt("Motif d'annulation ?")) e.preventDefault(); }}>
-                <input type="hidden" name="status" value="cancelled" />
-                <Button type="submit" variant="danger" className="text-sm">Annuler la reservation</Button>
-              </form>
+              <CancelReservationForm id={id} />
             )}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href={`/dashboard/reservations/${id}/edit`}>
               <Button variant="secondary" className="text-sm">Modifier</Button>
             </Link>
-            <form action={deleteReservationAction.bind(null, id)} onSubmit={(e) => { if (!confirm("Supprimer definitivement ?")) e.preventDefault(); }}>
-              <Button type="submit" variant="danger" className="text-sm">Supprimer</Button>
-            </form>
+            {(["draft", "option", "expired", "cancelled"].includes(reservation.status)) && (
+              <DeleteReservationForm id={id} />
+            )}
           </div>
         </Section>
       </div>
