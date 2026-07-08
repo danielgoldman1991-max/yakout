@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { createTripAction } from "@/lib/data/actions";
 import { getPackages, getTransportPartners, getTransportVehicles } from "@/lib/data/transport";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,7 +38,7 @@ export default async function NewTripPage({ searchParams }: { searchParams: Prom
             <Field label="Vehicule"><select name="vehicle_id" defaultValue={vehicle_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{vehicles.map((v) => <option key={v.id} value={v.id}>{v.public_name}</option>)}</select></Field>
             <Field label="Partenaire"><select name="partner_id" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></Field>
             <Field label="Pack lie"><select name="package_id" defaultValue={package_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{packages.map((p) => <option key={p.id} value={p.id}>{p.public_title ?? p.title}</option>)}</select></Field>
-            <Field label="Date *"><Input name="trip_date" type="date" required /></Field>
+            <DateField id="trip_date" name="trip_date" label="Date" required />
             <Field label="Heure debut"><Input name="start_time" type="time" /></Field>
             <Field label="Heure fin"><Input name="end_time" type="time" /></Field>
             <Field label="Depart *"><Input name="departure" required placeholder="Marrakech" /></Field>

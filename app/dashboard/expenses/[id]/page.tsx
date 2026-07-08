@@ -3,6 +3,7 @@ import { getExpenseById, getApartments, getVehicles, getPartners } from "@/lib/d
 import { getTransportTrips, getTransfers, getPackages } from "@/lib/data/transport";
 import { updateExpenseAction, deleteExpenseAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -98,10 +99,7 @@ export default async function ExpenseEditPage({ params }: { params: Promise<{ id
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Date *</label>
-                  <Input name="expense_date" type="date" defaultValue={expense.expense_date} required />
-                </div>
+                <DateField id="expense_date" name="expense_date" label="Date" value={expense.expense_date} required />
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Montant (DH) *</label>
                   <Input name="amount" type="number" min="0" defaultValue={expense.amount || 0} required />

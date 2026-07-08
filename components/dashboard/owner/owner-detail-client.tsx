@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DateField } from "@/components/ui/date-field";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import type { Owner, Apartment, OwnerDashboardKPIs, OwnerFinancialSummary, OwnerPropertyPerformance, OwnerReport, OwnerPayout, OwnerPayoutItem, Document, Reservation, MaintenanceTask } from "@/types/business";
 
@@ -50,12 +51,9 @@ export function OwnerDetailClient(props: OwnerDetailProps) {
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3 pt-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Période</label>
-            <input type="date" value={periodStart} onChange={e => setPeriodStart(e.target.value)}
-              className="rounded border px-2 py-1 text-sm" />
-            <span className="text-muted-foreground">→</span>
-            <input type="date" value={periodEnd} onChange={e => setPeriodEnd(e.target.value)}
-              className="rounded border px-2 py-1 text-sm" />
+            <DateField id="ownerPeriodStart" name="periodStart" label="Période" value={periodStart} onChange={(val) => setPeriodStart(val ?? "")} />
+            <span className="text-muted-foreground mt-5">→</span>
+            <DateField id="ownerPeriodEnd" name="periodEnd" label="" value={periodEnd} onChange={(val) => setPeriodEnd(val ?? "")} />
           </div>
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Bien</label>
@@ -172,7 +170,7 @@ function OverviewTab({ kpis, financialSummary, performance, reservations, mainte
               <div className="space-y-2">
                 {reservations.slice(0, 5).map(r => (
                   <div key={r.id} className="flex justify-between text-sm">
-                    <span>{r.check_in} → {r.check_out}</span>
+                    <span>{formatDate(r.check_in)} → {formatDate(r.check_out)}</span>
                     <span className="font-medium">{formatCurrency(r.total_amount)}</span>
                   </div>
                 ))}
@@ -298,8 +296,8 @@ function ReservationsTab({ reservations }: { reservations: Reservation[] }) {
         <tbody>
           {reservations.map(r => (
             <tr key={r.id} className="border-b last:border-0">
-              <td className="py-2 pr-4">{r.check_in}</td>
-              <td className="py-2 pr-4">{r.check_out}</td>
+              <td className="py-2 pr-4">{formatDate(r.check_in)}</td>
+              <td className="py-2 pr-4">{formatDate(r.check_out)}</td>
               <td className="py-2 pr-4">{r.nights}</td>
               <td className="py-2 pr-4 font-medium">{formatCurrency(r.total_amount)}</td>
               <td className="py-2 pr-4"><Badge tone={r.status === "confirmed" ? "success" : r.status === "checked_in" ? "info" : r.status === "checked_out" ? "default" : r.status === "cancelled" ? "ruby" : "warning"}>{r.status}</Badge></td>
@@ -410,7 +408,7 @@ function PayoutsTab({ payouts }: { payouts: (OwnerPayout & { items?: OwnerPayout
                   <div>
                     <CardTitle className="text-sm">{p.reference ?? `Reversement #${p.id.slice(0, 8)}`}</CardTitle>
                     <CardDescription>
-                      {p.period_start && p.period_end ? `${p.period_start} → ${p.period_end}` : formatDate(p.created_at)}
+                      {p.period_start && p.period_end ? `${formatDate(p.period_start)} → ${formatDate(p.period_end)}` : formatDate(p.created_at)}
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-3">
@@ -537,12 +535,10 @@ function ReportsTab({ reports, ownerId }: { reports: OwnerReport[]; ownerId: str
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium">Période début</label>
-                <input type="date" name="periodStart" required className="w-full rounded border px-2 py-1 text-sm" />
+                <DateField id="reportPeriodStart" name="periodStart" label="Période début" required />
               </div>
               <div>
-                <label className="text-sm font-medium">Période fin</label>
-                <input type="date" name="periodEnd" required className="w-full rounded border px-2 py-1 text-sm" />
+                <DateField id="reportPeriodEnd" name="periodEnd" label="Période fin" required />
               </div>
               <div>
                 <label className="text-sm font-medium">Base comptable</label>
@@ -585,7 +581,7 @@ function ReportsTab({ reports, ownerId }: { reports: OwnerReport[]; ownerId: str
               {reports.map(r => (
                 <tr key={r.id} className="border-b last:border-0">
                   <td className="py-2 pr-4">{r.label}</td>
-                  <td className="py-2 pr-4">{r.period_start} → {r.period_end}</td>
+                  <td className="py-2 pr-4">{formatDate(r.period_start)} → {formatDate(r.period_end)}</td>
                   <td className="py-2 pr-4">v{r.version}</td>
                   <td className="py-2 pr-4">
                     <Badge tone={r.status === "finalized" ? "success" : r.status === "sent" ? "info" : r.status === "draft" ? "default" : r.status === "superseded" ? "warning" : "ruby"}>

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
 import type { Partner, Vehicle } from "@/types/business";
@@ -107,9 +108,9 @@ export function VehicleForm({ partners, vehicle, defaultPartnerId }: { partners:
         <Card>
           <CardHeader><CardTitle>Documents & conformite</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <Field label="Expiration assurance"><Input name="insurance_expiry_date" type="date" defaultValue={vehicle?.insurance_expiry_date ?? ""} /></Field>
-            <Field label="Expiration visite technique"><Input name="technical_visit_expiry_date" type="date" defaultValue={vehicle?.technical_visit_expiry_date ?? ""} /></Field>
-            <Field label="Expiration autorisation"><Input name="authorization_expiry_date" type="date" defaultValue={vehicle?.authorization_expiry_date ?? ""} /></Field>
+            <DateField id="insurance_expiry_date" name="insurance_expiry_date" label="Expiration assurance" value={vehicle?.insurance_expiry_date ?? null} />
+            <DateField id="technical_visit_expiry_date" name="technical_visit_expiry_date" label="Expiration visite technique" value={vehicle?.technical_visit_expiry_date ?? null} />
+            <DateField id="authorization_expiry_date" name="authorization_expiry_date" label="Expiration autorisation" value={vehicle?.authorization_expiry_date ?? null} />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_featured" defaultChecked={vehicle?.is_featured ?? false} /> Mis en avant</label>
           </CardContent>
         </Card>

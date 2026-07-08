@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import type { TransferItem } from "../types";
 import { formatPrice } from "../price-calculator";
+import { DateField } from "@/components/ui/date-field";
 
 type Props = {
   transfers: TransferItem[];
@@ -92,10 +93,7 @@ export function TransferSelectionStep({ transfers, onAdd, onRemove }: Props) {
               <label className={labelClass}>Adresse de destination</label>
               <input type="text" className={inputClass} defaultValue={t.dropoffAddress} placeholder="Hébergement ou lieu" />
             </div>
-            <div className="space-y-1">
-              <label className={labelClass}>Date</label>
-              <input type="date" className={inputClass} defaultValue={t.date} />
-            </div>
+            <DateField id={`transfer-date-${t.id}`} name={`transfer-date-${t.id}`} label="Date" value={t.date} />
             <div className="space-y-1">
               <label className={labelClass}>Heure d&apos;arrivée</label>
               <input type="time" className={inputClass} defaultValue={t.time} />

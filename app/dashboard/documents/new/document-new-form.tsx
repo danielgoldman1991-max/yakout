@@ -6,6 +6,7 @@ import { RelationSearchSelect, type SelectOption } from "@/components/dashboard/
 import { DocumentUploadField } from "@/components/dashboard/document-upload-field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
@@ -86,8 +87,8 @@ export function DocumentNewForm(props: Props) {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [reminderDate, setReminderDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState<string | null>(null);
+  const [reminderDate, setReminderDate] = useState<string | null>(null);
   const [docStatus, setDocStatus] = useState("active");
   const [isPrivate, setIsPrivate] = useState(true);
 
@@ -344,11 +345,11 @@ export function DocumentNewForm(props: Props) {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Date d&apos;expiration</label>
-                <Input value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} type="date" />
+                <DateField id="expiry_date" name="expiry_date" label="Date d'expiration" value={expiryDate} onChange={setExpiryDate} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Date de rappel</label>
-                <Input value={reminderDate} onChange={(e) => setReminderDate(e.target.value)} type="date" />
+                <DateField id="reminder_date" name="reminder_date" label="Date de rappel" value={reminderDate} onChange={setReminderDate} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Statut</label>

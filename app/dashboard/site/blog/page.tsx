@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BlogDeleteButton } from "@/components/dashboard/blog-delete-button";
 import { Eye, EyeOff, Archive, ExternalLink } from "lucide-react";
+import { formatDateFr } from "@/lib/dates";
 
 const statusLabels: Record<string, string> = {
   draft: "Brouillon",
@@ -66,10 +67,10 @@ export default async function BlogDashboardPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {post.published_at ? new Date(post.published_at).toLocaleDateString("fr-FR") : "-"}
+                      {post.published_at ? formatDateFr(post.published_at) : "-"}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {new Date(post.updated_at).toLocaleDateString("fr-FR")}
+                      {formatDateFr(post.updated_at)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">

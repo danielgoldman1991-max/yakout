@@ -3,6 +3,7 @@
 import type { StayInfo } from "../types";
 import { TRIP_STYLE_OPTIONS, OBJECTIVE_OPTIONS, nightsBetween } from "../types";
 import { CountSelector } from "../selection-card";
+import { DateField } from "@/components/ui/date-field";
 
 type Props = {
   stay: StayInfo;
@@ -29,14 +30,8 @@ export function StayInfoStep({ stay, onChange }: Props) {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <label className={labelClass}>Date d&apos;arrivée</label>
-          <input type="date" value={stay.arrivalDate} onChange={(e) => update({ arrivalDate: e.target.value })} className={inputClass} min={new Date().toISOString().slice(0, 10)} />
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelClass}>Date de départ</label>
-          <input type="date" value={stay.departureDate} onChange={(e) => update({ departureDate: e.target.value })} className={inputClass} min={stay.arrivalDate || new Date().toISOString().slice(0, 10)} />
-        </div>
+        <DateField id="arrivalDate" name="arrivalDate" label="Date d'arrivée" value={stay.arrivalDate} onChange={(val) => update({ arrivalDate: val ?? "" })} min={new Date().toISOString().slice(0, 10)} />
+        <DateField id="departureDate" name="departureDate" label="Date de départ" value={stay.departureDate} onChange={(val) => update({ departureDate: val ?? "" })} min={stay.arrivalDate || new Date().toISOString().slice(0, 10)} />
       </div>
 
       {stay.nights > 0 && (

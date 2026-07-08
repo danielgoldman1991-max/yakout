@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
 import { ClientMessageTemplates } from "@/components/dashboard/client-message-templates";
@@ -244,7 +245,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         <Section title="Relances">
           <form action={createClientFollowupAction.bind(null, id)} className="mb-5 grid gap-3 md:grid-cols-2">
             <Input name="title" placeholder="Motif de relance" required />
-            <Input name="due_date" type="date" />
+            <DateField id="due_date" name="due_date" label="Echeance" />
             <select name="priority" defaultValue="normal" className="h-10 rounded-md border border-border bg-surface px-3 text-sm text-foreground">
               <option value="low">Basse</option>
               <option value="normal">Normale</option>

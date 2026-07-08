@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
 import { LeadForm } from "@/components/public/lead-form";
+import { ApartmentBookingForm } from "@/components/public/apartment-booking-form";
 import { PackageBuilder } from "@/components/public/package-builder/package-builder";
 import { site } from "@/lib/constants/site";
 import {
@@ -47,12 +48,40 @@ export default async function ContactPage({
   let selectedPackageContext: PackageContext | undefined;
   let basePackageContext: PackageContext | undefined;
 
+  // Apartment booking form data
+  let bookingApartment: {
+    id: string;
+    slug: string;
+    public_name: string;
+    district: string;
+    public_district?: string;
+    capacity: number;
+    bedrooms: number;
+    price_per_night?: number;
+    price_from: number;
+    image_url?: string;
+  } | undefined;
+
   if (requestType === "reservation" && apartmentSlug) {
     relatedType = "apartment";
     relatedSlug = apartmentSlug;
     const apartments = await getPublicApartments();
     const match = apartments.find((a) => a.slug === apartmentSlug);
     entityName = match?.public_name;
+    if (match) {
+      bookingApartment = {
+        id: match.id,
+        slug: match.slug,
+        public_name: match.public_name,
+        district: match.district,
+        public_district: match.public_district,
+        capacity: match.capacity,
+        bedrooms: match.bedrooms,
+        price_per_night: match.price_per_night,
+        price_from: match.price_from,
+        image_url: match.image_url,
+      };
+    }
   }
 
   if ((requestType === "vehicule" || requestType === "transport") && vehicleSlug) {
@@ -177,15 +206,23 @@ export default async function ContactPage({
                 <p className="text-sm font-medium text-foreground">{typeTitle}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{typeHelp}</p>
                 <div className="mt-6">
-                  <LeadForm
-                    requestType={requestType}
-                    source="contact_form"
-                    relatedType={relatedType}
-                    relatedSlug={relatedSlug}
-                    entityName={entityName}
-                    apartments={apartments.map((a) => ({ id: a.id, slug: a.slug, public_name: a.public_name }))}
-                    vehicles={vehicles.map((v) => ({ id: v.id, slug: v.slug, public_name: v.display_name }))}
-                  />
+                  {requestType === "reservation" ? (
+                    <ApartmentBookingForm
+                      mode={bookingApartment ? "selected_apartment" : "apartment_search"}
+                      apartment={bookingApartment}
+                      source="contact_form"
+                    />
+                  ) : (
+                    <LeadForm
+                      requestType={requestType}
+                      source="contact_form"
+                      relatedType={relatedType}
+                      relatedSlug={relatedSlug}
+                      entityName={entityName}
+                      apartments={apartments.map((a) => ({ id: a.id, slug: a.slug, public_name: a.public_name }))}
+                      vehicles={vehicles.map((v) => ({ id: v.id, slug: v.slug, public_name: v.display_name }))}
+                    />
+                  )}
                 </div>
               </div>
             </div>

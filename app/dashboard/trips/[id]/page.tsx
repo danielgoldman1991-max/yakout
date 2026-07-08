@@ -4,6 +4,7 @@ import { getDocuments, getExpenses, getPayments } from "@/lib/data";
 import { getPackages, getTransportPartners, getTransportTripById, getTransportVehicles } from "@/lib/data/transport";
 import { updateTripAction, deleteTripAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,7 +47,7 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
               <Field label="Vehicule"><select name="vehicle_id" defaultValue={trip.vehicle_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{vehicles.map((v) => <option key={v.id} value={v.id}>{v.public_name}</option>)}</select></Field>
               <Field label="Partenaire"><select name="partner_id" defaultValue={trip.partner_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></Field>
               <Field label="Pack lie"><select name="package_id" defaultValue={trip.package_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{packages.map((p) => <option key={p.id} value={p.id}>{p.public_title ?? p.title}</option>)}</select></Field>
-              <Field label="Date *"><Input name="trip_date" type="date" defaultValue={trip.trip_date ?? ""} required /></Field>
+              <DateField id="trip_date" name="trip_date" label="Date" value={trip.trip_date ?? null} required />
               <Field label="Heure debut"><Input name="start_time" type="time" defaultValue={trip.start_time ?? trip.trip_time ?? ""} /></Field>
               <Field label="Heure fin"><Input name="end_time" type="time" defaultValue={trip.end_time ?? ""} /></Field>
               <Field label="Depart *"><Input name="departure" defaultValue={trip.departure ?? ""} required /></Field>

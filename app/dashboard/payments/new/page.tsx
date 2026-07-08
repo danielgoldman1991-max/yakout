@@ -11,6 +11,7 @@ import {
 } from "@/lib/data";
 import { getTransportTrips, getTransfers, getPackages } from "@/lib/data/transport";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -230,10 +231,7 @@ export default async function NewPaymentPage({
                       <option value="other">Autre</option>
                     </select>
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Date paiement *</label>
-                    <Input name="paid_at" type="date" defaultValue={today()} required />
-                  </div>
+                  <DateField id="paid_at" name="paid_at" label="Date paiement" value={today()} required />
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-muted-foreground">Statut</label>
                     <select name="status" defaultValue="pending" className="w-full rounded-md border bg-surface px-3 py-2 text-sm">

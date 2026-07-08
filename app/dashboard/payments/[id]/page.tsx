@@ -5,6 +5,7 @@ import { getApartmentsForSelect, getClients, getDocuments, getPaymentById, getRe
 import { getTransportTrips, getTransfers, getPackages } from "@/lib/data/transport";
 import { updatePaymentAction, deletePaymentAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -149,10 +150,7 @@ export default async function PaymentEditPage({ params }: { params: Promise<{ id
                   <label className="text-xs font-medium text-muted-foreground">Montant (DH) *</label>
                   <Input name="amount" type="number" min="0.01" step="0.01" defaultValue={payment.amount} required />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Date paiement *</label>
-                  <Input name="paid_at" type="date" defaultValue={payment.paid_at} required />
-                </div>
+                <DateField id="paid_at" name="paid_at" label="Date paiement" value={payment.paid_at} required />
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Devise</label>
                   <Input name="currency" defaultValue={payment.currency ?? "MAD"} />
@@ -197,14 +195,8 @@ export default async function PaymentEditPage({ params }: { params: Promise<{ id
                     <option value="cancelled">Annule</option>
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Arrivee</label>
-                  <Input name="stay_check_in" type="date" defaultValue={payment.stay_check_in ?? ""} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Depart</label>
-                  <Input name="stay_check_out" type="date" defaultValue={payment.stay_check_out ?? ""} />
-                </div>
+                <DateField id="stay_check_in" name="stay_check_in" label="Arrivee" value={payment.stay_check_in ?? null} />
+                <DateField id="stay_check_out" name="stay_check_out" label="Depart" value={payment.stay_check_out ?? null} />
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Voyageurs</label>
                   <Input name="guests_count" type="number" min="1" defaultValue={payment.guests_count ?? ""} />

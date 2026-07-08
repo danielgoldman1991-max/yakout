@@ -7,6 +7,7 @@ import type { z } from "zod";
 import { toast } from "sonner";
 import { MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { leadSchema } from "@/lib/validations/schemas";
 import { site } from "@/lib/constants/site";
@@ -290,12 +291,10 @@ function ReservationFields() {
       <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gold">Détails du séjour</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <label className={label}>Date d&apos;arrivée</label>
-          <input type="date" name="check_in" className={inputClass} />
+          <DateField id="check_in" name="check_in" label="Date d'arrivée" />
         </div>
         <div className="space-y-1">
-          <label className={label}>Date de départ</label>
-          <input type="date" name="check_out" className={inputClass} />
+          <DateField id="check_out" name="check_out" label="Date de départ" />
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -380,8 +379,7 @@ function ChauffeurFields() {
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <label className={label}>Date souhaitée</label>
-          <input type="date" name="pickup_date" className={inputClass} />
+          <DateField id="pickup_date" name="pickup_date" label="Date souhaitée" />
         </div>
         <div className="space-y-1">
           <label className={label}>Heure souhaitée</label>
@@ -446,8 +444,7 @@ function VehiculeFields() {
       <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gold">Détails du véhicule</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <label className={label}>Date souhaitée</label>
-          <input type="date" name="vehicle_date" className={inputClass} />
+          <DateField id="vehicle_date" name="vehicle_date" label="Date souhaitée" />
         </div>
         <div className="space-y-1">
           <label className={label}>Durée souhaitée</label>
@@ -582,8 +579,7 @@ function ServicesFields() {
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <label className={label}>Date souhaitée</label>
-          <input type="date" name="service_date" className={inputClass} />
+          <DateField id="service_date" name="service_date" label="Date souhaitée" />
         </div>
         <div className="space-y-1">
           <label className={label}>Nombre de personnes</label>
@@ -614,8 +610,8 @@ function PackageFields({ relatedSlug }: { relatedSlug?: string }) {
       <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gold">Details du pack</p>
       <input type="hidden" name="package_slug" value={relatedSlug ?? ""} />
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1"><label className={label}>Debut sejour</label><input type="date" name="stay_start" className={inputClass} /></div>
-        <div className="space-y-1"><label className={label}>Fin sejour</label><input type="date" name="stay_end" className={inputClass} /></div>
+<DateField id="stay_start" name="stay_start" label="Debut sejour" />
+          <DateField id="stay_end" name="stay_end" label="Fin sejour" />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1"><label className={label}>Nombre de personnes</label><input type="number" name="package_people_count" min="1" className={inputClass} /></div>

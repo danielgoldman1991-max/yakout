@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Package, Calendar, MapPin } from "lucide-react";
 import type { PackageState, PricingBreakdown } from "./types";
+import { formatDateFr } from "@/lib/dates";
 import { formatPrice } from "./price-calculator";
 
 type Props = {
@@ -63,8 +64,8 @@ function SummaryContent({ state, pricing }: Props) {
           <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold/60" />
           <div>
             <p className="font-medium text-foreground">
-              {new Date(stay.arrivalDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-              {stay.departureDate ? ` → ${new Date(stay.departureDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}` : ""}
+              {formatDateFr(stay.arrivalDate)}
+              {stay.departureDate ? ` → ${formatDateFr(stay.departureDate)}` : ""}
               {stay.nights > 0 && <span className="text-muted-foreground"> · {stay.nights} nuits</span>}
             </p>
             <p className="text-muted-foreground/60">{stay.adults} adulte{stay.adults > 1 ? "s" : ""}{stay.children > 0 ? `, ${stay.children} enfant${stay.children > 1 ? "s" : ""}` : ""}</p>
@@ -97,7 +98,7 @@ function SummaryContent({ state, pricing }: Props) {
 
       {/* Expériences */}
       {experiences.length > 0 && experiences.map((exp) => (
-        <SummaryLine key={exp.id} label={exp.title} sub={exp.date ? new Date(exp.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : undefined} />
+        <SummaryLine key={exp.id} label={exp.title} sub={exp.date ? formatDateFr(exp.date) : undefined} />
       ))}
 
       {/* Services */}

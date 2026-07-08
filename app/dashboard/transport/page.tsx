@@ -8,7 +8,7 @@ import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/dashboard/status-badge";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Plane, Luggage, Handshake, Sparkles, Car, DollarSign, FileText, AlertTriangle, TrendingUp, MessageCircle } from "lucide-react";
 
 function getExpiringThreshold() {
@@ -187,7 +187,7 @@ export default async function TransportDashboardPage() {
                   <Link key={t.id} href={`/dashboard/transfers/${t.id}`} className="flex items-center justify-between rounded-sm border border-border/50 p-3 text-sm hover:border-gold/40">
                     <div>
                       <p className="font-medium">{t.transfer_type ?? "Transfert"}</p>
-                      <p className="text-xs text-muted-foreground">{t.pickup_date} {t.pickup_time ?? ""}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(t.pickup_date)} {t.pickup_time ?? ""}</p>
                     </div>
                     <StatusBadge status={t.status ?? "pending"} />
                   </Link>
@@ -211,7 +211,7 @@ export default async function TransportDashboardPage() {
                   <Link key={t.id} href={`/dashboard/trips/${t.id}`} className="flex items-center justify-between rounded-sm border border-border/50 p-3 text-sm hover:border-gold/40">
                     <div>
                       <p className="font-medium">{t.title ?? t.destination ?? "Trajet"}</p>
-                      <p className="text-xs text-muted-foreground">{t.trip_date} {t.trip_time ?? ""}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(t.trip_date)} {t.trip_time ?? ""}</p>
                     </div>
                     <StatusBadge status={t.status ?? t.trip_status ?? "planned"} />
                   </Link>

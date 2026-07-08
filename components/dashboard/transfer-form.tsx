@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import type { Partner, Transfer, Vehicle } from "@/types/business";
 
@@ -16,7 +17,7 @@ export function TransferForm({ action, transfer, vehicles, partners }: { action:
       <Field label="Vehicule"><select name="vehicle_id" defaultValue={transfer?.vehicle_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{vehicles.map((v) => <option key={v.id} value={v.id}>{v.public_name}</option>)}</select></Field>
       <Field label="Partenaire"><select name="partner_id" defaultValue={transfer?.partner_id ?? ""} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Aucun</option>{partners.map((p) => <option key={p.id} value={p.id}>{p.name}{p.phone ? ` · ${p.phone}` : ""}{p.city ? ` · ${p.city}` : ""}</option>)}</select></Field>
       <Field label="Chauffeur"><Input name="driver_name" defaultValue={transfer?.driver_name ?? ""} /></Field>
-      <Field label="Date"><Input name="pickup_date" type="date" defaultValue={transfer?.pickup_date ?? ""} /></Field>
+      <DateField id="pickup_date" name="pickup_date" label="Date" value={transfer?.pickup_date ?? null} />
       <Field label="Heure"><Input name="pickup_time" type="time" defaultValue={transfer?.pickup_time ?? ""} /></Field>
       <Field label="Vol"><Input name="flight_number" defaultValue={transfer?.flight_number ?? ""} /></Field>
       <Field label="Prise en charge"><Input name="pickup_location" defaultValue={transfer?.pickup_location ?? ""} /></Field>

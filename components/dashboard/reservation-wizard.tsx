@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createReservationAction } from "@/lib/data/actions";
 import { RESERVATION_STATUS_LABELS, RESERVATION_SOURCE_LABELS } from "@/lib/constants/reservations";
@@ -258,14 +259,8 @@ export default function ReservationWizard({
                 </select>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground" htmlFor="check_in">Arrivee *</label>
-                  <Input id="check_in" type="date" value={data.check_in} onChange={(e) => update("check_in", e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground" htmlFor="check_out">Depart *</label>
-                  <Input id="check_out" type="date" value={data.check_out} onChange={(e) => update("check_out", e.target.value)} />
-                </div>
+                <DateField id="check_in" name="check_in" label="Arrivee" value={data.check_in} onChange={(val) => update("check_in", val ?? "")} required />
+                <DateField id="check_out" name="check_out" label="Depart" value={data.check_out} onChange={(val) => update("check_out", val ?? "")} required />
               </div>
               {nightsStr && <p className="text-sm text-muted-foreground">{nightsStr}</p>}
               <div className="grid gap-4 sm:grid-cols-4">

@@ -1,5 +1,6 @@
 import { createLeadAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -51,10 +52,7 @@ export default function NewLeadPage() {
                   {LEAD_SOURCES.map((s) => (<option key={s} value={s}>{s}</option>))}
                 </select>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Date souhaitee</label>
-                <Input name="desired_date" type="date" />
-              </div>
+              <DateField id="desired_date" name="desired_date" label="Date souhaitee" />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1">

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
 import { PartnerForm } from "@/components/dashboard/partner_form";
 import { StatusBadge } from "@/components/dashboard/status-badge";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Phone, Mail, MessageCircle, Trash2, Plus, Truck, FileText, DollarSign, MapPin } from "lucide-react";
 
 const LABELS: Record<string, string> = {
@@ -198,7 +198,7 @@ export default async function PartnerDetailPage({ params }: { params: Promise<{ 
                       const tripCost = Number(t.cost_amount ?? t.cost_price ?? 0);
                       return (
                         <tr key={t.id} className="border-t border-border/60">
-                          <td className="px-3 py-2 text-xs">{t.trip_date}</td>
+                          <td className="px-3 py-2 text-xs">{formatDate(t.trip_date)}</td>
                           <td className="px-3 py-2">{t.destination}</td>
                           <td className="px-3 py-2">{t.client_name ?? "-"}</td>
                           <td className="px-3 py-2">{formatCurrency(tripAmount)}</td>

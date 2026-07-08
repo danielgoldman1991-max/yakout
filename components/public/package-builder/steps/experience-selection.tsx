@@ -4,6 +4,7 @@ import { Mountain, X } from "lucide-react";
 import type { ExperienceItem } from "../types";
 import { SelectionCard } from "../selection-card";
 import { formatPrice } from "../price-calculator";
+import { DateField } from "@/components/ui/date-field";
 
 type Props = {
   experiences: ExperienceItem[];
@@ -55,8 +56,7 @@ export function ExperienceSelectionStep({ experiences, selected, onAdd, onRemove
                   <div className="mt-2 space-y-2 rounded-sm border border-border/30 bg-surface p-3">
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-0.5">
-                        <label className={labelClass}>Date</label>
-                        <input type="date" value={sel?.date || ""} onChange={(e) => onUpdate(exp.id, { date: e.target.value, people: sel?.people || adults + childCount })} className={inputClass} />
+                        <DateField id={`exp-date-${exp.id}`} name={`exp-date-${exp.id}`} label="Date" value={sel?.date || ""} onChange={(val) => onUpdate(exp.id, { date: val || "", people: sel?.people || adults + childCount })} />
                       </div>
                       <div className="space-y-0.5">
                         <label className={labelClass}>Personnes</label>

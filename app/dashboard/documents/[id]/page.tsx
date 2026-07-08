@@ -6,6 +6,7 @@ import { getDocumentSignedUrl } from "@/lib/storage";
 import { formatDate } from "@/lib/formatters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -312,17 +313,11 @@ export default async function DocumentDetailPage({
                 <input name="vehicle_id" type="hidden" value={doc.vehicle_id ?? ""} />
                 <p className="text-sm text-muted-foreground">{doc.vehicle_id ?? "Aucun"}</p>
               </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Date d&apos;expiration</label>
-                  <Input name="expiry_date" type="date" defaultValue={doc.expiry_date ?? ""} />
-                </div>
+                <DateField id="expiry_date" name="expiry_date" label="Date d'expiration" value={doc.expiry_date ?? null} />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">Date de rappel</label>
-                  <Input name="reminder_date" type="date" defaultValue={doc.reminder_date ?? ""} />
-                </div>
+                <DateField id="reminder_date" name="reminder_date" label="Date de rappel" value={doc.reminder_date ?? null} />
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Statut</label>
                   <select name="doc_status" defaultValue={doc.doc_status} className="w-full rounded-md border bg-transparent px-3 py-2 text-sm">

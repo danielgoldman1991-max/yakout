@@ -1,6 +1,7 @@
 import "server-only";
 import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { OwnerReport, OwnerDashboardKPIs, OwnerFinancialSummary, OwnerPropertyPerformance } from "@/types/business";
+import { formatDateFr } from "@/lib/dates";
 
 const styles = StyleSheet.create({
   page: {
@@ -240,7 +241,7 @@ function Header({ report, ownerName }: { report: OwnerReport; ownerName: string 
       <View style={styles.meta}>
         <Text>Version {report.version}</Text>
         <Text>{getAccountingBasisLabel(report.accounting_basis)}</Text>
-        <Text>Généré le {new Date(report.created_at).toLocaleDateString("fr-FR")}</Text>
+        <Text>Généré le {formatDateFr(report.created_at)}</Text>
       </View>
     </View>
   );
@@ -334,7 +335,7 @@ function Footer({ report }: { report: OwnerReport }) {
   const generatedAt = report.generated_at ? new Date(report.generated_at) : new Date();
   return (
     <View style={styles.footer} fixed>
-      <Text style={styles.footerText}>Yakout Hospitality — Rapport généré le {generatedAt.toLocaleDateString("fr-FR")}</Text>
+      <Text style={styles.footerText}>Yakout Hospitality — Rapport généré le {formatDateFr(generatedAt)}</Text>
       <Text style={styles.footerText}>Rapport {report.status === "finalized" ? "finalisé" : "provisoire"} — v{report.version}</Text>
     </View>
   );

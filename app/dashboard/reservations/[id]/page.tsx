@@ -79,7 +79,7 @@ export default async function ReservationDetailPage({ params }: { params: Promis
             <StatusBadge status={reservation.status} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {reservation.client_id ?? "Sans client"} · {reservation.check_in} → {reservation.check_out}
+            {reservation.client_id ?? "Sans client"} · {formatDate(reservation.check_in)} → {formatDate(reservation.check_out)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createAccommodationRevenueAction } from "@/lib/data/actions";
@@ -145,14 +146,8 @@ export function AccommodationRevenueForm({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-4">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Arrivee</label>
-            <Input name="stay_check_in" type="date" />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Depart</label>
-            <Input name="stay_check_out" type="date" />
-          </div>
+          <DateField id="stay_check_in" name="stay_check_in" label="Arrivee" />
+          <DateField id="stay_check_out" name="stay_check_out" label="Depart" />
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">Voyageurs</label>
             <Input name="guests_count" type="number" min="1" defaultValue="1" />
@@ -205,13 +200,7 @@ export function AccommodationRevenueForm({
               <option value="other">Autre</option>
             </select>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Date de paiement *</label>
-            <Input name="payment_date" type="date" defaultValue={today()} required />
-            {fieldErrors.payment_date && (
-              <p className="text-xs text-red-400">{fieldErrors.payment_date[0]}</p>
-            )}
-          </div>
+          <DateField id="payment_date" name="payment_date" label="Date de paiement" value={today()} required error={fieldErrors.payment_date?.[0]} />
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">Statut</label>
             <select name="status" defaultValue="paid"

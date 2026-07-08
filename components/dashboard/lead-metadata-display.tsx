@@ -1,3 +1,5 @@
+import { formatDateLongFr } from "@/lib/dates";
+
 const metaLabels: Record<string, string> = {
   // Reservation
   check_in: "Date d'arrivée",
@@ -110,7 +112,7 @@ function formatMetaValue(key: string, value: string): string {
   // Date values look like YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     const d = new Date(value + "T00:00:00");
-    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    return formatDateLongFr(d);
   }
   if (key === "transport_type" && transportTypeLabels[value]) return transportTypeLabels[value];
   if (key === "transport_need" && transportNeedLabels[value]) return transportNeedLabels[value];

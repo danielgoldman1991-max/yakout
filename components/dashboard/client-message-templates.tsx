@@ -10,6 +10,7 @@ import {
   renderTemplate,
   yakoutMessageTemplates,
 } from "@/lib/clients-crm-shared";
+import { formatDateFr } from "@/lib/dates";
 
 type Props = {
   client: {
@@ -31,7 +32,7 @@ export function ClientMessageTemplates({ client, serviceType, apartmentName, veh
     service_type: serviceType ?? "Yakout",
     apartment_name: apartmentName ?? "",
     vehicle_name: vehicleName ?? "",
-    date: new Date().toLocaleDateString("fr-FR"),
+    date: formatDateFr(new Date()),
     company_name: "Yakout",
   }), [apartmentName, client.full_name, serviceType, vehicleName]);
   const message = renderTemplate(template.body, values);

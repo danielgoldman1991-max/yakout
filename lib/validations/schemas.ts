@@ -574,4 +574,53 @@ export const sitePageSchema = z.object({
   meta_description: z.string().max(170).optional(),
 });
 
+// ─── Booking form schemas (discriminated) ───
+
+const bookingDatesValid = (d: { check_in: string; check_out: string }) =>
+  !d.check_in || !d.check_out || new Date(d.check_out).getTime() > new Date(d.check_in).getTime();
+
+export const selectedApartmentSchema = z.object({
+  mode: z.literal("selected_apartment"),
+  name: z.string().trim().min(2, "Le nom est obligatoire."),
+  phone: z.string().trim().min(6, "Le téléphone est obligatoire."),
+  email: optionalEmail,
+  check_in: dateString,
+  check_out: dateString,
+  guests_count: z.coerce.number().int().min(1, "Au moins 1 voyageur."),
+  message: z.string().trim().optional().default(""),
+  apartment_id: z.string().uuid("Appartement invalide."),
+  apartment_slug: z.string().min(1),
+}).refine(bookingDatesValid, {
+  message: "La date de départ doit être après la date d'arrivée.",
+  path: ["check_out"],
+});
+
+export const apartmentSearchSchema = z.object({
+  mode: z.literal("apartment_search"),
+  name: z.string().trim().min(2, "Le nom est obligatoire."),
+  phone: z.string().trim().min(6, "Le téléphone est obligatoire."),
+  email: optionalEmail,
+  check_in: dateString,
+  check_out: dateString,
+  guests_count: z.coerce.number().int().min(1, "Au moins 1 voyageur."),
+  budget: z.coerce.number().min(0).optional(),
+  bedrooms_needed: z.string().optional(),
+  preferred_district: z.string().optional(),
+  message: z.string().trim().optional().default(""),
+}).refine(bookingDatesValid, {
+  message: "La date de départ doit être après la date d'arrivée.",
+  path: ["check_out"],
+});
+
+export const apartmentBookingSchema = z.discriminatedUnion("mode", [
+  selectedApartmentSchema,
+  apartmentSearchSchema,
+]);
+
+export type ApartmentBookingInput = z.infer<typeof apartmentBookingSchema>;
+export type SelectedApartmentInput = z.infer<typeof selectedApartmentSchema>;
+export type ApartmentSearchInput = z.infer<typeof apartmentSearchSchema>;
+
+// ─── End booking schemas ───
+
 export type LeadInput = z.infer<typeof leadSchema>;
