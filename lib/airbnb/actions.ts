@@ -26,8 +26,16 @@ export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData:
   try {
     await authContext();
     const url = airbnbUrlSchema.parse(String(formData.get("url") ?? ""));
-    const { extractAirbnbListing } = await import("./extraction.server");
-    const extraction = await extractAirbnbListing(url);
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`);
+    const response = await fetch(`${baseUrl}/api/airbnb/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+      signal: AbortSignal.timeout(90_000),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Analyse impossible.");
+    const extraction = data.extraction as AirbnbListingExtraction;
     extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
     return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType) } };
   } catch (error) {

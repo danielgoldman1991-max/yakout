@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+import { chromium } from "playwright-core";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 

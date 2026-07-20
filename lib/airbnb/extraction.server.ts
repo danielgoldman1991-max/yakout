@@ -1,9 +1,9 @@
 import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
 import { airbnbExtractionSchema, airbnbUrlSchema } from "./schemas";
 import { normalizeAmenity, normalizeRoomType } from "./normalization";
+import type { Browser } from "playwright-core";
 import type { AirbnbListingExtraction } from "./types";
 
 const numberNear = (text: string, words: string[]) => {
@@ -96,11 +96,11 @@ export async function extractAirbnbListingFromHtml(html: string, inputUrl: strin
   const url = airbnbUrlSchema.parse(inputUrl);
   const listingId = new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1];
   if (!listingId) throw new Error("Identifiant Airbnb introuvable.");
-
   return parseAirbnbHtml(html, url, listingId);
 }
 
 export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbListingExtraction> {
+  console.log("[airbnb-import] analysis started");
   const url = airbnbUrlSchema.parse(inputUrl);
   const listingId = new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1];
   if (!listingId) throw new Error("Identifiant Airbnb introuvable.");
@@ -108,29 +108,53 @@ export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbList
   await mkdir(path.join(root, "raw"), { recursive: true });
   await mkdir(path.join(root, "screenshots"), { recursive: true });
 
+  const { chromium: playwrightChromium } = await import("playwright-core");
   const headless = process.env.AIRBNB_IMPORT_VISIBLE !== "true";
-  const launchOptions: Parameters<typeof chromium.launch>[0] = { headless };
+  const launchOptions: Record<string, unknown> = { headless };
 
   if (process.env.VERCEL) {
     const sparticuz = await import("@sparticuz/chromium").then((m) => m.default).catch(() => null);
     if (sparticuz?.executablePath) {
       launchOptions.executablePath = await sparticuz.executablePath();
-      launchOptions.args = [...(launchOptions.args ?? []), ...(sparticuz.args ?? [])];
+      const sparticuzArgs = sparticuz.args ?? [];
+      const existingArgs = (launchOptions.args as string[]) ?? [];
+      launchOptions.args = [...existingArgs, ...sparticuzArgs];
     }
   }
 
-  const browser = await chromium.launch(launchOptions);
+  let browser: Browser | null = null;
   try {
-    const page = await browser.newPage({ locale: "fr-FR", timezoneId: "Africa/Casablanca", viewport: { width: 1440, height: 1000 } });
+    browser = await playwrightChromium.launch(launchOptions);
+    const context = await browser.newContext({
+      locale: "fr-FR",
+      timezoneId: "Africa/Casablanca",
+      viewport: { width: 1440, height: 1000 },
+      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+      extraHTTPHeaders: { "Accept-Language": "fr-FR,fr;q=0.9" },
+    });
+    const page = await context.newPage();
+    console.log("[airbnb-import] page loading");
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
     await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
+    console.log("[airbnb-import] page loaded");
     const bodyText = await page.locator("body").innerText();
     if (/captcha|confirmez que vous êtes humain|verify you are human/i.test(bodyText)) throw new Error("INTERVENTION_HUMAINE_REQUISE");
     const html = await page.content();
     await page.screenshot({ path: path.join(root, "screenshots", "full-page.png"), fullPage: true }).catch(() => {});
+    console.log("[airbnb-import] extraction completed");
     return parseAirbnbHtml(html, url, listingId);
+  } catch (error) {
+    console.error("[airbnb-import] analysis failed", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close().catch((closeError) => {
+        console.error("[airbnb-import] browser close failed", closeError);
+      });
+    }
   }
 }
 
