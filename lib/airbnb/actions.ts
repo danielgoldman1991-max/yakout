@@ -8,6 +8,7 @@ import { slugify } from "@/lib/utils/slug";
 import { airbnbImportConfirmationSchema, airbnbUrlSchema } from "./schemas";
 import { buildShortDescription, extractionContentHash, mapPropertyType } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
+import { analyzeAirbnbListing } from "./analyze-listing.server";
 
 export type AirbnbAnalysisState = { error?: string; preview?: { extraction: AirbnbListingExtraction; contentHash: string; generatedShortDescription: string; mappedPropertyType: string } };
 export type AirbnbConfirmationState = { error?: string; apartmentId?: string };
@@ -18,7 +19,7 @@ async function authContext() {
   if (!user) throw new Error("Session expirée. Reconnectez-vous.");
   const admin = createSupabaseAdminClient();
   const { data: profile } = await admin.from("profiles").select("company_id,role").eq("user_id", user.id).single();
-  if (!profile?.company_id || !["admin", "manager"].includes(profile.role)) throw new Error("Vous n’avez pas la permission d’importer un appartement.");
+  if (!profile?.company_id || !["admin", "manager"].includes(profile.role)) throw new Error("Vous n'avez pas la permission d'importer un appartement.");
   return { admin, user, companyId: profile.company_id as string };
 }
 
@@ -26,21 +27,14 @@ export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData:
   try {
     await authContext();
     const url = airbnbUrlSchema.parse(String(formData.get("url") ?? ""));
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`);
-    const response = await fetch(`${baseUrl}/api/airbnb/analyze`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
-      signal: AbortSignal.timeout(90_000),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Analyse impossible.");
-    const extraction = data.extraction as AirbnbListingExtraction;
+    const result = await analyzeAirbnbListing(url);
+    if (!result.success) return { error: result.message };
+    const extraction = result.data;
     extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
     return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType) } };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analyse impossible.";
-    return { error: message === "INTERVENTION_HUMAINE_REQUISE" ? "Intervention humaine requise. Lancez avec AIRBNB_IMPORT_VISIBLE=true dans votre terminal, puis réessayez : un navigateur s’ouvrira pour résoudre le captcha." : message };
+    return { error: message === "INTERVENTION_HUMAINE_REQUISE" ? "Intervention humaine requise. Lancez avec AIRBNB_IMPORT_VISIBLE=true dans votre terminal, puis réessayez : un navigateur s'ouvrira pour résoudre le captcha." : message };
   }
 }
 
