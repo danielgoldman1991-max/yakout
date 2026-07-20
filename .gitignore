@@ -41,6 +41,9 @@ yarn-error.log*
 # large assets
 *.zip
 
-# typescript
+# typeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# airbnb import artifacts
+/airbnb-import-artifacts/

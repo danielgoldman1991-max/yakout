@@ -1,6 +1,7 @@
 import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { chromium } from "playwright";
 import { airbnbExtractionSchema, airbnbUrlSchema } from "./schemas";
 import { normalizeAmenity, normalizeRoomType } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
@@ -91,30 +92,51 @@ function extractBodyText(html: string): string {
     .trim();
 }
 
+export async function extractAirbnbListingFromHtml(html: string, inputUrl: string): Promise<AirbnbListingExtraction> {
+  const url = airbnbUrlSchema.parse(inputUrl);
+  const listingId = new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1];
+  if (!listingId) throw new Error("Identifiant Airbnb introuvable.");
+
+  return parseAirbnbHtml(html, url, listingId);
+}
+
 export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbListingExtraction> {
   const url = airbnbUrlSchema.parse(inputUrl);
   const listingId = new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1];
   if (!listingId) throw new Error("Identifiant Airbnb introuvable.");
   const root = path.join(process.cwd(), "airbnb-import-artifacts");
   await mkdir(path.join(root, "raw"), { recursive: true });
+  await mkdir(path.join(root, "screenshots"), { recursive: true });
 
-  let html = "";
-  let responseStatus = 0;
-  for (const candidate of [url, `${url}?adults=2`, `${url}?source_impression_id=yakout_import`]) {
-    const res = await fetch(candidate, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-        "Accept": "text/html,application/xhtml+xml",
-      },
-      signal: AbortSignal.timeout(30_000),
-    });
-    responseStatus = res.status;
-    html = await res.text();
-    if (responseStatus < 500 && !/stay tuned|temporarily unavailable|error code:\s*503/i.test(html)) break;
+  const headless = process.env.AIRBNB_IMPORT_VISIBLE !== "true";
+  const launchOptions: Parameters<typeof chromium.launch>[0] = { headless };
+
+  if (process.env.VERCEL) {
+    const sparticuz = await import("@sparticuz/chromium").then((m) => m.default).catch(() => null);
+    if (sparticuz?.executablePath) {
+      launchOptions.executablePath = await sparticuz.executablePath();
+      launchOptions.args = [...(launchOptions.args ?? []), ...(sparticuz.args ?? [])];
+    }
   }
-  if (responseStatus >= 500 || !html) throw new Error("Airbnb est temporairement indisponible. Réessayez dans quelques instants.");
-  if (/captcha|confirmez que vous êtes humain|verify you are human/i.test(html)) throw new Error("INTERVENTION_HUMAINE_REQUISE");
+
+  const browser = await chromium.launch(launchOptions);
+  try {
+    const page = await browser.newPage({ locale: "fr-FR", timezoneId: "Africa/Casablanca", viewport: { width: 1440, height: 1000 } });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
+    const bodyText = await page.locator("body").innerText();
+    if (/captcha|confirmez que vous êtes humain|verify you are human/i.test(bodyText)) throw new Error("INTERVENTION_HUMAINE_REQUISE");
+    const html = await page.content();
+    await page.screenshot({ path: path.join(root, "screenshots", "full-page.png"), fullPage: true }).catch(() => {});
+    return parseAirbnbHtml(html, url, listingId);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function parseAirbnbHtml(html: string, url: string, listingId: string): Promise<AirbnbListingExtraction> {
+  const root = path.join(process.cwd(), "airbnb-import-artifacts");
+  await mkdir(path.join(root, "raw"), { recursive: true });
 
   const jsonLd = extractJsonLd(html);
   const text = extractBodyText(html);

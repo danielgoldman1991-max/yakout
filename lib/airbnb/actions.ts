@@ -32,7 +32,22 @@ export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData:
     return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType) } };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analyse impossible.";
-    return { error: message === "INTERVENTION_HUMAINE_REQUISE" ? "Intervention humaine requise. Relancez localement avec AIRBNB_IMPORT_VISIBLE=true." : message };
+    return { error: message === "INTERVENTION_HUMAINE_REQUISE" ? "Intervention humaine requise. Lancez avec AIRBNB_IMPORT_VISIBLE=true dans votre terminal, puis réessayez : un navigateur s’ouvrira pour résoudre le captcha." : message };
+  }
+}
+
+export async function analyzeAirbnbHtmlAction(_state: AirbnbAnalysisState, formData: FormData): Promise<AirbnbAnalysisState> {
+  try {
+    await authContext();
+    const url = String(formData.get("url") ?? "").trim();
+    const rawHtml = String(formData.get("rawHtml") ?? "").trim();
+    if (!rawHtml) throw new Error("Collez le code source de l'annonce.");
+    const { extractAirbnbListingFromHtml } = await import("./extraction.server");
+    const extraction = await extractAirbnbListingFromHtml(rawHtml, url);
+    extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
+    return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType) } };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Analyse impossible." };
   }
 }
 
