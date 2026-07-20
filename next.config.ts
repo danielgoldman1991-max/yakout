@@ -13,12 +13,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
-  outputFileTracingIncludes: {
-    "/api/airbnb/analyze": [
-      "./node_modules/@sparticuz/chromium/**/*",
-    ],
-  },
 };
 
 export default nextConfig;
