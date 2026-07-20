@@ -59,10 +59,14 @@ export async function analyzeAirbnbListing(rawUrl: string): Promise<AirbnbAnalys
   if (!listingId) return { success: false, code: "INVALID_AIRBNB_URL", message: PUBLIC_ERROR_MESSAGES.INVALID_AIRBNB_URL };
 
   console.log("[airbnb-import] browser launch started");
-  const { chromium: playwrightChromium } = await import("playwright-core").catch((e) => {
-    console.error("[airbnb-import] playwright-core import failed", { message: e.message });
+  let playwrightChromium: typeof import("playwright-core").chromium;
+  try {
+    playwrightChromium = (await import("playwright-core")).chromium;
+  } catch (e: unknown) {
+    const cause = e instanceof Error ? { message: e.message, stack: e.stack?.split("\n").slice(0, 3).join(";"), name: e.name } : String(e);
+    console.error("[airbnb-import] playwright-core import failed", cause);
     throw new AirbnbError("AIRBNB_BROWSER_LAUNCH_FAILED", PUBLIC_ERROR_MESSAGES.AIRBNB_BROWSER_LAUNCH_FAILED);
-  });
+  }
 
   const sparticuz = await import("@sparticuz/chromium").then((m) => m.default).catch(() => null);
   const launchOptions: Record<string, unknown> = { headless: true };

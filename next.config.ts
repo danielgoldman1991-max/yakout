@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "rplnihauyeifaldcjntx.supabase.co" },
     ],
   },
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/playwright-core/**/*"],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
