@@ -30,8 +30,11 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   Paye: "Payé",
   unpaid: "Non payé",
   partial: "Partiel",
+  partially_paid: "Partiellement payé",
   paid: "Payé",
+  overpaid: "Trop-perçu",
   refunded: "Remboursé",
+  unknown: "Données indisponibles",
 };
 
 export const PAYMENT_STATUS_TONES: Record<string, "default" | "gold" | "ruby" | "muted" | "success" | "warning" | "info"> = {
@@ -42,8 +45,11 @@ export const PAYMENT_STATUS_TONES: Record<string, "default" | "gold" | "ruby" | 
   Paye: "success",
   unpaid: "muted",
   partial: "warning",
+  partially_paid: "warning",
   paid: "success",
+  overpaid: "gold",
   refunded: "info",
+  unknown: "ruby",
 };
 
 export const ALLOWED_TRANSITIONS: Record<string, string[]> = {

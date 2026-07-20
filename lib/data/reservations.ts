@@ -5,6 +5,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { logger } from "@/lib/utils/logger";
 import { isValidUuid } from "@/lib/utils/uuid";
 import { BLOCKING_STATUSES } from "@/lib/constants/reservations";
+import { getReservationFinancialSummaries } from "@/lib/data/reservation-financial";
 
 // Base columns only (migrations NOT executed).
 const RESERVATION_COLUMNS = `
@@ -133,10 +134,12 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
   }
 
   const raw = (data ?? []) as Record<string, unknown>[];
+  const financials = await getReservationFinancialSummaries(raw.map((row) => ({ id: String(row.id), totalAmount: row.total_amount, currency: "MAD" })));
   const items: ReservationListItem[] = raw.map((r) => {
     const client = r.client as { full_name?: string; phone?: string; email?: string } | null;
     const apt = r.apartment as { id?: string; internal_name?: string; public_name?: string; district?: string; image_url?: string } | null;
     const id = String(r.id ?? "");
+    const financial = financials.get(id);
     return {
       id,
       reservationLabel: `RES-${id.slice(0, 8).toUpperCase()}`,
@@ -146,9 +149,9 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
       nights: Number(r.nights ?? 0),
       peopleCount: Number(r.people_count ?? 1),
       totalAmount: Number(r.total_amount ?? 0),
-      depositAmount: Number(r.deposit_amount ?? 0),
-      remainingAmount: Number(r.remaining_amount ?? 0),
-      paymentStatus: String(r.payment_status ?? "Non payé"),
+      depositAmount: financial?.state === "available" ? financial.netPaid : 0,
+      remainingAmount: financial?.state === "available" ? financial.balanceDue : 0,
+      paymentStatus: financial?.state === "available" ? financial.paymentStatus : "unknown",
       source: null,
       createdAt: String(r.created_at ?? ""),
       guest: client ? {

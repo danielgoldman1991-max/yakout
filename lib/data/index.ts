@@ -18,16 +18,11 @@ type ApartmentRow = Apartment & {
   apartment_images?: Array<{ url?: string | null; alt_text?: string | null; display_order?: number | null; image_url?: string | null; image_alt_text?: string | null; sort_order?: number | null; is_cover?: boolean | null }>;
 };
 
-const publicApartmentSelect = [
-  "id", "company_id", "internal_name", "public_name", "slug", "district", "city", "public_district",
-  "address_public_hint", "property_type", "bedrooms", "bathrooms", "beds", "capacity", "floor",
-  "has_elevator", "surface_area", "has_terrace", "has_pool", "has_parking",
-  "price_from", "price_per_night", "currency", "cleaning_fee", "deposit_amount", "minimum_nights",
-  "short_description", "detailed_description", "description", "highlights", "amenities", "house_rules",
-  "check_in_time", "check_out_time",
-  "image_url", "image_alt_text",
-  "public_status", "is_published", "is_featured", "published_at",
-  "meta_title", "meta_description",
+const publicApartmentViewSelect = [
+  "id", "public_name", "slug", "district", "public_district", "property_type",
+  "bedrooms", "bathrooms", "capacity", "price_from", "price_per_night", "currency",
+  "short_description", "detailed_description", "amenities", "image_url", "image_alt_text",
+  "public_status", "is_published", "is_featured", "published_at", "meta_title", "meta_description",
   "created_at", "updated_at",
 ].join(", ");
 
@@ -40,6 +35,11 @@ type ApartmentImageRow = {
   display_order?: number | null;
   sort_order?: number | null;
   is_cover?: boolean | null;
+};
+
+type PublicApartmentQueryResult = {
+  client: SupabaseClient;
+  rows: ApartmentRow[];
 };
 
 function isServer() {
@@ -65,6 +65,45 @@ async function getServerAdminClient(): Promise<SupabaseClient | null> {
   }
 }
 
+async function queryPublicApartments(slug?: string): Promise<PublicApartmentQueryResult> {
+  const publicClient = await getClient();
+  let viewQuery = publicClient.from("public_apartments_v").select(publicApartmentViewSelect);
+  if (slug) viewQuery = viewQuery.eq("slug", slug);
+  const viewResult = slug
+    ? await viewQuery.maybeSingle()
+    : await viewQuery.order("created_at", { ascending: false });
+
+  if (!viewResult.error) {
+    const rows = slug
+      ? (viewResult.data ? [viewResult.data as ApartmentRow] : [])
+      : ((viewResult.data ?? []) as ApartmentRow[]);
+    return { client: publicClient, rows };
+  }
+
+  if (!isServer()) throw new Error("DATA_UNAVAILABLE:public_apartments_v");
+
+  const admin = await getServerAdminClient();
+  if (!admin) throw new Error("DATA_UNAVAILABLE:public_apartments_v");
+
+  logger.warn("public_apartments_v absente; lecture serveur temporaire à colonnes publiques", viewResult.error);
+  let baseQuery = admin.from("apartments").select(publicApartmentViewSelect);
+  if (slug) baseQuery = baseQuery.eq("slug", slug);
+  baseQuery = baseQuery.eq("is_published", true);
+  const baseResult = slug
+    ? await baseQuery.maybeSingle()
+    : await baseQuery.order("created_at", { ascending: false });
+
+  if (baseResult.error) {
+    logger.error("Lecture publique temporaire des appartements impossible", baseResult.error);
+    throw new Error("DATA_UNAVAILABLE:apartments");
+  }
+
+  const rows = slug
+    ? (baseResult.data ? [baseResult.data as unknown as ApartmentRow] : [])
+    : ((baseResult.data ?? []) as unknown as ApartmentRow[]);
+  return { client: admin, rows };
+}
+
 function isDemo(): boolean {
   return false;
 }
@@ -74,8 +113,9 @@ function demoWarning(_entity: string) {
 }
 
 function publicFallback<T>(entity: string, error: unknown, fallback: T): T {
-  logger.warn(`${entity} indisponible dans Supabase, retour de secours utilise`, error);
-  return fallback;
+  void fallback;
+  logger.error(`${entity} indisponible dans Supabase`, error);
+  throw new Error(`DATA_UNAVAILABLE:${entity}`);
 }
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -333,40 +373,13 @@ export async function getDashboardApartmentById(id: string): Promise<Apartment |
 }
 
 export async function getPublishedApartments(): Promise<Apartment[]> {
-  if (isDemo()) { demoWarning("getPublishedApartments"); return mockApartments.filter((a) => a.is_published); }
-  const supabase = (await getServerAdminClient()) ?? (await getClient());
-  let { data, error } = await supabase.from("apartments").select(publicApartmentSelect).eq("public_status", "published").order("created_at", { ascending: false });
-  if (error || !data || data.length === 0) {
-    const fallback = await supabase.from("apartments").select(publicApartmentSelect).eq("is_published", true).order("created_at", { ascending: false });
-    data = fallback.data;
-    error = fallback.error;
-  }
-  if (error) return publicFallback("getPublishedApartments", error, mockApartments.filter((a) => a.is_published));
-  return mapApartmentsWithImagesFrom(supabase, data as ApartmentRow[]);
+  const result = await queryPublicApartments();
+  return mapApartmentsWithImagesFrom(result.client, result.rows);
 }
 
 export async function getPublicApartments(): Promise<Apartment[]> {
-  if (isDemo()) { demoWarning("getPublicApartments"); return [...mockApartments]; }
-
-  const supabase = (await getServerAdminClient()) ?? (await getClient());
-  let { data, error } = await supabase
-    .from("apartments")
-    .select(publicApartmentSelect)
-    .eq("public_status", "published")
-    .order("created_at", { ascending: false });
-
-  if (error || !data || data.length === 0) {
-    const fallback = await supabase
-      .from("apartments")
-      .select(publicApartmentSelect)
-      .eq("is_published", true)
-      .order("created_at", { ascending: false });
-    data = fallback.data;
-    error = fallback.error;
-  }
-
-  if (error) return publicFallback("getPublicApartments", error, [...mockApartments]);
-  return mapApartmentsWithImagesFrom(supabase, data as ApartmentRow[]);
+  const result = await queryPublicApartments();
+  return mapApartmentsWithImagesFrom(result.client, result.rows);
 }
 
 export function extractDistricts(apartments: Apartment[]): string[] {
@@ -379,17 +392,10 @@ export function extractDistricts(apartments: Apartment[]): string[] {
 }
 
 export async function getApartmentBySlug(slug: string): Promise<Apartment | null> {
-  if (isDemo()) { demoWarning("getApartmentBySlug"); return mockApartments.find((a) => a.slug === slug) ?? null; }
-  const supabase = (await getServerAdminClient()) ?? (await getClient());
-  let { data, error } = await supabase.from("apartments").select(publicApartmentSelect).eq("slug", slug).eq("public_status", "published").single();
-  if (error || !data) {
-    const fallback = await supabase.from("apartments").select(publicApartmentSelect).eq("slug", slug).eq("is_published", true).single();
-    data = fallback.data;
-    error = fallback.error;
-  }
-  if (error) return publicFallback("getApartmentBySlug", error, mockApartments.find((a) => a.slug === slug) ?? null);
-  const [apartment] = await mapApartmentsWithImagesFrom(supabase, [data as ApartmentRow]);
-  return apartment;
+  const result = await queryPublicApartments(slug);
+  if (result.rows.length === 0) return null;
+  const [apartment] = await mapApartmentsWithImagesFrom(result.client, result.rows);
+  return apartment ?? null;
 }
 
 export async function createApartment(input: Partial<Apartment>): Promise<{ ok: boolean; error?: string }> {
@@ -807,6 +813,21 @@ export async function getPublishedServices(): Promise<PublicService[]> {
   const { data, error } = await supabase.from("services").select("*").eq("is_published", true).order("display_order", { ascending: true });
   if (error) return publicFallback("getPublishedServices", error, mockServices.filter((s) => s.is_published));
   return data as PublicService[];
+}
+
+export async function getPublishedStayComposerServices(): Promise<Array<{ id: string; title: string; short_description?: string }>> {
+  if (isDemo()) return [];
+  const supabase = await getClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select("id,title,short_description")
+    .eq("is_published", true)
+    .order("display_order", { ascending: true });
+  if (error) {
+    logger.error("getPublishedStayComposerServices failed", error);
+    return [];
+  }
+  return (data ?? []) as Array<{ id: string; title: string; short_description?: string }>;
 }
 
 export async function getServices(): Promise<PublicService[]> {

@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     ".opencode/**",
     ".claude/**",
     ".agents/**",
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 

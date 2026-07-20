@@ -22,125 +22,76 @@ type PackageMeta = {
 };
 
 const metaBySlug: Record<string, PackageMeta> = {
-  "essentiel-arrivee": {
-    styleTags: ["Court sejour", "Essentiel"],
-    servicesCount: 2,
-    levelLabel: "Arrivee simple",
-    idealFor: "Vous avez deja le logement et voulez une arrivee fluide.",
-    image: yakoutImages.airportTransfer,
-    imageAlt: yakoutImageAlts.airportTransfer,
-    flow: ["Accueil aeroport", "Trajet prive", "Assistance WhatsApp"],
-  },
-  "sejour-confort-marrakech": {
-    styleTags: ["Couple", "Famille", "Sejour complet"],
+  "sejour-marrakech": {
+    styleTags: ["Séjour"],
     servicesCount: 3,
-    levelLabel: "Sejour confort",
-    idealFor: "Couple ou petite famille qui veut un sejour simple a coordonner.",
+    levelLabel: "Séjour à Marrakech",
+    idealFor: "Un séjour avec hébergement et accompagnement local.",
     image: yakoutImages.apartmentPremium,
     imageAlt: yakoutImageAlts.apartmentPremium,
-    flow: ["Appartement choisi", "Transfert aller", "Assistance sejour", "Transfert retour"],
+    flow: ["Hébergement sélectionné", "Assistance WhatsApp", "Services sur demande"],
   },
-  "decouverte-marrakech": {
-    styleTags: ["Decouverte", "Couple", "Famille"],
+  "sejour-chauffeur-prive": {
+    styleTags: ["Séjour", "Mobilité"],
     servicesCount: 4,
-    levelLabel: "Decouverte accompagnee",
-    idealFor: "Premier sejour a Marrakech avec une decouverte accompagnee.",
-    image: yakoutImages.hero,
-    imageAlt: yakoutImageAlts.hero,
-    flow: ["Installation", "Transfert", "Chauffeur demi-journee", "City tour"],
-  },
-  "ourika-evasion": {
-    styleTags: ["Nature", "Famille", "Decouverte"],
-    servicesCount: 4,
-    levelLabel: "Decouverte accompagnee",
-    idealFor: "Famille, couple ou sejour nature autour de Marrakech.",
-    image: yakoutImages.brandMoroccanBg,
-    imageAlt: "Atmosphere marocaine premium pour un circuit nature",
-    flow: ["Appartement", "Transfert", "Chauffeur prive", "Vallee de l'Ourika"],
-  },
-  "agafay-sunset-premium": {
-    styleTags: ["Premium", "Couple", "Sejour complet"],
-    servicesCount: 5,
-    levelLabel: "Experience premium",
-    idealFor: "Sejour romantique, anniversaire ou moment premium.",
+    levelLabel: "Avec chauffeur privé",
+    idealFor: "Des déplacements planifiés avec un interlocuteur unique.",
     image: yakoutImages.skodaChauffeur,
     imageAlt: yakoutImageAlts.skodaChauffeur,
-    flow: ["Appartement", "SUV chauffeur", "Agafay sunset", "Services premium"],
+    flow: ["Hébergement sélectionné", "Transfert aéroport", "Chauffeur selon le programme", "Assistance WhatsApp"],
   },
-  "marrakech-full-experience": {
-    styleTags: ["Premium", "Famille", "Sejour complet"],
-    servicesCount: 5,
-    levelLabel: "Sejour complet",
-    idealFor: "Client qui veut un sejour cle en main, flexible et complet.",
-    image: yakoutImages.ownerConcierge,
-    imageAlt: yakoutImageAlts.ownerConcierge,
-    flow: ["Appartement premium", "Transferts", "Chauffeur journee", "Circuit", "Services a la carte"],
-  },
-  "sur-mesure": {
-    styleTags: ["Sur mesure", "Premium", "Sejour complet"],
-    servicesCount: 5,
-    levelLabel: "Sur mesure",
-    idealFor: "Vous partez d'une idee et Yakout compose la combinaison exacte.",
+  "escapade-marrakech": {
+    styleTags: ["Escapade"],
+    servicesCount: 4,
+    levelLabel: "Escapade Marrakech",
+    idealFor: "Un séjour court organisé selon vos dates et vos priorités.",
     image: yakoutImages.hero,
     imageAlt: yakoutImageAlts.hero,
-    flow: ["Brief", "Selection", "Ajustements", "Confirmation"],
+    flow: ["Hébergement sélectionné", "Transport planifié", "Activités sur demande", "Assistance locale"],
+  },
+  "pack-personnalise": {
+    styleTags: ["Sur mesure"],
+    servicesCount: 4,
+    levelLabel: "Pack personnalisé",
+    idealFor: "Une proposition construite selon vos dates, voyageurs et besoins.",
+    image: yakoutImages.ownerConcierge,
+    imageAlt: yakoutImageAlts.ownerConcierge,
+    flow: ["Étude de la demande", "Sélection des services", "Proposition adaptée", "Confirmation des disponibilités"],
   },
 };
 
 export const fallbackPublicPackages: Package[] = [
   createFallbackPackage({
-    slug: "essentiel-arrivee",
-    title: "Essentiel Arrivee",
-    type: "arrival",
-    shortDescription: "Transfert aeroport et assistance WhatsApp pour demarrer le sejour sans friction.",
-    duration: "Arrivee",
-    price: null,
-    items: ["Transfert aeroport", "Assistance WhatsApp sejour"],
-  }),
-  createFallbackPackage({
-    slug: "sejour-confort-marrakech",
-    title: "Sejour Confort Marrakech",
+    slug: "sejour-marrakech",
+    title: "Séjour à Marrakech",
     type: "stay",
-    shortDescription: "Appartement selectionne, transfert aller-retour et assistance pendant le sejour.",
-    duration: "3 a 5 nuits",
+    shortDescription: "Hébergement sélectionné à Marrakech et assistance pendant votre séjour.",
     price: null,
-    items: ["Appartement selectionne", "Transfert aeroport aller-retour", "Assistance sejour"],
+    items: ["Hébergement sélectionné", "Assistance WhatsApp", "Services complémentaires sur demande"],
   }),
   createFallbackPackage({
-    slug: "decouverte-marrakech",
-    title: "Decouverte Marrakech",
-    type: "discovery",
-    shortDescription: "Appartement, transfert, chauffeur demi-journee et city tour pour une premiere experience claire.",
-    duration: "3 jours",
+    slug: "sejour-chauffeur-prive",
+    title: "Séjour avec chauffeur privé",
+    type: "stay",
+    shortDescription: "Hébergement, transfert aéroport et déplacements planifiés selon votre programme.",
     price: null,
-    items: ["Appartement", "Transfert aeroport", "Chauffeur demi-journee", "Marrakech City Tour"],
+    items: ["Hébergement sélectionné", "Transfert privé depuis l’aéroport", "Chauffeur selon le programme", "Assistance WhatsApp"],
   }),
   createFallbackPackage({
-    slug: "ourika-evasion",
-    title: "Ourika Evasion",
-    type: "nature",
-    shortDescription: "Appartement, chauffeur prive, circuit Ourika et assistance pour respirer hors de la ville.",
-    duration: "4 jours",
+    slug: "escapade-marrakech",
+    title: "Escapade Marrakech",
+    type: "short_stay",
+    shortDescription: "Un séjour court avec transport et organisation d’activités sur demande.",
     price: null,
-    items: ["Appartement", "Transfert aeroport", "Vehicule avec chauffeur", "Circuit Vallee de l'Ourika"],
+    items: ["Hébergement sélectionné", "Transport planifié", "Organisation d’activités sur demande", "Assistance locale"],
   }),
   createFallbackPackage({
-    slug: "agafay-sunset-premium",
-    title: "Agafay Sunset Premium",
-    type: "premium",
-    shortDescription: "Appartement, SUV avec chauffeur, sunset Agafay et services premium pour un sejour signature.",
-    duration: "4 a 6 nuits",
+    slug: "pack-personnalise",
+    title: "Pack personnalisé",
+    type: "custom",
+    shortDescription: "Une offre construite selon vos dates, le nombre de voyageurs et les services demandés.",
     price: null,
-    items: ["Appartement", "Transfert aeroport", "SUV avec chauffeur", "Experience Agafay Sunset", "Assistance premium"],
-  }),
-  createFallbackPackage({
-    slug: "marrakech-full-experience",
-    title: "Marrakech Full Experience",
-    type: "signature",
-    shortDescription: "Appartement premium, transfert, chauffeur journee, circuit et services a la carte.",
-    duration: "5 a 7 nuits",
-    price: null,
-    items: ["Appartement premium", "Transfert aeroport aller-retour", "Chauffeur journee", "Circuit Ourika ou Agafay", "Services personnalises"],
+    items: ["Étude de votre demande", "Sélection des services", "Proposition adaptée", "Confirmation des disponibilités"],
   }),
 ];
 
@@ -156,7 +107,7 @@ export function enrichPublicPackages(packages: Package[]): PublicPackageModel[] 
       idealFor: meta.idealFor,
       displayImage: pack.image_url || meta.image,
       displayImageAlt: pack.image_alt_text || meta.imageAlt,
-      duration_label: pack.duration_label || "Duree sur mesure",
+      duration_label: pack.duration_label,
       flow: meta.flow,
     };
   });
@@ -181,7 +132,7 @@ function createFallbackPackage(input: {
   title: string;
   type: string;
   shortDescription: string;
-  duration: string;
+  duration?: string;
   price: number | null;
   items: string[];
 }): Package {
@@ -195,8 +146,6 @@ function createFallbackPackage(input: {
     description: `${input.shortDescription}\n\nChaque element peut etre ajuste selon vos dates, votre rythme et votre niveau de confort.`,
     destination: "Marrakech",
     duration_label: input.duration,
-    capacity_min: 1,
-    capacity_max: 6,
     price_from: input.price ?? undefined,
     currency: "MAD",
     public_status: "published",

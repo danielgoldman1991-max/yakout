@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { WhatsAppFloatingButton } from "@/components/ui/whatsapp-floating-button";
 import { LeadForm } from "@/components/public/lead-form";
 import { ApartmentBookingForm } from "@/components/public/apartment-booking-form";
-import { PackageBuilder } from "@/components/public/package-builder/package-builder";
+import { StayComposer } from "@/components/public/package-builder/stay-composer";
 import { site } from "@/lib/constants/site";
 import {
   leadRequestTypes,
@@ -16,11 +16,9 @@ import {
   leadTypeLabels,
   normalizeLeadRequestType,
 } from "@/lib/leads";
-import { getPublicApartments } from "@/lib/data";
+import { getPublicApartments, getPublishedStayComposerServices } from "@/lib/data";
 import { getPublicVehicles } from "@/lib/data/public-vehicles";
-import { getPublishedPackages, getTransportTrips } from "@/lib/data/transport";
-import { fallbackPublicPackages } from "@/lib/packages/public-packages";
-import type { ApartmentSelection, VehicleSelection, ExperienceItem } from "@/components/public/package-builder/types";
+import { getPublishedPackages } from "@/lib/data/transport";
 import type { Package } from "@/types/business";
 
 export const dynamic = "force-dynamic";
@@ -33,10 +31,11 @@ export const metadata: Metadata = {
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; apartment?: string; vehicle?: string; service?: string; package?: string; basePackage?: string; mode?: string }>;
+  searchParams: Promise<{ type?: string; apartment?: string; apartmentSlug?: string; apartmentId?: string; vehicle?: string; service?: string; package?: string; packageId?: string; basePackage?: string; mode?: string }>;
 }) {
   const params = await searchParams;
-  const { type, apartment: apartmentSlug, vehicle: vehicleSlug, package: packageSlug, basePackage: basePackageSlug, mode } = params;
+  const { type, apartment, apartmentSlug: apartmentSlugParam, apartmentId, vehicle: vehicleSlug, package: packageSlug, packageId, basePackage: basePackageSlug } = params;
+  const apartmentSlug = apartmentSlugParam ?? apartment;
   const requestType = normalizeLeadRequestType(type);
   const typeMessage = leadTypeDescriptions[requestType];
   const typeTitle = leadTypeTitles[requestType];
@@ -96,14 +95,14 @@ export default async function ContactPage({
     relatedType = "package";
     relatedSlug = packageSlug;
     const packages = await getPublishedPackages();
-    const match = packages.find((pack) => pack.slug === packageSlug) ?? fallbackPublicPackages.find((pack) => pack.slug === packageSlug);
+    const match = packages.find((pack) => pack.slug === packageSlug);
     entityName = match?.public_title ?? match?.title;
     if (match) selectedPackageContext = toPackageContext(match);
   }
 
   if (requestType === "package" && basePackageSlug) {
     const packages = await getPublishedPackages();
-    const match = packages.find((pack) => pack.slug === basePackageSlug) ?? fallbackPublicPackages.find((pack) => pack.slug === basePackageSlug);
+    const match = packages.find((pack) => pack.slug === basePackageSlug);
     if (match) {
       basePackageContext = toPackageContext(match);
       entityName = entityName ?? match.public_title ?? match.title;
@@ -115,16 +114,15 @@ export default async function ContactPage({
 
   // Load package builder data
   let builderData: {
-    apartments: ApartmentSelection[];
-    vehicles: VehicleSelection[];
-    experiences: ExperienceItem[];
+    apartments: Array<{ id: string; slug: string; title: string; district: string; capacity: number; bedrooms: number; beds?: number; pricePerNight: number | null; imageUrl?: string }>;
+    services: Array<{ id: string; title: string; description?: string }>;
   } | null = null;
+  let composerApartment: { id: string; slug: string; title: string; district: string; capacity: number; bedrooms: number; beds?: number; pricePerNight: number | null; imageUrl?: string } | undefined;
 
   if (requestType === "package") {
-    const [apts, vehs, trips] = await Promise.all([
+    const [apts, publishedServices] = await Promise.all([
       getPublicApartments(),
-      getPublicVehicles(),
-      getTransportTrips(),
+      getPublishedStayComposerServices(),
     ]);
 
     builderData = {
@@ -135,35 +133,18 @@ export default async function ContactPage({
         district: a.public_district ?? a.district ?? "",
         capacity: a.capacity,
         bedrooms: a.bedrooms,
-        pricePerNight: a.price_per_night ?? a.price_from ?? 0,
+        beds: a.beds,
+        pricePerNight: Number(a.price_per_night ?? a.price_from) > 0 ? Number(a.price_per_night ?? a.price_from) : null,
         imageUrl: a.image_url,
       })),
-      vehicles: vehs.map((v) => ({
-        id: v.id,
-        slug: v.slug,
-        title: v.display_name,
-        capacity: v.capacity,
-        priceTransfer: v.price_transfer ?? v.price_from ?? 250,
-        priceHalfDay: v.price_from ?? 500,
-        priceFullDay: v.price_from ?? 800,
-        imageUrl: v.cover_image ?? v.image_url ?? undefined,
-      })),
-      experiences: trips
-        .filter((t) => t.trip_type === "excursion" || t.trip_type === "experience" || t.trip_type === "circuit" || !t.trip_type)
-        .map((t) => ({
-          id: t.id,
-          title: t.title ?? t.destination ?? "Circuit",
-          slug: t.id,
-          destination: t.destination_label ?? t.destination ?? "",
-          durationLabel: t.trip_time
-            ? `${t.trip_time}${t.end_time ? ` - ${t.end_time}` : ""}`
-            : "",
-          price: Number(t.sold_price ?? t.amount ?? 0),
-          imageUrl: undefined,
-          date: t.trip_date ?? "",
-          people: t.passengers_count ?? 2,
-        })),
+      services: publishedServices.map((service) => ({ id: service.id, title: service.title, description: service.short_description })),
     };
+    composerApartment = builderData.apartments.find((item) => item.id === apartmentId || item.slug === apartmentSlug);
+    if (packageId && !selectedPackageContext) {
+      const packages = await getPublishedPackages();
+      const match = packages.find((pack) => pack.id === packageId);
+      if (match) selectedPackageContext = toPackageContext(match);
+    }
   }
 
   // If package builder, render immersive experience
@@ -175,7 +156,7 @@ export default async function ContactPage({
         <main className="pt-[80px]">
           {/* Premium hero */}
 
-          <PackageBuilder data={builderData} selectedPackage={selectedPackageContext} basePackage={basePackageContext} mode={normalizePackageMode(mode, selectedPackageContext, basePackageContext)} />
+          <StayComposer apartments={builderData.apartments} services={builderData.services} selectedApartment={composerApartment} selectedPackage={selectedPackageContext ?? basePackageContext} />
         </main>
         <SiteFooter />
       </div>
@@ -315,6 +296,7 @@ export default async function ContactPage({
 }
 
 type PackageContext = {
+  id: string;
   slug: string;
   title: string;
   shortDescription?: string;
@@ -334,6 +316,7 @@ type PackageContext = {
 
 function toPackageContext(pack: Package): PackageContext {
   return {
+    id: pack.id,
     slug: pack.slug,
     title: pack.public_title ?? pack.title,
     shortDescription: pack.short_description,
@@ -351,9 +334,3 @@ function toPackageContext(pack: Package): PackageContext {
   };
 }
 
-function normalizePackageMode(mode: string | undefined, selectedPackage?: PackageContext, basePackage?: PackageContext) {
-  if (selectedPackage) return "order" as const;
-  if (basePackage) return "customize" as const;
-  if (mode === "order" || mode === "customize") return mode;
-  return "custom" as const;
-}

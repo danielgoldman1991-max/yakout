@@ -12,7 +12,7 @@ export function isReportingCertified(): boolean {
 }
 
 export function isReportTestingModeEnabled(): boolean {
-  return process.env.REPORTS_ALLOW_UNCERTIFIED_TESTING === "true" || process.env.NODE_ENV === "development";
+  return process.env.REPORTS_ALLOW_UNCERTIFIED_TESTING === "true";
 }
 
 export function getReportCertificationStatus(): ReportCertificationStatus {
@@ -22,7 +22,7 @@ export function getReportCertificationStatus(): ReportCertificationStatus {
 }
 
 export function canUseReportOutputs(status = getReportCertificationStatus()): boolean {
-  return status === "certified" || isReportTestingModeEnabled();
+  return status === "certified";
 }
 
 export function canExportReports(): boolean {
@@ -32,15 +32,15 @@ export function canExportReports(): boolean {
 export function applyCertificationGate(report: ReportData): ReportData {
   const certificationStatus = getReportCertificationStatus();
 
-  if (canUseReportOutputs(certificationStatus)) {
+  if (certificationStatus === "certified") {
     return {
       ...report,
       metadata: {
         ...report.metadata,
         certificationStatus,
-        testingMode: certificationStatus !== "certified",
+        testingMode: false,
       },
-      warnings: certificationStatus !== "certified" ? [REPORTS_UNCERTIFIED_MESSAGE, ...report.warnings] : report.warnings,
+      warnings: report.warnings,
     };
   }
 

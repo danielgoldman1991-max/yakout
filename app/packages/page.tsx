@@ -8,8 +8,14 @@ import { getPublishedPackages } from "@/lib/data/transport";
 import { enrichPublicPackages, fallbackPublicPackages } from "@/lib/packages/public-packages";
 
 export const metadata: Metadata = {
-  title: "Packs & sejours sur mesure a Marrakech | Yakout",
-  description: "Packs prets et sejours sur mesure a Marrakech : appartement, transfert aeroport, chauffeur, circuits Ourika ou Agafay et services premium.",
+  title: "Packs & séjours à Marrakech | Yakout Conciergerie",
+  description: "Composez votre séjour à Marrakech avec Yakout : hébergement sélectionné, mobilité, chauffeur privé et conciergerie selon vos besoins.",
+  openGraph: {
+    title: "Packs & séjours à Marrakech | Yakout Conciergerie",
+    description: "Hébergement, mobilité et conciergerie réunis dans une proposition adaptée à votre séjour à Marrakech.",
+    type: "website",
+    images: [{ url: "/images/yakout/yakout-hero-terrace.webp", width: 1200, height: 630, alt: "Terrasse d’un hébergement sélectionné à Marrakech" }],
+  },
 };
 
 export default async function PublicPackagesPage() {

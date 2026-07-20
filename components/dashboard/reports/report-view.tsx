@@ -135,7 +135,7 @@ export function ReportView({ report, reportId }: ReportViewProps) {
   const router = useRouter();
   const [exporting, setExporting] = useState<"pdf" | "xlsx" | null>(null);
   const isCertified = report.metadata.certificationStatus === "certified";
-  const canUseOutputs = isCertified || report.metadata.testingMode === true;
+  const canUseOutputs = isCertified;
 
   const handleExport = async (format: "pdf" | "xlsx") => {
     setExporting(format);
@@ -200,9 +200,9 @@ export function ReportView({ report, reportId }: ReportViewProps) {
 
       {!isCertified && (
         <div className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
-          <div className="font-semibold">{report.metadata.testingMode ? "Mode test - données non certifiées" : "Données non certifiées"}</div>
+          <div className="font-semibold">Données non certifiées</div>
           <p className="mt-1 text-xs leading-relaxed">
-            {report.metadata.testingMode ? "Les exports PDF, XLSX, l'impression et les totaux sont actifs pour les tests uniquement. Ne pas utiliser ces données pour une décision." : "Les exports PDF, XLSX, l'impression et les totaux sont désactivés jusqu'à certification indépendante du rapport."}
+            {"Les exports PDF, XLSX, l'impression et les totaux sont désactivés jusqu'à certification indépendante du rapport."}
           </p>
         </div>
       )}

@@ -10,6 +10,8 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 import { RESERVATION_STATUS_LABELS } from "@/lib/constants/reservations";
 import { CancelReservationForm } from "@/components/dashboard/cancel-reservation-form";
 import { DeleteReservationForm } from "@/components/dashboard/delete-reservation-form";
+import { getReservationFinancialSummary } from "@/lib/data/reservation-financial";
+import { reservationPaymentStatusLabels } from "@/lib/finance/reservation-financial-summary";
 
 type BadgeTone = "default" | "gold" | "ruby" | "muted" | "success" | "warning" | "info";
 const STATUS_TONES: Record<string, BadgeTone> = {
@@ -49,14 +51,15 @@ export default async function ReservationDetailPage({ params }: { params: Promis
   const reservation = await getReservationById(id);
   if (!reservation) notFound();
 
-  const [payments, events, items] = await Promise.all([
+  const [payments, events, items, financial] = await Promise.all([
     getPayments().then((all) => all.filter((p) => p.reservation_id === id)),
     getReservationEvents(id),
     getReservationItems(id),
+    getReservationFinancialSummary(id, reservation.total_amount, reservation.currency ?? "MAD"),
   ]);
 
-  const paidTotal = payments.filter((p) => p.status === "paid").reduce((s, p) => s + Number(p.amount ?? 0), 0);
-  const remaining = Math.max(0, Number(reservation.total_amount ?? 0) - paidTotal);
+  const paidTotal = financial.state === "available" ? financial.netPaid : null;
+  const remaining = financial.state === "available" ? financial.balanceDue : null;
 
   const canCheckIn = reservation.status === "confirmed";
   const canCheckOut = reservation.status === "checked_in";
@@ -92,8 +95,8 @@ export default async function ReservationDetailPage({ params }: { params: Promis
       {/* KPI */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Metric title="Total sejour" value={formatCurrency(reservation.total_amount)} subtitle={reservation.currency} />
-        <Metric title="Encaisse" value={formatCurrency(paidTotal)} subtitle={`${payments.length} paiement${payments.length > 1 ? "s" : ""}`} />
-        <Metric title="Reste a payer" value={formatCurrency(remaining)} subtitle={remaining <= 0 ? "Solde" : "En attente"} />
+        <Metric title="Encaisse" value={paidTotal == null ? "Données indisponibles" : formatCurrency(paidTotal)} subtitle={financial.state === "available" ? `${financial.paymentCount} paiement${financial.paymentCount > 1 ? "s" : ""}` : financial.reason} />
+        <Metric title="Reste a payer" value={remaining == null ? "Données indisponibles" : formatCurrency(remaining)} subtitle={remaining == null ? "Lecture financière impossible" : remaining <= 0 ? "Soldé" : "En attente"} />
         <Metric title="Nuits / Voyageurs" value={`${reservation.nights} nuits`} subtitle={`${reservation.total_guests ?? reservation.people_count} voyageur${(reservation.total_guests ?? reservation.people_count) > 1 ? "s" : ""}`} />
       </div>
 
@@ -132,9 +135,10 @@ export default async function ReservationDetailPage({ params }: { params: Promis
         <Section title="Tarification">
           <div className="space-y-2">
             <InfoRow label="Total" value={formatCurrency(reservation.total_amount)} />
-            <InfoRow label="Acompte" value={formatCurrency(reservation.deposit_amount)} />
-            <InfoRow label="Solde restant" value={formatCurrency(Math.max(0, reservation.total_amount - reservation.deposit_amount))} />
-            <InfoRow label="Statut paiement" value={reservation.payment_status === "paid" ? "Paye" : reservation.payment_status === "partial" ? "Partiel" : reservation.payment_status === "unpaid" ? "Non paye" : reservation.payment_status ?? "—"} />
+            <InfoRow label="Encaissé" value={financial.state === "available" ? formatCurrency(financial.netPaid) : "Données indisponibles"} />
+            <InfoRow label="Remboursé" value={financial.state === "available" ? formatCurrency(financial.refunded) : "Données indisponibles"} />
+            <InfoRow label="Solde restant" value={financial.state === "available" ? formatCurrency(financial.balanceDue) : "Données indisponibles"} />
+            <InfoRow label="Statut paiement" value={financial.state === "available" ? reservationPaymentStatusLabels[financial.paymentStatus] : "Données indisponibles"} />
           </div>
         </Section>
 

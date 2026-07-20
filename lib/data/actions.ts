@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidatePaymentGraph } from "@/lib/cache/payment-revalidation";
 import { redirect } from "next/navigation";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { createSupabaseActionClient } from "@/lib/supabase/server";
@@ -870,7 +871,7 @@ export async function createReservationAction(formData: FormData): Promise<void>
 
   if (isDemo()) {
     logger.info("[DEMO] createReservationAction", { intent, ...parsed.data });
-    revalidatePath("/dashboard/reservations");
+    revalidateReservationPaths();
     redirect("/dashboard/reservations");
   }
 
@@ -905,7 +906,7 @@ export async function updateReservationAction(id: string, formData: FormData): P
   }
   if (isDemo()) {
     logger.info("[DEMO] updateReservationAction", { id, ...parsed.data });
-    revalidatePath("/dashboard/reservations");
+    revalidateReservationPaths(id);
     return;
   }
   const supabase = await getClient();
@@ -928,7 +929,7 @@ export async function changeReservationStatusAction(id: string, formData: FormDa
 
   if (isDemo()) {
     logger.info("[DEMO] changeReservationStatusAction", { id, newStatus });
-    revalidatePath("/dashboard/reservations");
+    revalidateReservationPaths(id);
     return;
   }
 
@@ -994,7 +995,7 @@ export async function checkReservationAvailabilityAction(formData: FormData): Pr
 }
 
 export async function deleteReservationAction(id: string): Promise<void> {
-  if (isDemo()) { logger.info("[DEMO] deleteReservationAction", { id }); revalidatePath("/dashboard/reservations"); return; }
+  if (isDemo()) { logger.info("[DEMO] deleteReservationAction", { id }); revalidateReservationPaths(id); return; }
   const supabaseAdmin = createSupabaseAdminClient();
 
   // Check for linked payments first
@@ -1406,13 +1407,7 @@ export async function createAccommodationRevenueAction(formData: FormData): Prom
   }
 
   // 5. Revalidate
-  revalidatePath("/dashboard/payments");
-  revalidatePath("/dashboard/finance");
-  revalidatePath(`/dashboard/apartments/${apartment.id}`);
-  if (payload.reservation_id) {
-    revalidatePath(`/dashboard/reservations/${payload.reservation_id}`);
-  }
-  revalidatePath("/dashboard/reports");
+  revalidatePaymentGraph({ paymentId: payment.id, reservationId: String(payload.reservation_id || "") || null, apartmentId: apartment.id, clientId: String(payload.client_id || "") || null, ownerId: String(payload.owner_id || "") || null, organizationId: companyId });
 
   return { success: true };
 }
@@ -1430,11 +1425,26 @@ export async function createPaymentAction(formData: FormData): Promise<void> {
   const paymentInput = normalizePaymentInput(parsed.data);
   const apartmentId = paymentInput.apartment_id as string | null;
 
-  if (apartmentId) {
+  if (paymentInput.reservation_id) {
+    const { data: linkedReservation, error: reservationLookupError } = await supabase
+      .from("reservations")
+      .select("id,apartment_id,client_id")
+      .eq("id", paymentInput.reservation_id)
+      .eq("company_id", companyId)
+      .maybeSingle();
+    if (reservationLookupError || !linkedReservation) {
+      logger.error("createPaymentAction reservation lookup failed", reservationLookupError ?? new Error("Réservation introuvable dans cette organisation."));
+      redirectFormError(errorPath, "Réservation introuvable dans votre organisation.");
+    }
+    paymentInput.apartment_id = paymentInput.apartment_id || linkedReservation.apartment_id || null;
+    paymentInput.client_id = paymentInput.client_id || linkedReservation.client_id || null;
+  }
+
+  if (paymentInput.apartment_id) {
     const { data: apartment, error: apartmentError } = await supabase
       .from("apartments")
       .select("id, owner_id")
-      .eq("id", apartmentId)
+      .eq("id", paymentInput.apartment_id)
       .eq("company_id", companyId)
       .single();
     if (apartmentError || !apartment) {
@@ -1495,9 +1505,7 @@ export async function createPaymentAction(formData: FormData): Promise<void> {
     });
     redirectFormError(errorPath, databaseErrorMessage(error));
   }
-  revalidatePath("/dashboard/payments");
-  if (payment?.apartment_id) revalidatePath(`/dashboard/apartments/${payment.apartment_id}`);
-  if (payment?.reservation_id) revalidatePath(`/dashboard/reservations/${payment.reservation_id}`);
+  revalidatePaymentGraph({ paymentId: payment?.id, reservationId: payment?.reservation_id, apartmentId: payment?.apartment_id, clientId: paymentInput.client_id as string | null, ownerId: paymentInput.owner_id as string | null, organizationId: companyId });
   redirect(payment?.id ? `/dashboard/payments/${payment.id}` : "/dashboard/payments");
 }
 

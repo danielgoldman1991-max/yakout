@@ -135,7 +135,7 @@ export default async function NewPaymentPage({
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-muted-foreground">Reservation existante</label>
-                    <select name="reservation_id" className="w-full rounded-md border bg-surface px-3 py-2 text-sm">
+                    <select name="reservation_id" defaultValue={reservationId ?? ""} className="w-full rounded-md border bg-surface px-3 py-2 text-sm">
                       <option value="">Aucune reservation existante</option>
                       {reservations.map((r) => <option key={r.id} value={r.id}>{r.label} - {r.description}</option>)}
                     </select>
