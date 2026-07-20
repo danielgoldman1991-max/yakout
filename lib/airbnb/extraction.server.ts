@@ -1,14 +1,25 @@
 import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium as playwright, type Page } from "playwright-core";
-import sparticuzChromium from "@sparticuz/chromium";
+import puppeteer, { type Page } from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 import { airbnbExtractionSchema, airbnbUrlSchema } from "./schemas";
 import { normalizeAmenity, normalizeRoomType } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
 
 const numberNear = (text: string, words: string[]) => { for (const word of words) { const match = text.match(new RegExp(`(\\d+(?:[,.]\\d+)?)\\s*${word}`, "i")); if (match) return Number(match[1].replace(",", ".")); } return null; };
-async function clickText(page: Page, patterns: RegExp[]) { for (const pattern of patterns) { const target = page.getByRole("button", { name: pattern }).first(); if (await target.isVisible().catch(() => false)) await target.click({ timeout: 3000 }).catch(() => {}); } }
+
+async function clickText(page: Page, patterns: string[]) {
+  for (const pattern of patterns) {
+    try {
+      await page.evaluate((pat) => {
+        const btn = [...document.querySelectorAll("button")].find((b) => b.textContent && new RegExp(pat, "i").test(b.textContent));
+        if (btn) btn.click();
+      }, pattern);
+      await new Promise((r) => setTimeout(r, 500));
+    } catch { /* ignore */ }
+  }
+}
 
 export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbListingExtraction> {
   const url = airbnbUrlSchema.parse(inputUrl);
@@ -17,33 +28,38 @@ export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbList
   const root = path.join(process.cwd(), "airbnb-import-artifacts");
   await Promise.all(["raw", "screenshots", "reports"].map((folder) => mkdir(path.join(root, folder), { recursive: true })));
   const isLocal = process.env.AIRBNB_IMPORT_VISIBLE === "true" || process.env.NODE_ENV !== "production";
-  const browser = await playwright.launch({
-    args: isLocal ? [] : sparticuzChromium.args,
-    executablePath: isLocal ? undefined : await sparticuzChromium.executablePath(),
+  const browser = await puppeteer.launch({
+    args: isLocal ? [] : chromium.args,
+    executablePath: isLocal ? undefined : await chromium.executablePath(),
     headless: true,
   });
-  const consoleLogs: string[] = []; const networkLogs: string[] = [];
+  const consoleLogs: string[] = [];
+  const networkLogs: string[] = [];
   try {
-    const context = await browser.newContext({ locale: "fr-FR", timezoneId: "Africa/Casablanca", viewport: { width: 1440, height: 1000 }, javaScriptEnabled: true });
-    const page = await context.newPage(); page.setDefaultTimeout(10_000);
+    const context = await browser.createBrowserContext();
+    const page = await context.newPage();
+    await page.setViewport({ width: 1440, height: 1000 });
+    await page.setDefaultTimeout(10_000);
     page.on("console", (message) => consoleLogs.push(`[${message.type()}] ${message.text()}`));
-    page.on("response", (response) => { const parsed = new URL(response.url()); networkLogs.push(`${response.status()} ${parsed.origin}${parsed.pathname}`); });
+    page.on("response", (response) => {
+      try { const parsed = new URL(response.url()); networkLogs.push(`${response.status()} ${parsed.origin}${parsed.pathname}`); } catch { /* ignore invalid URLs */ }
+    });
     let loaded = false;
     for (const candidate of [url, `${url}?adults=2`, `${url}?source_impression_id=yakout_import`]) {
       const response = await page.goto(candidate, { waitUntil: "domcontentloaded", timeout: 60_000 });
-      await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
-      const body = await page.locator("body").innerText().catch(() => "");
+      await page.waitForNetworkIdle({ timeout: 20_000 }).catch(() => {});
+      const body = await page.evaluate(() => document.body.innerText).catch(() => "");
       if ((response?.status() ?? 500) < 500 && !/stay tuned|temporarily unavailable|error code:\s*503/i.test(body)) { loaded = true; break; }
-      await page.waitForTimeout(1500);
+      await new Promise((r) => setTimeout(r, 1500));
     }
     if (!loaded) throw new Error("Airbnb est temporairement indisponible (503). Réessayez dans quelques instants.");
-    if (/captcha|confirmez que vous êtes humain|verify you are human/i.test(await page.locator("body").innerText())) throw new Error("INTERVENTION_HUMAINE_REQUISE");
-    await clickText(page, [/accepter/i, /fermer/i, /plus tard/i]);
-    for (let index = 0; index < 5; index += 1) { await page.mouse.wheel(0, 800); await page.waitForTimeout(250); }
-    await clickText(page, [/afficher plus/i, /tous les équipements/i, /règles/i]);
+    if (/captcha|confirmez que vous êtes humain|verify you are human/i.test(await page.evaluate(() => document.body.innerText))) throw new Error("INTERVENTION_HUMAINE_REQUISE");
+    await clickText(page, ["accepter", "fermer", "plus tard"]);
+    for (let index = 0; index < 5; index += 1) { await page.evaluate(() => window.scrollBy(0, 800)); await new Promise((r) => setTimeout(r, 250)); }
+    await clickText(page, ["afficher plus", "tous les équipements", "règles"]);
     const baseImages = await collectImageData(page);
-    await clickText(page, [/afficher toutes? les photos/i]);
-    await page.waitForTimeout(1200);
+    await clickText(page, ["afficher toutes les photos"]);
+    await new Promise((r) => setTimeout(r, 1200));
     const galleryImages = await collectImageData(page);
     const data = await page.evaluate(() => {
       const clean = (value: string | null | undefined) => value?.replace(/\s+/g, " ").trim() || null;

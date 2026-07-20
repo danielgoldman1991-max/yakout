@@ -13,12 +13,10 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  serverExternalPackages: ["@sparticuz/chromium"],
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   outputFileTracingIncludes: {
     "/api/airbnb/analyze": [
       "./node_modules/@sparticuz/chromium/**/*",
-      "./node_modules/playwright-core/browsers.json",
-      "./node_modules/playwright-core/lib/**/*.js",
     ],
   },
 };
