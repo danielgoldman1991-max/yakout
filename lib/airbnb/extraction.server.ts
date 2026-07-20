@@ -1,7 +1,8 @@
 import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "playwright";
+import { chromium as playwright, type Page } from "playwright-core";
+import sparticuzChromium from "@sparticuz/chromium";
 import { airbnbExtractionSchema, airbnbUrlSchema } from "./schemas";
 import { normalizeAmenity, normalizeRoomType } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
@@ -9,13 +10,18 @@ import type { AirbnbListingExtraction } from "./types";
 const numberNear = (text: string, words: string[]) => { for (const word of words) { const match = text.match(new RegExp(`(\\d+(?:[,.]\\d+)?)\\s*${word}`, "i")); if (match) return Number(match[1].replace(",", ".")); } return null; };
 async function clickText(page: Page, patterns: RegExp[]) { for (const pattern of patterns) { const target = page.getByRole("button", { name: pattern }).first(); if (await target.isVisible().catch(() => false)) await target.click({ timeout: 3000 }).catch(() => {}); } }
 
-export async function extractAirbnbListing(inputUrl: string, options?: { headless?: boolean }): Promise<AirbnbListingExtraction> {
+export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbListingExtraction> {
   const url = airbnbUrlSchema.parse(inputUrl);
   const listingId = new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1];
   if (!listingId) throw new Error("Identifiant Airbnb introuvable.");
   const root = path.join(process.cwd(), "airbnb-import-artifacts");
   await Promise.all(["raw", "screenshots", "reports"].map((folder) => mkdir(path.join(root, folder), { recursive: true })));
-  const browser = await chromium.launch({ headless: options?.headless ?? process.env.AIRBNB_IMPORT_VISIBLE !== "true" });
+  const isLocal = process.env.AIRBNB_IMPORT_VISIBLE === "true" || process.env.NODE_ENV !== "production";
+  const browser = await playwright.launch({
+    args: isLocal ? [] : sparticuzChromium.args,
+    executablePath: isLocal ? undefined : await sparticuzChromium.executablePath(),
+    headless: true,
+  });
   const consoleLogs: string[] = []; const networkLogs: string[] = [];
   try {
     const context = await browser.newContext({ locale: "fr-FR", timezoneId: "Africa/Casablanca", viewport: { width: 1440, height: 1000 }, javaScriptEnabled: true });
