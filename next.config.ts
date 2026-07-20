@@ -13,15 +13,12 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  serverExternalPackages: ["playwright-core", "@sparticuz/chromium"],
+  serverExternalPackages: ["@sparticuz/chromium"],
   outputFileTracingIncludes: {
     "/api/airbnb/analyze": [
-      "./node_modules/playwright-core/**/*",
-      "./node_modules/@sparticuz/chromium/bin/**/*",
-    ],
-    "/lib/airbnb/": [
-      "./node_modules/playwright-core/**/*",
-      "./node_modules/@sparticuz/chromium/bin/**/*",
+      "./node_modules/@sparticuz/chromium/**/*",
+      "./node_modules/playwright-core/browsers.json",
+      "./node_modules/playwright-core/lib/**/*.js",
     ],
   },
 };
