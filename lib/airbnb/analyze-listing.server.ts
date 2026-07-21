@@ -73,7 +73,7 @@ export async function analyzeAirbnbListing(rawUrl: string, options?: { requestId
     return { success: true, partial, data: extraction, warnings: extraction.warnings, requestId };
   } catch (caught) {
     const error = normalizeAirbnbError(caught, stage);
-    console.error("[airbnb-import] failed", { requestId, stage: error.stage, runtime, durationMs: Date.now() - totalStarted, code: error.code, name: error.name, message: error.internalMessage, cause: error.cause instanceof Error ? error.cause.message : error.cause, stack: error.stack });
+    console.error("[airbnb-import] failed", { requestId, stage: error.stage, runtime, durationMs: Date.now() - totalStarted, code: error.code, name: caught instanceof Error ? caught.name : undefined, message: error.internalMessage, cause: caught instanceof Error && "cause" in caught ? String(caught.cause) : undefined, stack: caught instanceof Error ? caught.stack : undefined });
     if (page && !isVercelRuntime() && process.env.NODE_ENV === "development") {
       const dir = path.join(process.cwd(), ".airbnb-debug");
       await mkdir(dir, { recursive: true }).catch(() => undefined);

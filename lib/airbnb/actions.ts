@@ -1,16 +1,21 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { createSupabaseActionClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils/slug";
 import { airbnbImportConfirmationSchema, airbnbUrlSchema } from "./schemas";
 import { buildShortDescription, extractionContentHash, mapPropertyType } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
-import { analyzeAirbnbListing } from "./analyze-listing.server";
+import { normalizeAirbnbError } from "./errors";
+import { runAirbnbAnalysis } from "./action-runner.server";
 
-export type AirbnbAnalysisState = { error?: string; code?: string; requestId?: string; sourceUrl?: string; listingId?: string; preview?: { extraction: AirbnbListingExtraction; contentHash: string; generatedShortDescription: string; mappedPropertyType: string; partial: boolean; warnings: string[] } };
+type AirbnbPreview = { extraction: AirbnbListingExtraction; contentHash: string; generatedShortDescription: string; mappedPropertyType: string; partial: boolean; warnings: string[] };
+export type AirbnbAnalysisState =
+  | null
+  | { success: true; data: AirbnbListingExtraction; partial: boolean; warnings: string[]; requestId: string; sourceUrl: string; listingId: string; preview: AirbnbPreview }
+  | { success: false; code: string; message: string; requestId: string; retryable: boolean; sourceUrl?: string; listingId?: string };
 export type AirbnbConfirmationState = { error?: string; apartmentId?: string };
 
 async function authContext() {
@@ -24,18 +29,16 @@ async function authContext() {
 }
 
 export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData: FormData): Promise<AirbnbAnalysisState> {
+  const requestId = randomUUID();
+  const rawUrl = String(formData.get("url") ?? "");
   try {
     await authContext();
-    const url = airbnbUrlSchema.parse(String(formData.get("url") ?? ""));
-    const result = await analyzeAirbnbListing(url);
-    if (!result.success) return { error: result.message, code: result.code, requestId: result.requestId, sourceUrl: url, listingId: new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1] };
-    const extraction = result.data;
-    extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
-    return { requestId: result.requestId, sourceUrl: url, listingId: extraction.source.listingId, preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType), partial: result.partial, warnings: result.warnings } };
+    const url = airbnbUrlSchema.parse(rawUrl);
+    return await runAirbnbAnalysis(url, requestId);
   } catch (error) {
-    const requestId = crypto.randomUUID();
-    console.error("[airbnb-import] action failed", { requestId, message: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined });
-    return { error: error instanceof Error ? error.message : "Analyse impossible.", code: "AIRBNB_INTERNAL_ERROR", requestId };
+    const normalized = normalizeAirbnbError(error);
+    console.error("[airbnb-import] server action failed", { requestId, code: normalized.code, stage: normalized.stage, name: error instanceof Error ? error.name : undefined, message: error instanceof Error ? error.message : String(error), cause: error instanceof Error && "cause" in error ? String(error.cause) : undefined, stack: error instanceof Error ? error.stack : undefined });
+    return { success: false, code: normalized.code, message: normalized.publicMessage, requestId, retryable: normalized.retryable, sourceUrl: rawUrl };
   }
 }
 
@@ -48,9 +51,10 @@ export async function analyzeAirbnbHtmlAction(_state: AirbnbAnalysisState, formD
     const { extractAirbnbListingFromHtml } = await import("./extraction.server");
     const extraction = await extractAirbnbListingFromHtml(rawHtml, url);
     extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
-    return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType), partial: extraction.missingFields.length > 0, warnings: extraction.warnings } };
+    return { success: true, data: extraction, partial: extraction.missingFields.length > 0, warnings: extraction.warnings, requestId: randomUUID(), sourceUrl: url, listingId: extraction.source.listingId, preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType), partial: extraction.missingFields.length > 0, warnings: extraction.warnings } };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Analyse impossible." };
+    const normalized = normalizeAirbnbError(error);
+    return { success: false, code: normalized.code, message: normalized.publicMessage, requestId: randomUUID(), retryable: normalized.retryable };
   }
 }
 

@@ -1,5 +1,13 @@
 import type { NextConfig } from "next";
 
+const airbnbRuntimeFiles = [
+  "./node_modules/playwright-core/browsers.json",
+  "./node_modules/playwright-core/lib/**/*",
+  "./node_modules/@sparticuz/chromium/bin/**/*",
+  "./node_modules/@sparticuz/chromium/build/**/*",
+  "./node_modules/@sparticuz/chromium/package.json",
+];
+
 const nextConfig: NextConfig = {
   serverExternalPackages: [
     "playwright-core",
@@ -13,13 +21,8 @@ const nextConfig: NextConfig = {
     ],
   },
   outputFileTracingIncludes: {
-    "/api/airbnb/analyze": [
-      "./node_modules/playwright-core/browsers.json",
-      "./node_modules/playwright-core/lib/**/*",
-      "./node_modules/@sparticuz/chromium/bin/**/*",
-      "./node_modules/@sparticuz/chromium/build/**/*",
-      "./node_modules/@sparticuz/chromium/package.json",
-    ],
+    "/api/airbnb/analyze": airbnbRuntimeFiles,
+    "/dashboard/apartments/import": airbnbRuntimeFiles,
   },
   experimental: {
     serverActions: {

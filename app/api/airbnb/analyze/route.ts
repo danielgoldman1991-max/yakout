@@ -17,18 +17,9 @@ export async function POST(request: NextRequest) {
 
     const result = await analyzeAirbnbListing(rawUrl);
     if (!result.success) {
-      const statusMap: Record<string, number> = {
-        INVALID_AIRBNB_URL: 400,
-        AIRBNB_BROWSER_LAUNCH_FAILED: 503,
-        AIRBNB_NAVIGATION_FAILED: 502,
-        AIRBNB_TIMEOUT: 504,
-        AIRBNB_BLOCKED: 503,
-        AIRBNB_EXTRACTION_EMPTY: 422,
-        AIRBNB_EXTRACTION_FAILED: 500,
-      };
       return NextResponse.json(
         { success: false, code: result.code, message: result.message, requestId: result.requestId },
-        { status: statusMap[result.code] ?? 500 },
+        { status: result.code === "INVALID_AIRBNB_URL" ? 400 : result.code === "AIRBNB_LISTING_NOT_FOUND" ? 404 : result.code === "AIRBNB_EXTRACTION_EMPTY" ? 422 : result.code === "AIRBNB_NAVIGATION_TIMEOUT" ? 504 : result.code.startsWith("AIRBNB_BROWSER") || result.code === "AIRBNB_BLOCKED" ? 503 : result.code === "AIRBNB_NAVIGATION_FAILED" ? 502 : 500 },
       );
     }
 

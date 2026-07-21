@@ -11,45 +11,53 @@ export type AirbnbImportErrorCode =
   | "AIRBNB_EXTRACTION_FAILED"
   | "AIRBNB_INTERNAL_ERROR";
 
-export type AirbnbImportStage = "validation" | "browser-resolution" | "browser-launch" | "navigation" | "extraction" | "cleanup" | "internal";
+export type AirbnbImportStage = "validation" | "browser-resolution" | "browser-launch" | "context-creation" | "page-creation" | "navigation" | "extraction" | "cleanup" | "internal";
 
-const messages: Record<AirbnbImportErrorCode, string> = {
-  INVALID_AIRBNB_URL: "L’URL Airbnb n’est pas valide.",
-  AIRBNB_LOCAL_BROWSER_MISSING: "Le navigateur nécessaire à l’analyse n’est pas installé sur cet ordinateur.",
-  AIRBNB_BROWSER_BINARY_MISSING: "Le navigateur nécessaire à l’analyse est temporairement indisponible.",
-  AIRBNB_BROWSER_LAUNCH_FAILED: "Le navigateur nécessaire à l’analyse n’a pas pu démarrer.",
-  AIRBNB_NAVIGATION_TIMEOUT: "Airbnb met trop de temps à répondre. Réessayez dans quelques instants.",
-  AIRBNB_NAVIGATION_FAILED: "Impossible d’ouvrir cette annonce. Vérifiez qu’elle est publique.",
-  AIRBNB_BLOCKED: "Airbnb a refusé l’analyse automatique de cette annonce. Vous pouvez compléter la fiche manuellement.",
-  AIRBNB_LISTING_NOT_FOUND: "Cette annonce Airbnb est introuvable ou n’est plus publique.",
-  AIRBNB_EXTRACTION_EMPTY: "L’annonce a été ouverte, mais aucune information exploitable n’a été trouvée.",
-  AIRBNB_EXTRACTION_FAILED: "L’analyse des informations de l’annonce a échoué.",
-  AIRBNB_INTERNAL_ERROR: "Une erreur interne empêche temporairement l’analyse.",
+export type NormalizedAirbnbError = {
+  code: AirbnbImportErrorCode;
+  publicMessage: string;
+  internalMessage: string;
+  stage: AirbnbImportStage;
+  retryable: boolean;
+  status: number;
+};
+
+const definitions: Record<AirbnbImportErrorCode, Omit<NormalizedAirbnbError, "code" | "internalMessage" | "stage">> = {
+  INVALID_AIRBNB_URL: { publicMessage: "L’URL Airbnb n’est pas valide.", retryable: false, status: 400 },
+  AIRBNB_LOCAL_BROWSER_MISSING: { publicMessage: "Le navigateur nécessaire à l’analyse n’est pas installé sur cet ordinateur.", retryable: false, status: 503 },
+  AIRBNB_BROWSER_BINARY_MISSING: { publicMessage: "Le navigateur nécessaire à l’analyse est temporairement indisponible.", retryable: true, status: 503 },
+  AIRBNB_BROWSER_LAUNCH_FAILED: { publicMessage: "Le navigateur nécessaire à l’analyse n’a pas pu démarrer.", retryable: true, status: 503 },
+  AIRBNB_NAVIGATION_TIMEOUT: { publicMessage: "Airbnb met trop de temps à répondre. Réessayez dans quelques instants.", retryable: true, status: 504 },
+  AIRBNB_NAVIGATION_FAILED: { publicMessage: "Impossible d’ouvrir cette annonce. Vérifiez qu’elle est publique.", retryable: true, status: 502 },
+  AIRBNB_BLOCKED: { publicMessage: "Airbnb a refusé l’analyse automatique de cette annonce. Vous pouvez compléter la fiche manuellement.", retryable: true, status: 503 },
+  AIRBNB_LISTING_NOT_FOUND: { publicMessage: "Cette annonce Airbnb est introuvable ou n’est plus publique.", retryable: false, status: 404 },
+  AIRBNB_EXTRACTION_EMPTY: { publicMessage: "L’annonce a été ouverte, mais aucune information exploitable n’a été trouvée.", retryable: true, status: 422 },
+  AIRBNB_EXTRACTION_FAILED: { publicMessage: "L’analyse des informations de l’annonce a échoué.", retryable: true, status: 500 },
+  AIRBNB_INTERNAL_ERROR: { publicMessage: "Une erreur interne empêche temporairement l’analyse.", retryable: true, status: 500 },
 };
 
 export class AirbnbImportError extends Error {
-  constructor(
-    public readonly code: AirbnbImportErrorCode,
-    public readonly internalMessage: string,
-    public readonly stage: AirbnbImportStage,
-    public readonly status: number,
-    public readonly retryable: boolean,
-    options?: { cause?: unknown },
-  ) {
+  constructor(public readonly code: AirbnbImportErrorCode, public readonly internalMessage: string, public readonly stage: AirbnbImportStage, public readonly status: number, public readonly retryable: boolean, options?: { cause?: unknown }) {
     super(internalMessage, options);
     this.name = "AirbnbImportError";
   }
-
-  get publicMessage() { return messages[this.code]; }
+  get publicMessage() { return definitions[this.code].publicMessage; }
 }
 
-export function normalizeAirbnbError(error: unknown, stage: AirbnbImportStage = "internal") {
+export function normalizeAirbnbError(error: unknown, fallbackStage: AirbnbImportStage = "internal"): NormalizedAirbnbError {
+  const internalMessage = error instanceof Error ? error.message : String(error);
+  let code: AirbnbImportErrorCode = "AIRBNB_INTERNAL_ERROR";
+  let stage = fallbackStage;
+  if (error instanceof AirbnbImportError) { code = error.code; stage = error.stage; }
+  else if (/Timeout|timed out/i.test(internalMessage)) { code = "AIRBNB_NAVIGATION_TIMEOUT"; stage = "navigation"; }
+  const definition = definitions[code];
+  return { code, publicMessage: definition.publicMessage, internalMessage, stage, retryable: definition.retryable, status: definition.status };
+}
+
+export function createAirbnbImportError(error: unknown, stage: AirbnbImportStage) {
   if (error instanceof AirbnbImportError) return error;
-  const message = error instanceof Error ? error.message : String(error);
-  if (/Timeout|timed out/i.test(message)) return new AirbnbImportError("AIRBNB_NAVIGATION_TIMEOUT", message, "navigation", 504, true, { cause: error });
-  return new AirbnbImportError("AIRBNB_INTERNAL_ERROR", message, stage, 500, true, { cause: error });
+  const normalized = normalizeAirbnbError(error, stage);
+  return new AirbnbImportError(normalized.code, normalized.internalMessage, normalized.stage, normalized.status, normalized.retryable, { cause: error });
 }
 
-export const MANUAL_FALLBACK_CODES = new Set<AirbnbImportErrorCode>([
-  "AIRBNB_BLOCKED", "AIRBNB_EXTRACTION_EMPTY", "AIRBNB_NAVIGATION_TIMEOUT", "AIRBNB_LISTING_NOT_FOUND",
-]);
+export const MANUAL_FALLBACK_CODES = new Set<AirbnbImportErrorCode>(["AIRBNB_BLOCKED", "AIRBNB_EXTRACTION_EMPTY", "AIRBNB_NAVIGATION_TIMEOUT", "AIRBNB_LISTING_NOT_FOUND"]);

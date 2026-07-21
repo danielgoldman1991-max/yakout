@@ -9,7 +9,7 @@
     "lint": "eslint",
     "audit:site": "node scripts/export-full-site-audit.mjs",
     "import:airbnb": "node scripts/import-airbnb-listing.mjs",
-    "test": "node --test tests/unit/*.test.mjs",
+    "test": "node --test tests/unit/*.test.mjs && tsx --conditions=react-server --test tests/unit/*.test.ts",
     "airbnb:doctor": "tsx --conditions=react-server scripts/airbnb-doctor.ts",
     "airbnb:smoke": "tsx --conditions=react-server scripts/airbnb-smoke.ts"
   },
