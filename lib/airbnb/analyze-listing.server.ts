@@ -16,6 +16,26 @@ const HOST = /^(?:[a-z0-9-]+\.)?airbnb\.(?:com|fr)$/i;
 const withTimeout = async <T>(promise: Promise<T>, ms: number, error: AirbnbImportError) => Promise.race([promise, new Promise<T>((_, reject) => setTimeout(() => reject(error), ms))]);
 const safeUrl = (url: string) => { const parsed = new URL(url); return `${parsed.protocol}//${parsed.hostname}${parsed.pathname}`; };
 
+async function readStablePage(page: import("playwright-core").Page) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.waitForLoadState("domcontentloaded", { timeout: 10_000 });
+      await page.locator("body").waitFor({ state: "attached", timeout: 10_000 });
+      const [title, html, text] = await Promise.all([
+        page.title(),
+        page.content(),
+        page.locator("body").innerText({ timeout: 10_000 }).catch(() => ""),
+      ]);
+      return { title, html, text, finalUrl: page.url() };
+    } catch (error) {
+      lastError = error;
+      if (!/navigat|execution context was destroyed/i.test(error instanceof Error ? error.message : String(error))) throw error;
+    }
+  }
+  throw new AirbnbImportError("AIRBNB_NAVIGATION_FAILED", `Airbnb kept redirecting: ${lastError instanceof Error ? lastError.message : String(lastError)}`, "navigation", 502, true, { cause: lastError });
+}
+
 export function validateAirbnbUrl(rawUrl: string) {
   if (!rawUrl || rawUrl.length > 500) throw new AirbnbImportError("INVALID_AIRBNB_URL", "URL missing or longer than 500 characters", "validation", 400, false);
   let url: URL;
@@ -54,10 +74,7 @@ export async function analyzeAirbnbListing(rawUrl: string, options?: { requestId
     log("navigation started", { requestId, stage, runtime });
     const navStarted = Date.now();
     const response = await page.goto(validatedUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
-    const finalUrl = page.url();
-    const title = await page.title();
-    const html = await page.content();
-    const text = await page.locator("body").innerText({ timeout: 10_000 }).catch(() => "");
+    const { finalUrl, title, html, text } = await readStablePage(page);
     log("navigation completed", { requestId, stage, runtime, status: response?.status(), finalUrl: safeUrl(finalUrl), title, htmlLength: html.length, durationMs: Date.now() - navStarted });
     if (!HOST.test(new URL(finalUrl).hostname)) throw new AirbnbImportError("AIRBNB_NAVIGATION_FAILED", `Redirected outside Airbnb: ${safeUrl(finalUrl)}`, stage, 502, false);
     if (isBlocked(text, title)) throw new AirbnbImportError("AIRBNB_BLOCKED", "Airbnb protection page detected", stage, 503, true);

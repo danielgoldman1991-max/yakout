@@ -8,7 +8,7 @@ import { slugify } from "@/lib/utils/slug";
 import { airbnbImportConfirmationSchema, airbnbUrlSchema } from "./schemas";
 import { buildShortDescription, extractionContentHash, mapPropertyType } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
-import { normalizeAirbnbError } from "./errors";
+import { AirbnbImportError, normalizeAirbnbError } from "./errors";
 import { runAirbnbAnalysis } from "./action-runner.server";
 
 type AirbnbPreview = { extraction: AirbnbListingExtraction; contentHash: string; generatedShortDescription: string; mappedPropertyType: string; partial: boolean; warnings: string[] };
@@ -18,21 +18,27 @@ export type AirbnbAnalysisState =
   | { success: false; code: string; message: string; requestId: string; retryable: boolean; sourceUrl?: string; listingId?: string };
 export type AirbnbConfirmationState = { error?: string; apartmentId?: string };
 
-async function authContext() {
+async function importPermissionContext() {
   const client = await createSupabaseActionClient();
-  const { data: { user } } = await client.auth.getUser();
-  if (!user) throw new Error("Session expirée. Reconnectez-vous.");
-  const admin = createSupabaseAdminClient();
-  const { data: profile } = await admin.from("profiles").select("company_id,role").eq("user_id", user.id).single();
-  if (!profile?.company_id || !["admin", "manager"].includes(profile.role)) throw new Error("Vous n'avez pas la permission d'importer un appartement.");
-  return { admin, user, companyId: profile.company_id as string };
+  const { data: { user }, error: userError } = await client.auth.getUser();
+  if (userError || !user) {
+    throw new AirbnbImportError("AIRBNB_AUTH_REQUIRED", userError?.message ?? "No authenticated user", "authentication", 401, false, { cause: userError });
+  }
+  const { data: profile, error: profileError } = await client.from("profiles").select("company_id,role").eq("user_id", user.id).single();
+  if (profileError) {
+    throw new AirbnbImportError("AIRBNB_PROFILE_UNAVAILABLE", profileError.message, "authorization", 503, true, { cause: profileError });
+  }
+  if (!profile?.company_id || !["admin", "manager"].includes(profile.role)) {
+    throw new AirbnbImportError("AIRBNB_AUTHORIZATION_FAILED", "User is not an admin or manager with a company", "authorization", 403, false);
+  }
+  return { user, companyId: profile.company_id as string };
 }
 
 export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData: FormData): Promise<AirbnbAnalysisState> {
   const requestId = randomUUID();
   const rawUrl = String(formData.get("url") ?? "");
   try {
-    await authContext();
+    await importPermissionContext();
     const url = airbnbUrlSchema.parse(rawUrl);
     return await runAirbnbAnalysis(url, requestId);
   } catch (error) {
@@ -44,7 +50,7 @@ export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData:
 
 export async function analyzeAirbnbHtmlAction(_state: AirbnbAnalysisState, formData: FormData): Promise<AirbnbAnalysisState> {
   try {
-    await authContext();
+    await importPermissionContext();
     const url = String(formData.get("url") ?? "").trim();
     const rawHtml = String(formData.get("rawHtml") ?? "").trim();
     if (!rawHtml) throw new Error("Collez le code source de l'annonce.");
@@ -90,7 +96,8 @@ async function importSelectedPhotos(admin: ReturnType<typeof createSupabaseAdmin
 
 export async function confirmAirbnbImportAction(_state: AirbnbConfirmationState, formData: FormData): Promise<AirbnbConfirmationState> {
   try {
-    const { admin, user, companyId } = await authContext();
+    const { user, companyId } = await importPermissionContext();
+    const admin = createSupabaseAdminClient();
     const extraction = JSON.parse(String(formData.get("extraction") ?? "{}"));
     const selectedPhotoUrls = formData.getAll("photos").map(String);
     const parsed = airbnbImportConfirmationSchema.parse({ extraction, contentHash: formData.get("contentHash"), ownerId: formData.get("ownerId"), title: formData.get("title"), city: formData.get("city"), propertyType: formData.get("propertyType"), shortDescription: formData.get("shortDescription"), mode: formData.get("mode"), imageRightsConfirmed: formData.get("imageRightsConfirmed") === "on", selectedPhotoUrls, pricePerNight: formData.get("pricePerNight") ? Number(formData.get("pricePerNight")) : null, currency: formData.get("currency") || "MAD" });
