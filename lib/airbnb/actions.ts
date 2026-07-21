@@ -19,7 +19,12 @@ export type AirbnbAnalysisState =
 export type AirbnbConfirmationState = { error?: string; apartmentId?: string };
 
 async function importPermissionContext() {
-  const client = await createSupabaseActionClient();
+  let client: Awaited<ReturnType<typeof createSupabaseActionClient>>;
+  try {
+    client = await createSupabaseActionClient();
+  } catch (error) {
+    throw new AirbnbImportError("AIRBNB_PROFILE_UNAVAILABLE", error instanceof Error ? error.message : String(error), "authentication", 503, true, { cause: error });
+  }
   const { data: { user }, error: userError } = await client.auth.getUser();
   if (userError || !user) {
     throw new AirbnbImportError("AIRBNB_AUTH_REQUIRED", userError?.message ?? "No authenticated user", "authentication", 401, false, { cause: userError });
@@ -31,6 +36,7 @@ async function importPermissionContext() {
   if (!profile?.company_id || !["admin", "manager"].includes(profile.role)) {
     throw new AirbnbImportError("AIRBNB_AUTHORIZATION_FAILED", "User is not an admin or manager with a company", "authorization", 403, false);
   }
+  console.info("[airbnb-import] permission verified", { userId: user.id, companyId: profile.company_id, role: profile.role });
   return { user, companyId: profile.company_id as string };
 }
 
@@ -38,8 +44,11 @@ export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData:
   const requestId = randomUUID();
   const rawUrl = String(formData.get("url") ?? "");
   try {
+    console.info("[airbnb-import] server action started", { requestId });
     await importPermissionContext();
+    console.info("[airbnb-import] server action authorization completed", { requestId });
     const url = airbnbUrlSchema.parse(rawUrl);
+    console.info("[airbnb-import] server action validation completed", { requestId });
     return await runAirbnbAnalysis(url, requestId);
   } catch (error) {
     const normalized = normalizeAirbnbError(error);

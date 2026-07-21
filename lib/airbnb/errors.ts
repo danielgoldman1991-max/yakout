@@ -57,6 +57,10 @@ export function normalizeAirbnbError(error: unknown, fallbackStage: AirbnbImport
   if (error instanceof AirbnbImportError) { code = error.code; stage = error.stage; }
   else if (/Timeout|timed out/i.test(internalMessage)) { code = "AIRBNB_NAVIGATION_TIMEOUT"; stage = "navigation"; }
   else if (/page\.(?:goto|content|title)|ERR_[A-Z_]+|navigat|execution context was destroyed/i.test(internalMessage)) { code = "AIRBNB_NAVIGATION_FAILED"; stage = "navigation"; }
+  else if (fallbackStage === "browser-resolution") code = "AIRBNB_BROWSER_BINARY_MISSING";
+  else if (["browser-launch", "context-creation", "page-creation"].includes(fallbackStage)) code = "AIRBNB_BROWSER_LAUNCH_FAILED";
+  else if (fallbackStage === "navigation") code = "AIRBNB_NAVIGATION_FAILED";
+  else if (fallbackStage === "extraction") code = "AIRBNB_EXTRACTION_FAILED";
   const definition = definitions[code];
   return { code, publicMessage: definition.publicMessage, internalMessage, stage, retryable: definition.retryable, status: definition.status };
 }
