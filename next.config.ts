@@ -13,7 +13,13 @@ const nextConfig: NextConfig = {
     ],
   },
   outputFileTracingIncludes: {
-    "/*": ["./node_modules/playwright-core/**/*"],
+    "/api/airbnb/analyze": [
+      "./node_modules/playwright-core/browsers.json",
+      "./node_modules/playwright-core/lib/**/*",
+      "./node_modules/@sparticuz/chromium/bin/**/*",
+      "./node_modules/@sparticuz/chromium/build/**/*",
+      "./node_modules/@sparticuz/chromium/package.json",
+    ],
   },
   experimental: {
     serverActions: {

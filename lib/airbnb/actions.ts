@@ -10,7 +10,7 @@ import { buildShortDescription, extractionContentHash, mapPropertyType } from ".
 import type { AirbnbListingExtraction } from "./types";
 import { analyzeAirbnbListing } from "./analyze-listing.server";
 
-export type AirbnbAnalysisState = { error?: string; preview?: { extraction: AirbnbListingExtraction; contentHash: string; generatedShortDescription: string; mappedPropertyType: string } };
+export type AirbnbAnalysisState = { error?: string; code?: string; requestId?: string; sourceUrl?: string; listingId?: string; preview?: { extraction: AirbnbListingExtraction; contentHash: string; generatedShortDescription: string; mappedPropertyType: string; partial: boolean; warnings: string[] } };
 export type AirbnbConfirmationState = { error?: string; apartmentId?: string };
 
 async function authContext() {
@@ -28,13 +28,14 @@ export async function analyzeAirbnbAction(_state: AirbnbAnalysisState, formData:
     await authContext();
     const url = airbnbUrlSchema.parse(String(formData.get("url") ?? ""));
     const result = await analyzeAirbnbListing(url);
-    if (!result.success) return { error: result.message };
+    if (!result.success) return { error: result.message, code: result.code, requestId: result.requestId, sourceUrl: url, listingId: new URL(url).pathname.match(/^\/rooms\/(\d+)/)?.[1] };
     const extraction = result.data;
     extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
-    return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType) } };
+    return { requestId: result.requestId, sourceUrl: url, listingId: extraction.source.listingId, preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType), partial: result.partial, warnings: result.warnings } };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Analyse impossible.";
-    return { error: message === "INTERVENTION_HUMAINE_REQUISE" ? "Intervention humaine requise. Lancez avec AIRBNB_IMPORT_VISIBLE=true dans votre terminal, puis réessayez : un navigateur s'ouvrira pour résoudre le captcha." : message };
+    const requestId = crypto.randomUUID();
+    console.error("[airbnb-import] action failed", { requestId, message: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined });
+    return { error: error instanceof Error ? error.message : "Analyse impossible.", code: "AIRBNB_INTERNAL_ERROR", requestId };
   }
 }
 
@@ -47,7 +48,7 @@ export async function analyzeAirbnbHtmlAction(_state: AirbnbAnalysisState, formD
     const { extractAirbnbListingFromHtml } = await import("./extraction.server");
     const extraction = await extractAirbnbListingFromHtml(rawHtml, url);
     extraction.raw = { jsonLd: extraction.raw.jsonLd, extractedTexts: {} };
-    return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType) } };
+    return { preview: { extraction, contentHash: extractionContentHash(extraction), generatedShortDescription: buildShortDescription(extraction), mappedPropertyType: mapPropertyType(extraction.identity.propertyTypeLabel, extraction.identity.roomType), partial: extraction.missingFields.length > 0, warnings: extraction.warnings } };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Analyse impossible." };
   }

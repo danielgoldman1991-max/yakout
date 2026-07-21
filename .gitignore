@@ -47,3 +47,6 @@ next-env.d.ts
 
 # airbnb import artifacts
 /airbnb-import-artifacts/
+/.airbnb-debug/
+/.airbnb-repro-*.log
+/.airbnb-repro-*.pid

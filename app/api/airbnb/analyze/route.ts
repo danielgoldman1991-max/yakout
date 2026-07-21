@@ -1,22 +1,19 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeAirbnbListing } from "@/lib/airbnb/analyze-listing.server";
-import { extractAirbnbListingFromHtml } from "@/lib/airbnb/extraction.server";
+import { createSupabaseActionClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   console.log("[airbnb-import] API route called");
   try {
+    const client = await createSupabaseActionClient();
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) return NextResponse.json({ success: false, code: "UNAUTHORIZED", message: "Authentification requise." }, { status: 401 });
     const body = await request.json();
     const rawUrl = String(body.url ?? "");
-    const rawHtml = String(body.rawHtml ?? "");
-
-    if (rawHtml) {
-      const extraction = await extractAirbnbListingFromHtml(rawHtml, rawUrl);
-      return NextResponse.json({ success: true, data: extraction });
-    }
 
     const result = await analyzeAirbnbListing(rawUrl);
     if (!result.success) {
@@ -30,12 +27,12 @@ export async function POST(request: NextRequest) {
         AIRBNB_EXTRACTION_FAILED: 500,
       };
       return NextResponse.json(
-        { success: false, code: result.code, message: result.message },
+        { success: false, code: result.code, message: result.message, requestId: result.requestId },
         { status: statusMap[result.code] ?? 500 },
       );
     }
 
-    return NextResponse.json({ success: true, data: result.data });
+    return NextResponse.json(result);
   } catch (error) {
     console.error("[airbnb-import] route failed", {
       message: error instanceof Error ? error.message : String(error),

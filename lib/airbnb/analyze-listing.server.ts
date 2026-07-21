@@ -1,157 +1,89 @@
 import "server-only";
+
+import crypto from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { launchAirbnbBrowser, isVercelRuntime } from "./browser.server";
+import { AirbnbImportError, normalizeAirbnbError, type AirbnbImportErrorCode } from "./errors";
 import { extractAirbnbListingFromHtml } from "./extraction.server";
-import { airbnbUrlSchema } from "./schemas";
 import type { AirbnbListingExtraction } from "./types";
 
-export type AirbnbErrorCode =
-  | "INVALID_AIRBNB_URL"
-  | "AIRBNB_BROWSER_LAUNCH_FAILED"
-  | "AIRBNB_NAVIGATION_FAILED"
-  | "AIRBNB_TIMEOUT"
-  | "AIRBNB_BLOCKED"
-  | "AIRBNB_EXTRACTION_EMPTY"
-  | "AIRBNB_EXTRACTION_FAILED";
+export type AirbnbExtractionResult =
+  | { success: true; partial: boolean; data: AirbnbListingExtraction; warnings: string[]; requestId: string }
+  | { success: false; code: AirbnbImportErrorCode; message: string; requestId: string };
 
-export type AirbnbAnalysisResult =
-  | { success: true; data: AirbnbListingExtraction }
-  | { success: false; code: AirbnbErrorCode; message: string };
+const HOST = /^(?:[a-z0-9-]+\.)?airbnb\.(?:com|fr)$/i;
+const withTimeout = async <T>(promise: Promise<T>, ms: number, error: AirbnbImportError) => Promise.race([promise, new Promise<T>((_, reject) => setTimeout(() => reject(error), ms))]);
+const safeUrl = (url: string) => { const parsed = new URL(url); return `${parsed.protocol}//${parsed.hostname}${parsed.pathname}`; };
 
-class AirbnbError extends Error {
-  code: string;
-  constructor(code: string, message: string) {
-    super(message);
-    this.code = code;
-    this.name = "AirbnbError";
-  }
-}
-
-const AIRBNB_HOSTNAME_PATTERN = /^([a-z0-9-]+\.)?airbnb\.(com|fr)$/;
-
-const PUBLIC_ERROR_MESSAGES: Record<AirbnbErrorCode, string> = {
-  INVALID_AIRBNB_URL: "L'URL Airbnb n'est pas valide.",
-  AIRBNB_BROWSER_LAUNCH_FAILED: "Le service d'analyse est temporairement indisponible.",
-  AIRBNB_NAVIGATION_FAILED: "Impossible d'ouvrir cette annonce Airbnb. Vérifiez qu'elle est publique.",
-  AIRBNB_TIMEOUT: "Airbnb met trop de temps à répondre. Réessayez dans quelques instants.",
-  AIRBNB_BLOCKED: "Airbnb a temporairement refusé l'analyse automatique.",
-  AIRBNB_EXTRACTION_EMPTY: "L'annonce a été ouverte, mais aucune information exploitable n'a été trouvée.",
-  AIRBNB_EXTRACTION_FAILED: "L'analyse de l'annonce a échoué.",
-};
-
-function validateAirbnbUrl(input: string): string {
-  if (!input || typeof input !== "string") throw new AirbnbError("INVALID_AIRBNB_URL", "URL requise.");
-  if (input.length > 500) throw new AirbnbError("INVALID_AIRBNB_URL", "URL trop longue.");
+export function validateAirbnbUrl(rawUrl: string) {
+  if (!rawUrl || rawUrl.length > 500) throw new AirbnbImportError("INVALID_AIRBNB_URL", "URL missing or longer than 500 characters", "validation", 400, false);
   let url: URL;
-  try { url = new URL(input); } catch { throw new AirbnbError("INVALID_AIRBNB_URL", "URL invalide."); }
-  if (url.protocol !== "https:") throw new AirbnbError("INVALID_AIRBNB_URL", "Seules les URLs HTTPS sont autorisées.");
-  if (url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "0.0.0.0") throw new AirbnbError("INVALID_AIRBNB_URL", "Les URLs locales ne sont pas autorisées.");
-  if (!AIRBNB_HOSTNAME_PATTERN.test(url.hostname)) throw new AirbnbError("INVALID_AIRBNB_URL", "Seules les annonces airbnb.com ou airbnb.fr sont autorisées.");
-  if (!/^\/rooms\/\d+/.test(url.pathname)) throw new AirbnbError("INVALID_AIRBNB_URL", "L'URL doit pointer vers une annonce Airbnb.");
-  return input;
+  try { url = new URL(rawUrl); } catch (cause) { throw new AirbnbImportError("INVALID_AIRBNB_URL", "URL parsing failed", "validation", 400, false, { cause }); }
+  if (url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443") || !HOST.test(url.hostname) || !/^\/rooms\/\d+(?:\/|$)/.test(url.pathname)) {
+    throw new AirbnbImportError("INVALID_AIRBNB_URL", "URL must be an HTTPS airbnb.com/airbnb.fr rooms URL without credentials or a custom port", "validation", 400, false);
+  }
+  return safeUrl(rawUrl);
 }
 
-export async function analyzeAirbnbListing(rawUrl: string): Promise<AirbnbAnalysisResult> {
-  console.log("[airbnb-import] validation started");
-  const url = validateAirbnbUrl(rawUrl);
-  console.log("[airbnb-import] validation succeeded");
+function log(event: string, details: Record<string, unknown>) { console.info(`[airbnb-import] ${event}`, details); }
+function isBlocked(text: string, title: string) { return /captcha|verify you are human|confirmez que vous êtes humain|access denied|robot|challenge/i.test(`${title}\n${text}`); }
 
-  const parsedUrl = airbnbUrlSchema.parse(url);
-  const listingId = new URL(parsedUrl).pathname.match(/^\/rooms\/(\d+)/)?.[1];
-  if (!listingId) return { success: false, code: "INVALID_AIRBNB_URL", message: PUBLIC_ERROR_MESSAGES.INVALID_AIRBNB_URL };
-
-  console.log("[airbnb-import] browser launch started");
-  let playwrightChromium: typeof import("playwright-core").chromium;
+export async function analyzeAirbnbListing(rawUrl: string, options?: { requestId?: string }): Promise<AirbnbExtractionResult> {
+  const requestId = options?.requestId ?? crypto.randomUUID();
+  const runtime = isVercelRuntime() ? "vercel" : "local";
+  const totalStarted = Date.now();
+  let handle: Awaited<ReturnType<typeof launchAirbnbBrowser>> | null = null;
+  let page: import("playwright-core").Page | null = null;
+  let validatedUrl = "";
+  let stage: AirbnbImportError["stage"] = "validation";
+  log("started", { requestId, stage, runtime });
   try {
-    playwrightChromium = (await import("playwright-core")).chromium;
-  } catch (e: unknown) {
-    const cause = e instanceof Error ? { message: e.message, stack: e.stack?.split("\n").slice(0, 3).join(";"), name: e.name } : String(e);
-    console.error("[airbnb-import] playwright-core import failed", cause);
-    throw new AirbnbError("AIRBNB_BROWSER_LAUNCH_FAILED", PUBLIC_ERROR_MESSAGES.AIRBNB_BROWSER_LAUNCH_FAILED);
-  }
-
-  const sparticuz = await import("@sparticuz/chromium").then((m) => m.default).catch(() => null);
-  const launchOptions: Record<string, unknown> = { headless: true };
-  if (sparticuz?.executablePath) {
-    launchOptions.executablePath = await sparticuz.executablePath();
-    const sparticuzArgs = sparticuz.args ?? [];
-    const existingArgs = (launchOptions.args as string[]) ?? [];
-    launchOptions.args = [...existingArgs, ...sparticuzArgs];
-  }
-
-  let browser: Awaited<ReturnType<typeof playwrightChromium.launch>> | null = null;
-  try {
-    browser = await playwrightChromium.launch(launchOptions);
-    console.log("[airbnb-import] browser launched");
-
-    const context = await browser.newContext({
-      locale: "fr-FR",
-      timezoneId: "Africa/Casablanca",
-      viewport: { width: 1440, height: 1000 },
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
-      extraHTTPHeaders: { "Accept-Language": "fr-FR,fr;q=0.9" },
+    validatedUrl = await withTimeout(Promise.resolve().then(() => validateAirbnbUrl(rawUrl)), 5_000, new AirbnbImportError("INVALID_AIRBNB_URL", "Validation timed out", "validation", 400, false));
+    log("url validated", { requestId, stage, runtime, url: validatedUrl, durationMs: Date.now() - totalStarted });
+    stage = "browser-resolution";
+    log("browser resolution started", { requestId, stage, runtime, platform: process.platform, arch: process.arch });
+    handle = await withTimeout(launchAirbnbBrowser(), 30_000, new AirbnbImportError("AIRBNB_BROWSER_LAUNCH_FAILED", "Browser launch timed out", "browser-launch", 503, true));
+    stage = "navigation";
+    const context = await handle.browser.newContext({ locale: "fr-FR", timezoneId: "Africa/Casablanca", viewport: { width: 1440, height: 1000 }, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", extraHTTPHeaders: { "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7" } });
+    page = await context.newPage();
+    await page.route("**/*", async (route) => {
+      const request = route.request();
+      if (request.resourceType() === "font" || request.resourceType() === "media" || /google-analytics|doubleclick|segment\.com/i.test(request.url())) await route.abort(); else await route.continue();
     });
-    const page = await context.newPage();
-
-    page.on("requestfailed", (request) => {
-      console.warn("[airbnb-import] browser request failed", {
-        resourceType: request.resourceType(),
-        failure: request.failure()?.errorText,
-      });
-    });
-
-    console.log("[airbnb-import] navigation started");
-    try {
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45_000 });
-    } catch (navError) {
-      console.error("[airbnb-import] navigation failed", {
-        message: navError instanceof Error ? navError.message : String(navError),
-      });
-      throw new AirbnbError("AIRBNB_NAVIGATION_FAILED", PUBLIC_ERROR_MESSAGES.AIRBNB_NAVIGATION_FAILED);
-    }
-    console.log("[airbnb-import] page loaded");
-
-    const currentUrl = page.url();
-
-    if (!AIRBNB_HOSTNAME_PATTERN.test(new URL(currentUrl).hostname)) {
-      console.warn("[airbnb-import] redirected outside Airbnb", { currentUrl });
-      throw new AirbnbError("AIRBNB_NAVIGATION_FAILED", PUBLIC_ERROR_MESSAGES.AIRBNB_NAVIGATION_FAILED);
-    }
-
-    const bodyText = await page.locator("body").innerText({ timeout: 10_000 }).catch(() => "");
-    if (/captcha|confirmez que vous êtes humain|verify you are human/i.test(bodyText)) {
-      console.warn("[airbnb-import] captcha detected");
-      throw new AirbnbError("AIRBNB_BLOCKED", PUBLIC_ERROR_MESSAGES.AIRBNB_BLOCKED);
-    }
-
-    if (/cette page n'est plus disponible|cette annonce n'existe plus|page non trouvée|not found/i.test(bodyText)) {
-      console.warn("[airbnb-import] listing not available");
-      throw new AirbnbError("AIRBNB_NAVIGATION_FAILED", PUBLIC_ERROR_MESSAGES.AIRBNB_NAVIGATION_FAILED);
-    }
-
-    console.log("[airbnb-import] extraction started");
+    log("navigation started", { requestId, stage, runtime });
+    const navStarted = Date.now();
+    const response = await page.goto(validatedUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    const finalUrl = page.url();
+    const title = await page.title();
     const html = await page.content();
-    const extraction = await extractAirbnbListingFromHtml(html, url);
-    console.log("[airbnb-import] extraction completed");
-
-    if (!extraction.identity.title && !extraction.capacity.maxGuests) {
-      throw new AirbnbError("AIRBNB_EXTRACTION_EMPTY", PUBLIC_ERROR_MESSAGES.AIRBNB_EXTRACTION_EMPTY);
+    const text = await page.locator("body").innerText({ timeout: 10_000 }).catch(() => "");
+    log("navigation completed", { requestId, stage, runtime, status: response?.status(), finalUrl: safeUrl(finalUrl), title, htmlLength: html.length, durationMs: Date.now() - navStarted });
+    if (!HOST.test(new URL(finalUrl).hostname)) throw new AirbnbImportError("AIRBNB_NAVIGATION_FAILED", `Redirected outside Airbnb: ${safeUrl(finalUrl)}`, stage, 502, false);
+    if (isBlocked(text, title)) throw new AirbnbImportError("AIRBNB_BLOCKED", "Airbnb protection page detected", stage, 503, true);
+    if (response?.status() === 404 || /page non trouvée|annonce n'existe plus|listing.*not found/i.test(text)) throw new AirbnbImportError("AIRBNB_LISTING_NOT_FOUND", "Listing not found", stage, 404, false);
+    if (!response || response.status() >= 400 || html.length < 1_000) throw new AirbnbImportError("AIRBNB_NAVIGATION_FAILED", `Unexpected response status=${response?.status()} htmlLength=${html.length}`, stage, 502, true);
+    stage = "extraction";
+    log("extraction started", { requestId, stage, runtime });
+    const extraction = await withTimeout(extractAirbnbListingFromHtml(html, validatedUrl), 30_000, new AirbnbImportError("AIRBNB_EXTRACTION_FAILED", "Extraction timed out", stage, 500, true));
+    const useful = Boolean(extraction.identity.title || extraction.capacity.maxGuests || extraction.photos.length || extraction.descriptions.summary);
+    if (!useful) throw new AirbnbImportError("AIRBNB_EXTRACTION_EMPTY", "No useful listing field was extracted", stage, 422, true);
+    const partial = extraction.missingFields.length > 0;
+    log("extraction completed", { requestId, stage, runtime, partial, photos: extraction.photos.length, missingFields: extraction.missingFields.length, durationMs: Date.now() - totalStarted });
+    return { success: true, partial, data: extraction, warnings: extraction.warnings, requestId };
+  } catch (caught) {
+    const error = normalizeAirbnbError(caught, stage);
+    console.error("[airbnb-import] failed", { requestId, stage: error.stage, runtime, durationMs: Date.now() - totalStarted, code: error.code, name: error.name, message: error.internalMessage, cause: error.cause instanceof Error ? error.cause.message : error.cause, stack: error.stack });
+    if (page && !isVercelRuntime() && process.env.NODE_ENV === "development") {
+      const dir = path.join(process.cwd(), ".airbnb-debug");
+      await mkdir(dir, { recursive: true }).catch(() => undefined);
+      await page.screenshot({ path: path.join(dir, `${requestId}.png`), fullPage: true }).catch(() => undefined);
+      const html = await page.content().catch(() => "");
+      await writeFile(path.join(dir, `${requestId}.html`), html.slice(0, 500_000)).catch(() => undefined);
+      await writeFile(path.join(dir, `${requestId}.json`), JSON.stringify({ title: await page.title().catch(() => ""), finalUrl: safeUrl(page.url()) }, null, 2)).catch(() => undefined);
     }
-
-    return { success: true, data: extraction };
-  } catch (error) {
-    const code: AirbnbErrorCode = error instanceof AirbnbError
-      ? error.code as AirbnbErrorCode
-      : "AIRBNB_EXTRACTION_FAILED";
-    console.error("[airbnb-import] operation failed", {
-      stage: "extraction",
-      code,
-      message: error instanceof Error ? error.message : String(error),
-      cause: error instanceof Error && "cause" in error ? error.cause : undefined,
-    });
-    return { success: false, code, message: PUBLIC_ERROR_MESSAGES[code] };
+    return { success: false, code: error.code, message: error.publicMessage, requestId };
   } finally {
-    if (browser) {
-      await browser.close().catch((e) => console.error("[airbnb-import] browser close failed", e));
-      console.log("[airbnb-import] browser closed");
-    }
+    if (handle) await handle.cleanup();
   }
 }
