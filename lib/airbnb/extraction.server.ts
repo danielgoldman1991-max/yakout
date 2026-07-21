@@ -2,9 +2,9 @@ import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { airbnbExtractionSchema, airbnbUrlSchema } from "./schemas";
-import { normalizeAmenity, normalizeRoomType } from "./normalization";
+import { canonicalPropertyType, normalizeAmenity, normalizeRoomType } from "./normalization";
 import type { Browser } from "playwright-core";
-import type { AirbnbListingExtraction } from "./types";
+import type { AirbnbListingCanonical, AirbnbListingExtraction, AirbnbPhotoCandidate } from "./types";
 
 const numberNear = (text: string, words: string[]) => {
   for (const word of words) {
@@ -33,32 +33,75 @@ function extractJsonLd(html: string) {
   return results;
 }
 
-function metaContent(html: string, names: string[]): string | null {
-  for (const name of names) {
-    const patterns = [
-      new RegExp(`<meta\\s[^>]*(?:property|name)\\s*=\\s*["']${escapeRegex(name)}["'][^>]*content\\s*=\\s*["']([^"']*)["']`, "i"),
-      new RegExp(`<meta\\s[^>]*content\\s*=\\s*["']([^"']*)["'][^>]*(?:property|name)\\s*=\\s*["']${escapeRegex(name)}["']`, "i"),
-    ];
-    for (const pattern of patterns) {
-      const m = html.match(pattern);
-      if (m) return m[1].replace(/\s+/g, " ").trim();
+function decodeHtml(value: string | null): string | null {
+  if (value == null) return null;
+  const named: Record<string, string> = { nbsp: " ", amp: "&", quot: '"', apos: "'", lt: "<", gt: ">" };
+  return value.replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (entity, token: string) => {
+    if (token[0] === "#") {
+      const point = token[1].toLowerCase() === "x" ? Number.parseInt(token.slice(2), 16) : Number.parseInt(token.slice(1), 10);
+      return Number.isFinite(point) ? String.fromCodePoint(point) : entity;
     }
-  }
-  return null;
+    return named[token.toLowerCase()] ?? entity;
+  }).replace(/[\s\u00a0]+/g, " ").trim();
 }
 
-function escapeRegex(s: string) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function isGenericAirbnbTitle(value: string | null) {
+  const normalized = decodeHtml(value)?.toLowerCase() ?? "";
+  return !normalized || normalized.startsWith("airbnb") || normalized.includes("locations de vacances, cabanes") || normalized.includes("vacation rentals") || normalized.includes("holiday rentals");
 }
 
-function elementText(html: string, tag: string, nth = 0): string | null {
-  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "gi");
-  let match;
-  let count = 0;
-  while ((match = regex.exec(html)) !== null) {
-    if (count++ === nth) return match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-  }
-  return null;
+function parseEmbeddedOverview(html: string) {
+  const match = html.match(/"overview":\{[\s\S]{0,1200}?"title":"((?:\\.|[^"\\])*)"[\s\S]{0,600}?"items":\[((?:\\.|[^\]])*)\]/);
+  if (!match) return { title: null as string | null, items: [] as string[] };
+  try {
+    const title = decodeHtml(JSON.parse(`"${match[1]}"`));
+    const items = JSON.parse(`[${match[2]}]`).map((item: unknown) => decodeHtml(String(item))).filter(Boolean) as string[];
+    return { title, items };
+  } catch { return { title: null, items: [] }; }
+}
+
+function parsePropertySummary(summary: string | null) {
+  if (!summary) return { propertyTypeLabel: null, city: null, country: null };
+  const normalized = decodeHtml(summary) ?? "";
+  const french = normalized.match(/^(?:Logement entier|Chambre privée)\s*:\s*(.+?)\s+-\s*([^,]+),\s*(.+)$/i);
+  if (french) return { propertyTypeLabel: french[1].trim(), city: french[2].trim(), country: french[3].trim() };
+  const english = normalized.match(/^(?:Entire|Private)\s+(.+?)\s+in\s+([^,]+),\s*(.+)$/i);
+  if (english) return { propertyTypeLabel: english[1].trim(), city: english[2].trim(), country: english[3].trim() };
+  return { propertyTypeLabel: normalized, city: null, country: null };
+}
+
+function structuredPhotoCandidates(jsonLd: Record<string, unknown>[], listingId: string): AirbnbPhotoCandidate[] {
+  const urls = jsonLd.flatMap((entry) => Array.isArray(entry.image) ? entry.image : typeof entry.image === "string" ? [entry.image] : []);
+  const seen = new Set<string>();
+  return urls.flatMap((value) => {
+    const sourceUrl = String(value).replace(/&amp;/g, "&");
+    if (!/^https:\/\//i.test(sourceUrl) || !/\.(?:jpe?g|png|webp)(?:\?|$)/i.test(sourceUrl) || !/muscache\.com$/i.test(new URL(sourceUrl).hostname) || !sourceUrl.includes(listingId) || seen.has(sourceUrl)) return [];
+    seen.add(sourceUrl);
+    return [{ sourceUrl, width: null, height: null, alt: null, source: "structured-data" as const }];
+  }).slice(0, 20);
+}
+
+export function extractCanonicalAirbnbListing(html: string, url: string, listingId: string): AirbnbListingCanonical {
+  const jsonLd = extractJsonLd(html);
+  const listing = jsonLd.find((entry) => entry["@type"] === "VacationRental") ?? jsonLd.find((entry) => entry["@type"] === "Product") ?? {};
+  const overview = parseEmbeddedOverview(html);
+  const summary = parsePropertySummary(overview.title);
+  const capacityText = overview.items.join(" · ");
+  const titleCandidate = decodeHtml(typeof listing.name === "string" ? listing.name : null);
+  const title = !isGenericAirbnbTitle(titleCandidate) ? titleCandidate : null;
+  const address = listing.address && typeof listing.address === "object" ? listing.address as Record<string, unknown> : {};
+  const city = summary.city ?? (typeof address.addressLocality === "string" ? decodeHtml(address.addressLocality) : null);
+  const photos = structuredPhotoCandidates(jsonLd, listingId);
+  const propertyType = canonicalPropertyType(summary.propertyTypeLabel);
+  const values = {
+    maxGuests: numberNear(capacityText, ["voyageurs?", "guests?"]),
+    bedrooms: numberNear(capacityText, ["chambres?", "bedrooms?"]),
+    beds: numberNear(capacityText, ["lits?", "beds?"]),
+    bathrooms: numberNear(capacityText, ["salles? de bain", "baths?", "bathrooms?"]),
+  };
+  const missing = [title, propertyType, city, values.maxGuests, values.bedrooms, values.beds, values.bathrooms].filter((value) => value == null).length;
+  const warnings = [...(!title ? ["Titre spécifique introuvable."] : []), ...(!propertyType ? ["Type de logement à confirmer."] : []), ...(!photos.length ? ["Aucune photo exploitable n’a été détectée."] : [])];
+  return { listingId, sourceUrl: url, title, propertyType, propertyTypeLabel: summary.propertyTypeLabel, city, country: summary.country, maxGuests: values.maxGuests, bedrooms: values.bedrooms, beds: values.beds, bathrooms: values.bathrooms, description: decodeHtml(typeof listing.description === "string" ? listing.description : null), amenities: [], photos, partial: missing > 0, warnings };
 }
 
 function extractHeadingText(html: string): string[] {
@@ -70,20 +113,6 @@ function extractHeadingText(html: string): string[] {
     if (text) headings.push(text);
   }
   return headings;
-}
-
-function extractImageUrls(html: string): { src: string; alt: string | null }[] {
-  const urls = new Map<string, string | null>();
-  const regex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    const src = match[1].replace(/\?.*$/, "");
-    if (/^https:\/\//.test(src) && /muscache|airbnb|akamai/i.test(src) && !/assets\.airbnb\.com\/images\/maintenance/i.test(src)) {
-      const altMatch = match[0].match(/alt=["']([^"']*)["']/i);
-      if (!urls.has(src)) urls.set(src, altMatch?.[1]?.trim() || null);
-    }
-  }
-  return [...urls.entries()].map(([src, alt]) => ({ src, alt }));
 }
 
 function extractBodyText(html: string): string {
@@ -166,31 +195,31 @@ export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbList
 
 async function parseAirbnbHtml(html: string, url: string, listingId: string): Promise<AirbnbListingExtraction> {
   const jsonLd = extractJsonLd(html);
+  const canonical = extractCanonicalAirbnbListing(html, url, listingId);
   const text = extractBodyText(html);
   const headings = extractHeadingText(html);
-  const images = extractImageUrls(html).slice(0, 30);
-  const photos = images.map((img, order) => ({
+  const photos = canonical.photos.map((img, order) => ({
     order,
-    sourceUrl: img.src,
-    highResolutionUrl: img.src,
+    sourceUrl: img.sourceUrl,
+    highResolutionUrl: img.sourceUrl,
     caption: null,
     roomLabel: null,
     altText: img.alt,
-    width: null as number | null,
-    height: null as number | null,
+    width: img.width,
+    height: img.height,
   }));
 
-  const title = metaContent(html, ["og:title", "twitter:title"]) || elementText(html, "h1") || null;
+  const title = canonical.title;
   const pageTitle = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "").trim() || null;
-  const description = metaContent(html, ["og:description", "description", "twitter:description"]) || null;
+  const description = canonical.description;
   const lang = (html.match(/<html[^>]*lang=["']([^"']+)/i)?.[1] ?? "fr").slice(0, 5);
-  const location = headings.find((h) => /marrakech|maroc|morocco/i.test(h)) || null;
+  const location = canonical.city && canonical.country ? `${canonical.city}, ${canonical.country}` : canonical.city;
 
   const amenities = text.split(/\s{2,}|•|\n/).filter((line) => {
     const l = line.trim();
     return l.length > 1 && l.length < 80 && /wifi|cuisine|climatisation|piscine|parking|lave-linge|ascenseur|balcon|terrasse|détecteur/i.test(l);
   });
-  const propertyLabel = headings.find((h) => /appartement|studio|villa|riad|maison|chambre|penthouse|logement/i.test(h)) ?? null;
+  const propertyLabel = canonical.propertyTypeLabel;
   const locationParts = (location ?? "").split(",").map((p) => p.trim());
 
   const extraction: AirbnbListingExtraction = {
@@ -199,20 +228,20 @@ async function parseAirbnbHtml(html: string, url: string, listingId: string): Pr
       title,
       subtitle: propertyLabel,
       propertyTypeLabel: propertyLabel,
-      roomType: normalizeRoomType(propertyLabel),
+      roomType: canonical.propertyType === "room" ? "private_room" : canonical.propertyType ? "entire_place" : normalizeRoomType(propertyLabel),
     },
     capacity: {
-      maxGuests: numberNear(text, ["voyageurs?", "personnes?"]),
-      bedrooms: numberNear(text, ["chambres?"]),
-      beds: numberNear(text, ["lits?"]),
-      bathrooms: numberNear(text, ["salles? de bain", "salle de bain"]),
+      maxGuests: canonical.maxGuests,
+      bedrooms: canonical.bedrooms,
+      beds: canonical.beds,
+      bathrooms: canonical.bathrooms,
       sleepingArrangements: [],
     },
     location: {
-      city: locationParts[0] || null,
+      city: canonical.city,
       district: null,
       region: locationParts[1] || null,
-      country: locationParts[2] || (location?.toLowerCase().includes("maroc") ? "Maroc" : null),
+      country: canonical.country,
       publicLocationLabel: location,
       neighborhoodDescription: null,
     },
@@ -247,7 +276,7 @@ async function parseAirbnbHtml(html: string, url: string, listingId: string): Pr
     extraction.confidence[key] = value == null ? 0 : key === "title" ? 0.9 : 0.75;
     if (value == null) extraction.missingFields.push(key);
   }
-  if (extraction.identity.roomType === "unknown") extraction.warnings.push("Type de location à confirmer manuellement.");
+  if (!canonical.propertyType) extraction.warnings.push("Type de location à confirmer manuellement.");
   if (!extraction.photos.length) extraction.warnings.push("Aucune photo publique détectée.");
 
   const parsed = airbnbExtractionSchema.parse(extraction);

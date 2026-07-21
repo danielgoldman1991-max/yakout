@@ -16,7 +16,7 @@ export type AirbnbAnalysisState =
   | null
   | { success: true; data: AirbnbListingExtraction; partial: boolean; warnings: string[]; requestId: string; sourceUrl: string; listingId: string; preview: AirbnbPreview }
   | { success: false; code: string; message: string; requestId: string; retryable: boolean; sourceUrl?: string; listingId?: string };
-export type AirbnbConfirmationState = { error?: string; apartmentId?: string };
+export type AirbnbConfirmationState = { error?: string; apartmentId?: string; photosDetected?: number; photosSelected?: number; photosUploaded?: number; photosFailed?: number; warnings?: string[] };
 
 async function importPermissionContext() {
   let client: Awaited<ReturnType<typeof createSupabaseActionClient>>;
@@ -79,16 +79,21 @@ async function uniqueSlug(admin: ReturnType<typeof createSupabaseAdminClient>, t
   return `${base}-${Date.now().toString(36)}`;
 }
 
+function isAllowedAirbnbPhotoUrl(value: string) { try { const url = new URL(value); return url.protocol === "https:" && url.hostname === "a0.muscache.com" && /^\/im\/pictures\//.test(url.pathname) && !/\.svg$/i.test(url.pathname); } catch { return false; } }
 async function importSelectedPhotos(admin: ReturnType<typeof createSupabaseAdminClient>, apartmentId: string, companyId: string, title: string, urls: string[]) {
-  if (!urls.length) return 0;
+  if (!urls.length) return { uploaded: 0, failed: 0, warnings: [] as string[] };
   const { count } = await admin.from("apartment_images").select("id", { count: "exact", head: true }).eq("apartment_id", apartmentId);
   const availableSlots = Math.max(0, 6 - (count ?? 0));
   const rows: Array<Record<string, unknown>> = [];
+  const warnings: string[] = [];
   for (const [index, url] of urls.slice(0, availableSlots).entries()) {
+    try {
+    if (!isAllowedAirbnbPhotoUrl(url)) throw new Error("Hôte ou chemin photo non autorisé.");
+    console.info("[airbnb-import] photo download started", { apartmentId, index });
     const response = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(20_000) });
-    if (!response.ok) throw new Error(`Téléchargement photo impossible (${response.status}).`);
+    if (!response.ok || !isAllowedAirbnbPhotoUrl(response.url)) throw new Error(`Téléchargement photo impossible (${response.status}).`);
     const mime = (response.headers.get("content-type") ?? "").split(";")[0];
-    if (!new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]).has(mime)) throw new Error(`Format photo non autorisé : ${mime || "inconnu"}.`);
+    if (!new Set(["image/jpeg", "image/png", "image/webp"]).has(mime)) throw new Error(`Format photo non autorisé : ${mime || "inconnu"}.`);
     const bytes = new Uint8Array(await response.arrayBuffer());
     if (bytes.byteLength > 5 * 1024 * 1024) throw new Error("Une photo Airbnb dépasse 5 MB.");
     const hash = createHash("sha256").update(bytes).digest("hex");
@@ -98,9 +103,11 @@ async function importSelectedPhotos(admin: ReturnType<typeof createSupabaseAdmin
     if (uploadError && !/already exists|duplicate/i.test(uploadError.message)) throw uploadError;
     const publicUrl = admin.storage.from("yakout-media").getPublicUrl(imagePath).data.publicUrl;
     rows.push({ company_id: companyId, apartment_id: apartmentId, url: publicUrl, image_url: publicUrl, image_path: imagePath, alt_text: `Photo ${index + 1} de ${title}`, image_alt_text: `Photo ${index + 1} de ${title}`, display_order: (count ?? 0) + index, sort_order: (count ?? 0) + index, is_cover: (count ?? 0) === 0 && index === 0, storage_bucket: "yakout-media" });
+    console.info("[airbnb-import] photo uploaded", { apartmentId, index });
+    } catch (error) { warnings.push(`Photo ${index + 1} non importée : ${error instanceof Error ? error.message : String(error)}`); }
   }
   if (rows.length) { const { error } = await admin.from("apartment_images").insert(rows); if (error) throw error; }
-  return rows.length;
+  return { uploaded: rows.length, failed: urls.slice(0, availableSlots).length - rows.length, warnings };
 }
 
 export async function confirmAirbnbImportAction(_state: AirbnbConfirmationState, formData: FormData): Promise<AirbnbConfirmationState> {
@@ -118,10 +125,13 @@ export async function confirmAirbnbImportAction(_state: AirbnbConfirmationState,
     let apartmentId: string;
     if (existing) { const updates = parsed.mode === "fill_empty" ? Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== null && value !== "" && value !== 0)) : payload; const { error } = await admin.from("apartments").update(updates).eq("id", existing.id).eq("company_id", companyId); if (error) throw error; apartmentId = existing.id; }
     else { const { data, error } = await admin.from("apartments").insert({ ...payload, slug: await uniqueSlug(admin, parsed.title) }).select("id").single(); if (error) throw error; apartmentId = data.id; }
-    const photosImported = parsed.imageRightsConfirmed ? await importSelectedPhotos(admin, apartmentId, companyId, parsed.title, parsed.selectedPhotoUrls) : 0;
-    const { error: importError } = await admin.from("apartment_imports").upsert({ company_id: companyId, apartment_id: apartmentId, source_platform: "airbnb", source_listing_id: parsed.extraction.source.listingId, source_url: parsed.extraction.source.url, import_status: "completed", extraction_snapshot: parsed.extraction, mapped_payload: { ...payload, photos_imported: photosImported }, warnings: parsed.extraction.warnings, missing_fields: parsed.extraction.missingFields, content_hash: parsed.contentHash, created_by: user.id, confirmed_at: new Date().toISOString(), completed_at: new Date().toISOString() }, { onConflict: "company_id,source_platform,source_listing_id,content_hash" });
+    const allowedExtractedPhotos = new Set(parsed.extraction.photos.map((photo) => photo.highResolutionUrl));
+    if (parsed.selectedPhotoUrls.some((url) => !allowedExtractedPhotos.has(url))) throw new Error("Une photo sélectionnée ne provient pas de l’analyse validée.");
+    const photoResult = parsed.imageRightsConfirmed ? await importSelectedPhotos(admin, apartmentId, companyId, parsed.title, parsed.selectedPhotoUrls) : { uploaded: 0, failed: 0, warnings: [] as string[] };
+    const { error: importError } = await admin.from("apartment_imports").upsert({ company_id: companyId, apartment_id: apartmentId, source_platform: "airbnb", source_listing_id: parsed.extraction.source.listingId, source_url: parsed.extraction.source.url, import_status: "completed", extraction_snapshot: parsed.extraction, mapped_payload: { ...payload, photos_imported: photoResult.uploaded }, warnings: [...parsed.extraction.warnings, ...photoResult.warnings], missing_fields: parsed.extraction.missingFields, content_hash: parsed.contentHash, created_by: user.id, confirmed_at: new Date().toISOString(), completed_at: new Date().toISOString() }, { onConflict: "company_id,source_platform,source_listing_id,content_hash" });
     if (importError) throw importError;
     revalidatePath("/dashboard/apartments"); revalidatePath(`/dashboard/apartments/${apartmentId}`); revalidatePath(`/dashboard/owners/${parsed.ownerId}`);
-    return { apartmentId };
+    console.info("[airbnb-import] import completed", { apartmentId, photosDetected: parsed.extraction.photos.length, photosSelected: parsed.selectedPhotoUrls.length, uploadedPhotoCount: photoResult.uploaded, warningCount: photoResult.warnings.length });
+    return { apartmentId, photosDetected: parsed.extraction.photos.length, photosSelected: parsed.selectedPhotoUrls.length, photosUploaded: photoResult.uploaded, photosFailed: photoResult.failed, warnings: photoResult.warnings };
   } catch (error) { return { error: error instanceof Error ? error.message : "Import impossible." }; }
 }

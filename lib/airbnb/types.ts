@@ -1,5 +1,32 @@
 export type AirbnbRoomType = "entire_place" | "private_room" | "shared_room" | "unknown";
 
+export type AirbnbPropertyType = "apartment" | "villa" | "riad" | "house" | "studio" | "room" | "other";
+export type AirbnbPhotoCandidate = {
+  sourceUrl: string;
+  width: number | null;
+  height: number | null;
+  alt: string | null;
+  source: "listing-gallery" | "structured-data" | "embedded-json" | "open-graph";
+};
+export type AirbnbListingCanonical = {
+  listingId: string;
+  sourceUrl: string;
+  title: string | null;
+  propertyType: AirbnbPropertyType | null;
+  propertyTypeLabel: string | null;
+  city: string | null;
+  country: string | null;
+  maxGuests: number | null;
+  bedrooms: number | null;
+  beds: number | null;
+  bathrooms: number | null;
+  description: string | null;
+  amenities: string[];
+  photos: AirbnbPhotoCandidate[];
+  partial: boolean;
+  warnings: string[];
+};
+
 export type AirbnbListingExtraction = {
   source: { platform: "airbnb"; listingId: string; url: string; extractedAt: string; language: string; pageTitle: string | null };
   identity: { title: string | null; subtitle: string | null; propertyTypeLabel: string | null; roomType: AirbnbRoomType };

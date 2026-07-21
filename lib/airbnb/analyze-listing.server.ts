@@ -83,6 +83,10 @@ export async function analyzeAirbnbListing(rawUrl: string, options?: { requestId
     stage = "extraction";
     log("extraction started", { requestId, stage, runtime });
     const extraction = await withTimeout(extractAirbnbListingFromHtml(html, validatedUrl), 30_000, new AirbnbImportError("AIRBNB_EXTRACTION_FAILED", "Extraction timed out", stage, 500, true));
+    for (const [field, value] of Object.entries({ title: extraction.identity.title, propertyType: extraction.identity.propertyTypeLabel, city: extraction.location.city, country: extraction.location.country, maxGuests: extraction.capacity.maxGuests, bedrooms: extraction.capacity.bedrooms, beds: extraction.capacity.beds, bathrooms: extraction.capacity.bathrooms })) log("field extracted", { requestId, field, source: field === "title" ? "structured-data" : ["city", "country", "propertyType", "maxGuests", "bedrooms", "beds", "bathrooms"].includes(field) ? "embedded-overview" : "unknown", found: value != null });
+    log("photo candidates collected", { requestId, candidateCount: extraction.photos.length, source: "structured-data" });
+    log("photos filtered", { requestId, validPhotoCount: extraction.photos.length });
+    log("canonical mapping completed", { requestId, warningCount: extraction.warnings.length });
     const useful = Boolean(extraction.identity.title || extraction.capacity.maxGuests || extraction.photos.length || extraction.descriptions.summary);
     if (!useful) throw new AirbnbImportError("AIRBNB_EXTRACTION_EMPTY", "No useful listing field was extracted", stage, 422, true);
     const partial = extraction.missingFields.length > 0;

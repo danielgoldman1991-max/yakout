@@ -11,7 +11,8 @@
     "import:airbnb": "node scripts/import-airbnb-listing.mjs",
     "test": "node --test tests/unit/*.test.mjs && tsx --conditions=react-server --test tests/unit/*.test.ts",
     "airbnb:doctor": "tsx --conditions=react-server scripts/airbnb-doctor.ts",
-    "airbnb:smoke": "tsx --conditions=react-server scripts/airbnb-smoke.ts"
+    "airbnb:smoke": "tsx --conditions=react-server scripts/airbnb-smoke.ts",
+    "airbnb:inspect": "tsx --conditions=react-server scripts/airbnb-inspect.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
