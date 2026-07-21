@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { getReportDefinition } from "@/lib/reports/definitions";
 import { getReportData } from "@/lib/reports/data";
-import { canUseReportOutputs, REPORTS_UNCERTIFIED_MESSAGE } from "@/lib/reports/certification";
+import { canUseReportOutputs } from "@/lib/reports/certification";
+import { getUserPermissions } from "@/lib/reports/permissions";
 import { formatCurrency, formatPercent, formatReportDate } from "@/lib/reports/formatters";
 import type { ReportTableColumn } from "@/lib/reports/data/types";
 
@@ -28,17 +29,16 @@ export default async function ReportPrintPage({
   const def = getReportDefinition(reportId);
   if (!def) notFound();
 
-  if (!canUseReportOutputs()) {
+  const permissions = await getUserPermissions();
+  if (!permissions.includes(def.permission)) {
     return (
       <html>
         <head>
           <meta charSet="utf-8" />
-          <title>Rapport non certifié - Yakout</title>
+          <title>Accès refusé - Yakout</title>
         </head>
         <body style={{ fontFamily: "Arial, sans-serif", padding: 32 }}>
-          <h1>Impression désactivée</h1>
-          <p>{REPORTS_UNCERTIFIED_MESSAGE}</p>
-          <p>Données indisponibles ou non certifiées.</p>
+          <h1>Accès refusé</h1><p>Vous ne disposez pas de la permission nécessaire.</p>
         </body>
       </html>
     );
@@ -51,6 +51,7 @@ export default async function ReportPrintPage({
     period_start: periodStart,
     period_end: periodEnd,
   });
+  if (!canUseReportOutputs(data)) return <html><head><meta charSet="utf-8" /><title>Rapport indisponible - Yakout</title></head><body><h1>Rapport indisponible</h1><p>Aucune impression n’est générée tant que le loader du rapport échoue.</p></body></html>;
 
   const genDate = formatReportDate(data.metadata.generatedAt);
 
@@ -89,7 +90,7 @@ export default async function ReportPrintPage({
           <div style={{ width: 32, height: 32, background: "#c8a44e", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: 12 }}>Y</div>
           <div>
             <h1>{def.title}</h1>
-            <div className="meta">{def.description} · {periodStart} → {periodEnd} · Généré le {genDate}</div>
+            <div className="meta">{def.description} · {formatReportDate(periodStart)} → {formatReportDate(periodEnd)} · Généré le {genDate} · {data.metadata.availability === "available_with_warnings" ? "Disponible avec réserves" : "Disponible"}</div>
           </div>
         </div>
 
@@ -141,7 +142,7 @@ export default async function ReportPrintPage({
         ))}
 
         <div className="footer">
-          Yakout Hospitality · Rapport : {def.title} · Période : {periodStart} → {periodEnd} · Généré le {genDate}
+          Yakout Hospitality · Rapport : {def.title} · Période : {formatReportDate(periodStart)} → {formatReportDate(periodEnd)} · Généré le {genDate}
         </div>
       </body>
     </html>

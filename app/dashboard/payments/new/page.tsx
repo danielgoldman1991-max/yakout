@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
+import { getReservationFinancialSummary } from "@/lib/data/reservation-financial";
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -32,6 +33,7 @@ export default async function NewPaymentPage({
   const isAccommodation = params?.type === "accommodation";
   const reservationId = params?.reservationId && uuidRegex.test(params.reservationId) ? params.reservationId : undefined;
   const reservation = reservationId ? await getReservationById(reservationId) : null;
+  const reservationFinancial = reservationId ? await getReservationFinancialSummary(reservationId) : null;
   const apartmentIdFromQuery = params?.apartmentId && uuidRegex.test(params.apartmentId) ? params.apartmentId : undefined;
   const defaultApartmentId = reservation?.apartment_id ?? apartmentIdFromQuery ?? "";
   const defaultClientId = reservation?.client_id ?? "";
@@ -50,9 +52,8 @@ export default async function NewPaymentPage({
     getPackages().catch(() => []),
   ]);
 
-  const defaultTotal = reservation?.total_amount ?? 0;
-  const defaultPaid = reservation?.deposit_amount ?? 0;
-  const remaining = Math.max(0, Number(defaultTotal) - Number(defaultPaid));
+  const defaultPaid = reservationFinancial?.state === "available" ? reservationFinancial.netPaid : null;
+  const remaining = reservationFinancial?.state === "available" ? reservationFinancial.balanceDue : null;
   const redirectTo = `/dashboard/payments/new${isAccommodation ? "?type=accommodation" : ""}${defaultApartmentId ? `${isAccommodation ? "&" : "?"}apartmentId=${defaultApartmentId}` : ""}`;
 
   return (
@@ -79,8 +80,9 @@ export default async function NewPaymentPage({
               defaultApartmentId={defaultApartmentId}
               defaultClientId={defaultClientId}
               defaultReservationId={reservationId ?? ""}
-              defaultPaid={Number(defaultPaid)}
-              remaining={Number(remaining)}
+              defaultPaid={defaultPaid}
+              remaining={remaining}
+              financialUnavailable={Boolean(reservationId && reservationFinancial?.state !== "available")}
               apartmentOwnerId={apartment?.owner_id ?? ""}
             />
           </CardContent>
@@ -93,6 +95,7 @@ export default async function NewPaymentPage({
           <CardContent>
             <FormErrorBanner />
             <form action={createPaymentAction} className="space-y-6">
+              <input type="hidden" name="idempotency_key" value={crypto.randomUUID()} />
               <input type="hidden" name="redirect_to" value={redirectTo} />
               <input type="hidden" name="activity_type" value="other" />
 
@@ -234,7 +237,7 @@ export default async function NewPaymentPage({
                   <DateField id="paid_at" name="paid_at" label="Date paiement" value={today()} required />
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-muted-foreground">Statut</label>
-                    <select name="status" defaultValue="pending" className="w-full rounded-md border bg-surface px-3 py-2 text-sm">
+                    <select name="status" defaultValue={reservationId ? "paid" : "pending"} className="w-full rounded-md border bg-surface px-3 py-2 text-sm">
                       <option value="pending">En attente</option>
                       <option value="partial">Partiel</option>
                       <option value="paid">Paye</option>

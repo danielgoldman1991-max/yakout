@@ -12,22 +12,24 @@ export async function getDataQualityOverview(_filters: ReportFilters): Promise<R
   void _filters;
   const supabase = await getClient();
 
-  const [leadsRes, ownersRes, apartmentsRes, reservationsRes, paymentsRes, expensesRes, documentsRes] = await Promise.all([
+  const [leadsRes, ownersRes, apartmentsRes, reservationsRes, paymentsRes, allocationsRes, expensesRes, documentsRes] = await Promise.all([
     supabase.from("leads").select("id, client_id, owner_id, status, converted_at"),
     supabase.from("owners").select("id, full_name, status, company_id"),
     supabase.from("apartments").select("id, internal_name, owner_id, company_id, is_published"),
-    supabase.from("reservations").select("id, apartment_id, client_id, total_amount, reservation_status, company_id"),
-    supabase.from("payments").select("id, reservation_id, trip_id, amount, company_id"),
+    supabase.from("reservations").select("id, apartment_id, client_id, total_amount, deposit_amount, remaining_amount, payment_status, currency, reservation_status, company_id"),
+    supabase.from("payments").select("id, amount, currency, status, direction, category, company_id"),
+    supabase.from("payment_allocations").select("payment_id,reservation_id,apartment_id,client_id,owner_id,trip_id,package_id,amount,company_id"),
     supabase.from("expenses").select("id, apartment_id, vehicle_id, trip_id, amount, company_id"),
     supabase.from("documents").select("id, related_entity_type, related_entity_id, company_id"),
   ]);
-  assertSupabaseResults("Qualité des données", [leadsRes, ownersRes, apartmentsRes, reservationsRes, paymentsRes, expensesRes, documentsRes]);
+  assertSupabaseResults("Qualité des données", [leadsRes, ownersRes, apartmentsRes, reservationsRes, paymentsRes, allocationsRes, expensesRes, documentsRes]);
 
   const leads = leadsRes.data ?? [];
   const owners = ownersRes.data ?? [];
   const apartments = apartmentsRes.data ?? [];
   const reservations = reservationsRes.data ?? [];
   const payments = paymentsRes.data ?? [];
+  const allocations = allocationsRes.data ?? [];
   const expenses = expensesRes.data ?? [];
   const documents = documentsRes.data ?? [];
 
@@ -53,10 +55,35 @@ export async function getDataQualityOverview(_filters: ReportFilters): Promise<R
     findings.push({ check: "Réservations sans client", count: reservationsNoClient, severity: "medium" });
   }
 
-  const hotelsPaid = payments.filter((p) => !p.reservation_id && !p.trip_id).length;
-  if (hotelsPaid > 0) {
-    findings.push({ check: "Paiements sans réservation ni trajet", count: hotelsPaid, severity: "high" });
+  const allocatedPaymentIds = new Set(allocations.map((allocation) => allocation.payment_id));
+  const unallocatedPayments = payments.filter((payment) => !allocatedPaymentIds.has(payment.id)).length;
+  if (unallocatedPayments > 0) {
+    findings.push({ check: "Transactions sans allocation", count: unallocatedPayments, severity: "high" });
   }
+
+  const transactionsWithoutEntity = allocations.filter((allocation) => !allocation.reservation_id && !allocation.apartment_id && !allocation.client_id && !allocation.owner_id && !allocation.trip_id && !allocation.package_id).length;
+  if (transactionsWithoutEntity > 0) findings.push({ check: "Allocations sans entité métier", count: transactionsWithoutEntity, severity: "high" });
+
+  const canonicalStatuses = new Set(["pending", "paid", "failed", "cancelled", "refunded", "partially_refunded", "reversed"]);
+  const unknownStatuses = payments.filter((payment) => !canonicalStatuses.has(String(payment.status))).length;
+  if (unknownStatuses > 0) findings.push({ check: "Statuts financiers inconnus", count: unknownStatuses, severity: "high" });
+
+  const paymentById = new Map(payments.map((payment) => [payment.id, payment]));
+  let mixedCurrencies = 0;
+  let snapshotDifferences = 0;
+  for (const reservation of reservations) {
+    const linked = allocations.filter((allocation) => allocation.reservation_id === reservation.id).flatMap((allocation) => {
+      const payment = paymentById.get(allocation.payment_id);
+      return payment ? [{ allocation, payment }] : [];
+    });
+    const currencies = new Set(linked.map(({ payment }) => String(payment.currency).toUpperCase()));
+    if (currencies.size > 1 || (currencies.size === 1 && !currencies.has(String(reservation.currency || "MAD").toUpperCase()))) mixedCurrencies += 1;
+    const net = linked.filter(({ payment }) => payment.status === "paid").reduce((sum, { allocation, payment }) => sum + (payment.direction === "inflow" ? Number(allocation.amount) : -Number(allocation.amount)), 0);
+    const expectedBalance = Math.max(Number(reservation.total_amount) - net, 0);
+    if (Number(reservation.deposit_amount ?? 0) !== net || Number(reservation.remaining_amount ?? 0) !== expectedBalance) snapshotDifferences += 1;
+  }
+  if (mixedCurrencies > 0) findings.push({ check: "Devises incompatibles sur les allocations", count: mixedCurrencies, severity: "high" });
+  if (snapshotDifferences > 0) findings.push({ check: "Snapshots financiers divergents", count: snapshotDifferences, severity: "medium" });
 
   const expensesOrphaned = expenses.filter((e) => !e.apartment_id && !e.vehicle_id && !e.trip_id).length;
   if (expensesOrphaned > 0) {
@@ -116,7 +143,7 @@ export async function getDataQualityOverview(_filters: ReportFilters): Promise<R
       { label: "Appartements", value: formatInteger(apartments.length) },
       { label: "Réservations", value: formatInteger(reservations.length) },
       { label: "Paiements", value: formatInteger(payments.length) },
-      { label: "Dépenses", value: formatInteger(expenses.length) },
+      { label: "Allocations", value: formatInteger(allocations.length) },
     ],
     tables: noIssues ? [{
       title: "Qualité des données",
@@ -125,6 +152,6 @@ export async function getDataQualityOverview(_filters: ReportFilters): Promise<R
     }] : tables,
     totals: { issues: totalIssues },
     warnings: noIssues ? [] : [`${formatInteger(totalIssues)} anomalie(s) détectée(s). ${formatInteger(highIssues)} critique(s).`],
-    sourceCounts: { leads: leads.length, owners: owners.length, apartments: apartments.length, reservations: reservations.length, payments: payments.length, expenses: expenses.length, documents: documents.length },
+    sourceCounts: { leads: leads.length, owners: owners.length, apartments: apartments.length, reservations: reservations.length, payments: payments.length, allocations: allocations.length, expenseDocuments: expenses.length, documents: documents.length },
   };
 }

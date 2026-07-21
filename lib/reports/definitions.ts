@@ -44,6 +44,8 @@ export type ReportDefinition = {
   supportedFormats: ReportFormat[];
   filters: ReportFilterDefinition[];
   permission: string;
+  dataLoader: string;
+  healthCheck: string;
 };
 
 const baseDateRange: ReportFilterDefinition[] = [
@@ -51,7 +53,7 @@ const baseDateRange: ReportFilterDefinition[] = [
   { id: "period_end", type: "date_range", label: "Fin de période", required: true },
 ];
 
-export const REPORT_DEFINITIONS: ReportDefinition[] = [
+const REPORT_DEFINITION_INPUTS: Omit<ReportDefinition, "dataLoader" | "healthCheck">[] = [
   // ─── Executive ───
   {
     id: "executive-dashboard",
@@ -281,6 +283,13 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
     permission: "reports.data_quality.view",
   },
 ];
+
+export const REPORT_DEFINITIONS: ReportDefinition[] = REPORT_DEFINITION_INPUTS.map((definition) => ({
+  ...definition,
+  supportedFormats: ["screen", "pdf", "xlsx", "print"],
+  dataLoader: definition.id,
+  healthCheck: "loader",
+}));
 
 export const REPORT_CATEGORIES: { id: ReportCategory; label: string; icon: string }[] = [
   { id: "executive", label: "Direction", icon: "BarChart3" },

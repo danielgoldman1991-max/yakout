@@ -5,6 +5,7 @@ import { logger } from "@/lib/utils/logger";
 import { isValidUuid } from "@/lib/utils/uuid";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
 import type { OwnerReport, OwnerPayout, OwnerPayoutItem, OwnerDashboardKPIs, OwnerPropertyPerformance, OwnerFinancialSummary, OwnerReportGeneration } from "@/types/business";
+import { getReservationFinancialSummaries } from "@/lib/data/reservation-financial";
 
 function isDemo() {
   return !hasSupabaseEnv();
@@ -47,7 +48,7 @@ export async function getOwnerDashboard(
     if (aptIds.length === 0) return fallback;
 
     // Reservations in period
-    let resQuery = supabase.from("reservations").select("id, check_in, check_out, nights, total_amount, reservation_status, people_count, apartment_id").in("apartment_id", aptIds);
+    let resQuery = supabase.from("reservations").select("id, check_in, check_out, nights, total_amount, currency, reservation_status, people_count, apartment_id").in("apartment_id", aptIds);
     if (apartmentId) resQuery = resQuery.eq("apartment_id", apartmentId);
     const { data: allRes } = await resQuery.order("check_in", { ascending: false });
 
@@ -77,15 +78,13 @@ export async function getOwnerDashboard(
     // Revenus hébergement (réservations actives dans période)
     const accommodationRevenue = activeRes.reduce((sum, r) => sum + (Number(r.total_amount) || 0), 0);
 
-    // Paiements collectés
-    let payQuery = supabase.from("payments").select("id, amount, status, paid_at").eq("payment_type", "accommodation").gte("paid_at", ps).lte("paid_at", pe);
-    if (apartmentId) {
-      const { data: aptRes } = await supabase.from("reservations").select("id").eq("apartment_id", apartmentId);
-      const resIds = (aptRes ?? []).map(r => r.id);
-      if (resIds.length > 0) payQuery = payQuery.in("reservation_id", resIds);
-    }
-    const { data: payments } = await payQuery;
-    const collectedRevenue = (payments ?? []).filter((p: any) => p.status === "confirmed" || p.status === "completed").reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
+    // Paiements collectés, issus de la même synthèse canonique que la réservation et le calendrier.
+    const periodReservations = activeRes.filter((r) => r.check_in <= pe && r.check_out >= ps);
+    const reservationSummaries = await getReservationFinancialSummaries(periodReservations.map((r) => ({ id: r.id, totalAmount: r.total_amount, currency: r.currency })));
+    const collectedRevenue = periodReservations.reduce((sum, reservation) => {
+      const summary = reservationSummaries.get(reservation.id);
+      return summary?.state === "available" ? sum + summary.netPaid : sum;
+    }, 0);
 
     // Dépenses propriétaire
     let expQuery = supabase.from("expenses").select("id, amount, status").eq("owner_id", ownerId);
@@ -260,7 +259,7 @@ export async function getOwnerFinancialSummary(
     const aptIds = (ownerApts ?? []).map(a => a.id);
     if (aptIds.length === 0) return fallback;
 
-    let resQuery = supabase.from("reservations").select("id, check_in, check_out, total_amount, deposit_amount, remaining_amount, reservation_status").in("apartment_id", aptIds);
+    let resQuery = supabase.from("reservations").select("id, check_in, check_out, total_amount, currency, reservation_status").in("apartment_id", aptIds);
     if (apartmentId) resQuery = resQuery.eq("apartment_id", apartmentId);
 
     if (basis === "activity") {
@@ -269,26 +268,16 @@ export async function getOwnerFinancialSummary(
 
     const { data: reservations } = await resQuery;
     const resActive = (reservations ?? []).filter((r: any) => r.reservation_status !== "cancelled");
-    const resCancelled = (reservations ?? []).filter((r: any) => r.reservation_status === "cancelled");
+    const reservationSummaries = await getReservationFinancialSummaries((reservations ?? []).map((r: any) => ({ id: r.id, totalAmount: r.total_amount, currency: r.currency })));
 
     // reservedAmount = total of active reservations
     const reservedAmount = resActive.reduce((sum: number, r: any) => sum + (Number(r.total_amount) || 0), 0);
-    // refundedAmount = total of cancelled reservations
-    const refundedAmount = resCancelled.reduce((sum: number, r: any) => sum + (Number(r.total_amount) || 0), 0);
-
-    // Payments
-    let payQuery = supabase.from("payments").select("id, amount, status, paid_at, payment_type");
-    if (apartmentId) {
-      const { data: aptRes } = await supabase.from("reservations").select("id").eq("apartment_id", apartmentId);
-      const resIds = (aptRes ?? []).map(r => r.id);
-      if (resIds.length > 0) payQuery = payQuery.in("reservation_id", resIds);
-    }
-    if (basis === "cash") {
-      payQuery = payQuery.gte("paid_at", ps).lte("paid_at", pe);
-    }
-    const { data: payments } = await payQuery;
-    const confirmedPayments = (payments ?? []).filter((p: any) => p.status === "confirmed" || p.status === "completed");
-    const collectedAmount = confirmedPayments.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
+    const availableSummaries = resActive.flatMap((r: any) => {
+      const summary = reservationSummaries.get(r.id);
+      return summary?.state === "available" ? [summary] : [];
+    });
+    const refundedAmount = availableSummaries.reduce((sum, summary) => sum + summary.refundedAmount, 0);
+    const collectedAmount = availableSummaries.reduce((sum, summary) => sum + summary.netPaid, 0);
 
     // Commission (20% of reserved)
     const commissionRate = 0.20;

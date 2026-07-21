@@ -6,6 +6,7 @@ import { BarChart3, Building2, Car, FileText, Package, Shield, TrendingUp, Truck
 import type { ReportCategory } from "@/lib/reports/definitions";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { canViewReport } from "@/lib/reports/permissions";
 
 const CATEGORY_ICONS: Record<ReportCategory, LucideIcon> = {
   executive: BarChart3 as LucideIcon,
@@ -49,6 +50,7 @@ export default async function ReportDetailPage({
 
   const def = getReportDefinition(reportId);
   if (!def) notFound();
+  if (!(await canViewReport(def.permission))) return <div role="alert" className="rounded-sm border border-destructive/40 bg-destructive/10 p-6"><h1 className="text-xl font-semibold">Accès refusé</h1><p className="mt-2 text-sm text-muted-foreground">Vous ne disposez pas de la permission nécessaire pour consulter ce rapport.</p></div>;
 
   const periodStart = (sp.period_start as string) || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
   const periodEnd = (sp.period_end as string) || new Date().toISOString().slice(0, 10);
@@ -58,8 +60,11 @@ export default async function ReportDetailPage({
     period_end: periodEnd,
     owner_id: sp.owner_id as string | undefined,
     apartment_id: sp.apartment_id as string | undefined,
+    client_id: sp.client_id as string | undefined,
     status: sp.status as string | undefined,
     source: sp.source as string | undefined,
+    activity: sp.activity as string | undefined,
+    currency: sp.currency as string | undefined,
   });
 
   const Icon = CATEGORY_ICONS[def.category];
@@ -85,26 +90,27 @@ export default async function ReportDetailPage({
         <p className="text-sm text-muted-foreground/70 ml-11">{def.description}</p>
       </div>
 
-      <div className="rounded-sm border border-border/60 bg-card p-4 shadow-elevation-1">
+      <form id="report-filters" method="get" className="rounded-sm border border-border/60 bg-card p-4 shadow-elevation-1">
         <div className="flex flex-wrap gap-4 items-end">
           <div>
             <label className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60 mb-1">Début de période</label>
             <input type="date" name="period_start" defaultValue={periodStart}
               className="rounded-sm border border-border/40 bg-background px-3 py-1.5 text-sm outline-none focus:border-gold/40" />
           </div>
+          {def.filters.filter((filter) => filter.type !== "date_range").map((filter) => <div key={filter.id}><label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">{filter.label}</label><input name={filter.id} defaultValue={typeof sp[filter.id] === "string" ? sp[filter.id] as string : ""} className="rounded-sm border border-border/40 bg-background px-3 py-1.5 text-sm outline-none focus:border-gold/40" /></div>)}
           <div>
             <label className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60 mb-1">Fin de période</label>
             <input type="date" name="period_end" defaultValue={periodEnd}
               className="rounded-sm border border-border/40 bg-background px-3 py-1.5 text-sm outline-none focus:border-gold/40" />
           </div>
-          <button type="submit" form="report-filters"
+          <button type="submit"
             className="rounded-sm bg-gold px-4 py-1.5 text-sm font-medium text-black hover:bg-gold-light transition-colors">
             Actualiser
           </button>
         </div>
-      </div>
+      </form>
 
-      <ReportView report={data} reportId={reportId} />
+      <ReportView report={data} reportId={reportId} supportedFormats={def.supportedFormats} />
     </div>
   );
 }

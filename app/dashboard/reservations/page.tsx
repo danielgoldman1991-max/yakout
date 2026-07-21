@@ -34,7 +34,8 @@ function PaymentBadge({ paymentStatus }: { paymentStatus: string }) {
   return <Badge tone={tone}>{label}</Badge>;
 }
 
-function formatPayment(paid: number, total: number): string {
+function formatPayment(paid: number | null, total: number): string {
+  if (paid == null) return "Données indisponibles";
   if (total <= 0) return "—";
   return formatCurrency(paid);
 }
@@ -238,7 +239,7 @@ export default async function ReservationsPage({ searchParams }: Props) {
                         <div className="mt-0.5">
                           <PaymentBadge paymentStatus={r.paymentStatus} />
                         </div>
-                        {r.remainingAmount > 0 && (
+                        {r.remainingAmount != null && r.remainingAmount > 0 && (
                           <div className="text-xs text-muted-foreground mt-0.5 tabular-nums">
                             Solde : {formatCurrency(r.remainingAmount)}
                           </div>

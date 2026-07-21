@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_MA",
     siteName: site.companyName,
-    images: [{ url: site.logo, width: 1530, height: 468 }],
+    images: [{ url: site.logo, width: 885, height: 214 }],
   },
   twitter: {
     card: "summary_large_image",

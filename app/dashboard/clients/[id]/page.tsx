@@ -10,6 +10,7 @@ import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { FormErrorBanner } from "@/components/dashboard/form-error-banner";
 import { ClientMessageTemplates } from "@/components/dashboard/client-message-templates";
+import { ClientRequestBookingPanel } from "@/components/dashboard/client-request-booking-panel";
 import {
   createClientFollowupAction,
   createClientNoteAction,
@@ -19,7 +20,7 @@ import {
   saveClientReviewAction,
   updateClientAction,
 } from "@/lib/data/actions";
-import { getClientCrmDetail, isValidUUID } from "@/lib/clients-crm";
+import { getClient360Data, isValidUUID } from "@/lib/clients-crm";
 import {
   buildMailtoUrl,
   buildWhatsAppUrl,
@@ -30,6 +31,8 @@ import {
   yakoutMessageTemplates,
 } from "@/lib/clients-crm-shared";
 import { formatCurrency, formatDate } from "@/lib/formatters";
+import { getApartmentsForSelect } from "@/lib/data";
+import { getPackages } from "@/lib/data/transport";
 
 type TimelineItem = {
   date?: string | null;
@@ -62,8 +65,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
   if (!isValidUUID(id)) redirect("/dashboard/clients?invalidClient=demo");
 
-  const crm = await getClientCrmDetail(id);
-  if (!crm) redirect("/dashboard/clients");
+  const [crmResult, apartmentOptions, packageRows] = await Promise.all([getClient360Data(id), getApartmentsForSelect(), getPackages()]);
+  if (!crmResult.ok) redirect(`/dashboard/clients?error=${encodeURIComponent(crmResult.error.code)}`);
+  const crm = crmResult.data;
 
   const { client, leads, reservations, trips, payments, notes, interactions, reviews, followups } = crm;
   const status = client.status ?? "new";
@@ -139,6 +143,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       </div>
 
       <FormErrorBanner />
+
+      <ClientRequestBookingPanel
+        clientId={id}
+        requests={leads}
+        apartments={apartmentOptions}
+        packages={packageRows.map((item) => ({ id: item.id, label: item.public_title ?? item.title }))}
+      />
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         <Metric title="Demandes" value={String(leads.length)} />

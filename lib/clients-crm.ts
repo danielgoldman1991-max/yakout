@@ -78,6 +78,10 @@ export type ClientCrmDetail = ClientCrmSummary & {
   interactions: ClientInteraction[];
 };
 
+export type Client360Result =
+  | { ok: true; data: ClientCrmDetail }
+  | { ok: false; error: { code: string; message: string } };
+
 function uniqueById<T extends { id: string }>(rows: T[]): T[] {
   return [...new Map(rows.map((row) => [row.id, row])).values()];
 }
@@ -208,6 +212,18 @@ export async function getClientCrmDetail(id: string): Promise<ClientCrmDetail | 
     notes,
     interactions,
   };
+}
+
+export async function getClient360Data(id: string): Promise<Client360Result> {
+  if (!isValidUUID(id)) return { ok: false, error: { code: "INVALID_CLIENT_ID", message: "Identifiant client invalide." } };
+  try {
+    const data = await getClientCrmDetail(id);
+    if (!data) return { ok: false, error: { code: "CLIENT_NOT_FOUND", message: "Client introuvable ou inaccessible." } };
+    return { ok: true, data };
+  } catch (error) {
+    logger.error("getClient360Data failed", error);
+    return { ok: false, error: { code: "CLIENT_360_UNAVAILABLE", message: "La fiche client complète est temporairement indisponible." } };
+  }
 }
 
 function buildSummary(

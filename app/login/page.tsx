@@ -1,13 +1,12 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { signInWithPassword } from "@/lib/auth/actions";
-import { company } from "@/lib/constants/app";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { YakoutLogo } from "@/components/branding/YakoutLogo";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error: errorParam } = await searchParams;
@@ -29,7 +28,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </div>
       <Card className="w-full max-w-md border-border bg-card/80 shadow-elevation-3 backdrop-blur-xl">
         <CardHeader className="text-center">
-          <Image src={company.logo} alt="Yakout" width={58} height={58} className="mx-auto rounded shadow-elevation-1" />
+          <YakoutLogo size="lg" priority className="mx-auto" />
           <CardTitle className="pt-4 text-2xl">Espace équipe</CardTitle>
           <CardDescription>Connexion sécurisée à Yakout Digital Ecosystem V1.</CardDescription>
         </CardHeader>

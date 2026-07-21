@@ -12,7 +12,7 @@ const RESERVATION_COLUMNS = `
   id, company_id, client_id, apartment_id,
   check_in, check_out, nights,
   people_count,
-  total_amount, deposit_amount, remaining_amount, payment_status,
+  total_amount,
   reservation_status,
   check_in_notes, check_out_notes,
   created_at, updated_at
@@ -74,6 +74,13 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
   const page = Math.max(1, filters?.page ?? 1);
   const pageSize = Math.min(100, Math.max(1, filters?.pageSize ?? PAGE_SIZE_DEFAULT));
   const offset = (page - 1) * pageSize;
+  let paymentReservationIds: string[] | null = null;
+  if (filters?.paymentStatus) {
+    const canonicalStatus = filters.paymentStatus === "partial" ? "partially_paid" : filters.paymentStatus;
+    const { data: financialRows, error: financialError } = await supabase.from("reservation_financial_summary_v").select("reservation_id").eq("computed_payment_status", canonicalStatus);
+    if (financialError) logger.error("getReservationsList:financial filter failed", financialError);
+    paymentReservationIds = financialError ? [] : (financialRows ?? []).map((row) => row.reservation_id);
+  }
 
   // Resolve search to client IDs first (base schema has no guest_name/reservation_number)
   let searchClientIds: string[] | null = null;
@@ -90,7 +97,7 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
   let countQuery = supabase.from("reservations").select("id", { count: "exact", head: true });
   if (filters?.status) countQuery = countQuery.eq("reservation_status", filters.status);
   if (filters?.apartmentId) countQuery = countQuery.eq("apartment_id", filters.apartmentId);
-  if (filters?.paymentStatus) countQuery = countQuery.eq("payment_status", filters.paymentStatus);
+  if (paymentReservationIds !== null) countQuery = paymentReservationIds.length ? countQuery.in("id", paymentReservationIds) : countQuery.eq("id", "00000000-0000-0000-0000-000000000000");
   if (searchClientIds !== null) {
     countQuery = searchClientIds.length > 0
       ? countQuery.in("client_id", searchClientIds)
@@ -108,7 +115,7 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
     id, client_id, apartment_id,
     check_in, check_out, nights,
     people_count,
-    total_amount, deposit_amount, remaining_amount, payment_status,
+    total_amount,
     reservation_status,
     created_at,
     client:clients!client_id(id, full_name, phone, email),
@@ -117,7 +124,7 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
   let dataQuery = supabase.from("reservations").select(selectFields);
   if (filters?.status) dataQuery = dataQuery.eq("reservation_status", filters.status);
   if (filters?.apartmentId) dataQuery = dataQuery.eq("apartment_id", filters.apartmentId);
-  if (filters?.paymentStatus) dataQuery = dataQuery.eq("payment_status", filters.paymentStatus);
+  if (paymentReservationIds !== null) dataQuery = paymentReservationIds.length ? dataQuery.in("id", paymentReservationIds) : dataQuery.eq("id", "00000000-0000-0000-0000-000000000000");
   if (searchClientIds !== null) {
     dataQuery = searchClientIds.length > 0
       ? dataQuery.in("client_id", searchClientIds)
@@ -149,8 +156,8 @@ export async function getReservationsList(filters?: ReservationsListFilters): Pr
       nights: Number(r.nights ?? 0),
       peopleCount: Number(r.people_count ?? 1),
       totalAmount: Number(r.total_amount ?? 0),
-      depositAmount: financial?.state === "available" ? financial.netPaid : 0,
-      remainingAmount: financial?.state === "available" ? financial.balanceDue : 0,
+      depositAmount: financial?.state === "available" ? financial.netPaid : null,
+      remainingAmount: financial?.state === "available" ? financial.balanceDue : null,
       paymentStatus: financial?.state === "available" ? financial.paymentStatus : "unknown",
       source: null,
       createdAt: String(r.created_at ?? ""),

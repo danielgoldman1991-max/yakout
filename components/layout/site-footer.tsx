@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { MessageCircle, Mail, Phone, ArrowRight, LogIn } from "lucide-react";
 import { site } from "@/lib/constants/site";
-import { YakoutLogo } from "@/components/brand/yakout-logo";
+import { YakoutLogo } from "@/components/branding/YakoutLogo";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border/40 bg-surface">
+    <footer className="yakout-dark-surface border-t border-border/40 bg-surface">
       <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
 
       <div className="container mx-auto px-6 py-16 md:px-12">
         <div className="grid gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           <div>
-            <YakoutLogo width={168} height={52} />
+            <YakoutLogo variant="dark" size="lg" />
             <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
               Appartements sélectionnés, transport privé, packs et services sur mesure pour vos séjours à Marrakech.
             </p>

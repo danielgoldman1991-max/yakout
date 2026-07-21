@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getReportDefinition } from "@/lib/reports/definitions";
 import { getReportData } from "@/lib/reports/data";
 import { generateReportPdf } from "@/lib/reports/exports/pdf";
-import { canExportReports, REPORTS_UNCERTIFIED_MESSAGE } from "@/lib/reports/certification";
+import { canUseReportOutputs } from "@/lib/reports/certification";
+import { getUserPermissions } from "@/lib/reports/permissions";
 
 export async function POST(
   request: NextRequest,
@@ -18,14 +19,14 @@ export async function POST(
   const url = new URL(request.url);
   const format = url.searchParams.get("format") ?? "pdf";
 
-  if (!canExportReports()) {
-    return NextResponse.json({ error: REPORTS_UNCERTIFIED_MESSAGE }, { status: 423 });
-  }
+  const permissions = await getUserPermissions();
+  if (!permissions.includes(def.permission) || !permissions.includes("reports.export")) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
 
   try {
     const body = await request.json().catch(() => ({}));
     const filters = body.filters ?? {};
     const data = await getReportData(reportId, filters);
+    if (!canUseReportOutputs(data)) return NextResponse.json({ error: "Ce rapport est indisponible et ne peut pas être exporté." }, { status: 409 });
 
     if (format === "pdf") {
       if (!def.supportedFormats.includes("pdf")) {

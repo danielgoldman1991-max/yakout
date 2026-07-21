@@ -1,83 +1,45 @@
 import { getReportDefinition } from "@/lib/reports/definitions";
 import type { ReportFilters, ReportData } from "./types";
-import { getExecutiveDashboard } from "./executive";
-import { getExecutivePerformance } from "./executive";
-import { getSalesLeadFunnel, getSalesConversion } from "./sales";
-import { getAccommodationPerformance, getAccommodationReservations, getAccommodationArrivalsDepartures } from "./accommodation";
-import { getFinanceRevenueJournal, getFinanceExpenseJournal, getFinanceAccountsReceivable, getFinanceResultByApartment, getFinanceReconciliation } from "./finance";
-import { getOwnerMonthlyStatement, getOwnersConsolidated, getOwnerPayouts } from "./owners";
-import { getOperationsMaintenance } from "./operations";
-import { getTransportPerformance, getTransportTrips } from "./transport";
-import { getFleetVehicleUsage, getFleetPartnerPerformance } from "./fleet";
-import { getPackagesSales } from "./packages";
-import { getClientsPortfolio } from "./clients";
-import { getComplianceContracts } from "./compliance";
-import { getDataQualityOverview } from "./data-quality";
-import { applyCertificationGate } from "@/lib/reports/certification";
-
-const REPORT_HANDLERS: Record<string, (filters: ReportFilters) => Promise<ReportData>> = {
-  "executive-dashboard": getExecutiveDashboard,
-  "executive-performance": getExecutivePerformance,
-  "sales-lead-funnel": getSalesLeadFunnel,
-  "sales-conversion": getSalesConversion,
-  "accommodation-performance": getAccommodationPerformance,
-  "accommodation-reservations": getAccommodationReservations,
-  "accommodation-arrivals-departures": getAccommodationArrivalsDepartures,
-  "finance-revenue-journal": getFinanceRevenueJournal,
-  "finance-expense-journal": getFinanceExpenseJournal,
-  "finance-accounts-receivable": getFinanceAccountsReceivable,
-  "finance-result-by-apartment": getFinanceResultByApartment,
-  "finance-reconciliation": getFinanceReconciliation,
-  "owners-monthly-statement": getOwnerMonthlyStatement,
-  "owners-consolidated": getOwnersConsolidated,
-  "owners-payouts": getOwnerPayouts,
-  "operations-maintenance": getOperationsMaintenance,
-  "transport-performance": getTransportPerformance,
-  "transport-trips": getTransportTrips,
-  "fleet-vehicle-usage": getFleetVehicleUsage,
-  "fleet-partner-performance": getFleetPartnerPerformance,
-  "packages-sales": getPackagesSales,
-  "clients-portfolio": getClientsPortfolio,
-  "compliance-contracts": getComplianceContracts,
-  "data-quality-overview": getDataQualityOverview,
-};
+import { applyReportAvailability } from "@/lib/reports/certification";
+import { logger } from "@/lib/utils/logger";
+import { getReportLoader } from "@/lib/reports/registry";
 
 export async function getReportData(reportId: string, filters: ReportFilters): Promise<ReportData> {
   const def = getReportDefinition(reportId);
   if (!def) {
-    return applyCertificationGate({
+    return applyReportAvailability({
       metadata: { reportId, title: "Rapport inconnu", generatedAt: new Date().toISOString(), status: "error" },
       kpis: [],
       tables: [],
       totals: undefined,
       warnings: ["Le rapport demandé n'existe pas."],
       sourceCounts: {},
-    });
+    }, filters);
   }
 
-  const handler = REPORT_HANDLERS[reportId];
+  const handler = getReportLoader(reportId);
   if (!handler) {
-    return applyCertificationGate({
-      metadata: { reportId, title: def.title, generatedAt: new Date().toISOString(), status: "error" },
+    return applyReportAvailability({
+      metadata: { reportId, title: def.title, generatedAt: new Date().toISOString(), status: "suspended" },
       kpis: [],
       tables: [],
       totals: undefined,
       warnings: ["Ce rapport n'est pas encore implémenté."],
       sourceCounts: {},
-    });
+    }, filters);
   }
 
   try {
-    return applyCertificationGate(await handler(filters));
+    return applyReportAvailability(await handler(filters), filters);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return applyCertificationGate({
+    logger.error("report loader failed", { reportId, error: err instanceof Error ? err.message : String(err) });
+    return applyReportAvailability({
       metadata: { reportId, title: def.title, generatedAt: new Date().toISOString(), status: "error" },
       kpis: [],
       tables: [],
       totals: undefined,
-      warnings: [`Le rapport n'a pas pu être généré : ${msg}`],
+      warnings: ["Ce rapport est temporairement indisponible. Réessayez ultérieurement."],
       sourceCounts: {},
-    });
+    }, filters);
   }
 }

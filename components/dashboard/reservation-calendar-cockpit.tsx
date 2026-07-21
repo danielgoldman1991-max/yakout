@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Expand, RefreshCw, Search, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Expand, RefreshCw, Search, X } from "lucide-react";
 import type { CalendarApartment, CalendarBlock, ReservationCalendarEvent } from "@/lib/calendar/reservation-calendar";
 
 type View = "planning" | "month" | "agenda" | "occupancy";

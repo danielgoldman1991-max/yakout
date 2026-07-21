@@ -2,10 +2,10 @@ export type CanonicalPaymentStatus = "pending" | "paid" | "failed" | "cancelled"
 export type ReservationComputedPaymentStatus = "unpaid" | "partially_paid" | "paid" | "overpaid" | "refunded";
 
 export type ReservationFinancialSummary =
-  | { state: "available"; reservationTotal: number; grossPaid: number; refunded: number; netPaid: number; balanceDue: number; paymentStatus: ReservationComputedPaymentStatus; currency: string; paymentCount: number }
+  | { state: "available"; reservationTotal: number; grossPaid: number; refundedAmount: number; netPaid: number; balanceDue: number; paymentStatus: ReservationComputedPaymentStatus; currency: string; paymentCount: number }
   | { state: "unavailable"; reason: string; errorCode?: string };
 
-export type FinancialPaymentRow = { amount: unknown; status: unknown; currency?: unknown; payment_type?: unknown };
+export type FinancialPaymentRow = { amount: unknown; status: unknown; currency?: unknown; payment_type?: unknown; direction?: unknown; category?: unknown };
 
 function key(value: unknown) {
   return String(value ?? "").trim().toLocaleLowerCase("fr-FR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[ _-]/g, "");
@@ -13,7 +13,7 @@ function key(value: unknown) {
 
 export function normalizePaymentStatus(rawStatus: unknown): CanonicalPaymentStatus {
   const status = key(rawStatus);
-  if (["paid", "paye", "completed", "complete", "encaisse", "succeeded", "success"].includes(status)) return "paid";
+  if (["paid", "paye", "completed", "complete", "confirmed", "encaisse", "succeeded", "success"].includes(status)) return "paid";
   if (["refunded", "rembourse", "refund"].includes(status)) return "refunded";
   if (["failed", "echec", "echoue", "rejected"].includes(status)) return "failed";
   if (["cancelled", "canceled", "annule", "voided", "void"].includes(status)) return "cancelled";
@@ -31,7 +31,7 @@ export function computeReservationFinancialSummary(input: { reservationTotal: un
     const paymentCurrency = String(payment.currency || currency).toUpperCase();
     if (paymentCurrency !== currency) return { state: "unavailable", reason: `Devise incompatible : ${paymentCurrency}.`, errorCode: "CURRENCY_MISMATCH" };
     const status = normalizePaymentStatus(payment.status);
-    const isRefund = status === "refunded" || ["refund", "remboursement"].includes(key(payment.payment_type));
+    const isRefund = status === "refunded" || (key(payment.direction) === "outflow" && ["refund", "remboursement"].includes(key(payment.category ?? payment.payment_type)));
     if (isRefund) refunded += amount;
     else if (status === "paid") grossPaid += amount;
   }
@@ -42,7 +42,7 @@ export function computeReservationFinancialSummary(input: { reservationTotal: un
   else if (netPaid > total) paymentStatus = "overpaid";
   else if (netPaid === total && total > 0) paymentStatus = "paid";
   else if (netPaid > 0) paymentStatus = "partially_paid";
-  return { state: "available", reservationTotal: total, grossPaid, refunded, netPaid, balanceDue, paymentStatus, currency, paymentCount: input.payments.length };
+  return { state: "available", reservationTotal: total, grossPaid, refundedAmount: refunded, netPaid, balanceDue, paymentStatus, currency, paymentCount: input.payments.length };
 }
 
 export const reservationPaymentStatusLabels: Record<ReservationComputedPaymentStatus, string> = {

@@ -10,7 +10,23 @@ export type ReportFilters = {
   vehicle_id?: string;
   partner_id?: string;
   package_id?: string;
+  currency?: string;
 };
+
+export type ReportingSystemStatus = "operational" | "degraded" | "unavailable";
+export type ReportAvailability = "available" | "available_with_warnings" | "unavailable" | "not_configured";
+
+export type ReportMetric =
+  | { state: "known"; value: number; currency?: string }
+  | { state: "unknown"; reason: string }
+  | { state: "unavailable"; reason: string }
+  | { state: "not_applicable"; reason: string };
+
+export type ReportWarning = { code: string; message: string };
+
+export type ReportResult<T> =
+  | { ok: true; availability: "available" | "available_with_warnings"; data: T; totals: Record<string, ReportMetric>; warnings: ReportWarning[]; sourceCounts: Record<string, number>; generatedAt: string; filtersApplied: ReportFilters }
+  | { ok: false; availability: "unavailable"; error: { code: string; message: string; retryable: boolean }; generatedAt: string; filtersApplied: ReportFilters };
 
 export type ReportMetadata = {
   reportId: string;
@@ -19,10 +35,10 @@ export type ReportMetadata = {
   periodStart?: string;
   periodEnd?: string;
   status: "ready" | "partial" | "error" | "suspended";
-  certificationStatus?: "draft" | "under_review" | "certified" | "suspended";
+  availability?: ReportAvailability;
   formulaVersion?: string;
   dataSourceVersion?: string;
-  testingMode?: boolean;
+  filtersApplied?: ReportFilters;
 };
 
 export type ReportKPI = {

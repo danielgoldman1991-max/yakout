@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { revalidatePaymentGraph } from "@/lib/cache/payment-revalidation";
+import { recordFinancialTransaction } from "@/lib/finance/record-financial-transaction";
 import { redirect } from "next/navigation";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { createSupabaseActionClient } from "@/lib/supabase/server";
@@ -202,7 +203,7 @@ function withoutKeys<T extends Record<string, unknown>>(input: T, keys: string[]
   return copy;
 }
 
-function normalizePaymentInput(input: Record<string, unknown>) {
+function normalizePaymentInput(input: Record<string, unknown>): Record<string, unknown> {
   const paymentType = String(input.payment_type ?? "other");
   const source = input.source ? String(input.source) : paymentType === "accommodation" ? "direct" : null;
   return {
@@ -1385,11 +1386,38 @@ export async function createAccommodationRevenueAction(formData: FormData): Prom
   }
 
   // 4. Insert
-  const { data: payment, error: insertError } = await supabase
-    .from("payments")
-    .insert([payload])
-    .select("id, apartment_id, reservation_id, amount, payment_type, status, paid_at")
-    .single();
+  const idempotencyKey = String(formData.get("idempotency_key") ?? "").trim();
+  if (!idempotencyKey) return { success: false, message: "Clé d’idempotence manquante. Rechargez le formulaire." };
+  const amount = Number(payload.amount).toFixed(2);
+  const result = await recordFinancialTransaction({
+    direction: "inflow",
+    status: data.status === "partial" ? "pending" : data.status as "draft" | "pending" | "paid" | "failed" | "cancelled" | "refunded",
+    category: "accommodation",
+    amount,
+    currency: String(payload.currency).toUpperCase(),
+    occurred_on: String(payload.paid_at),
+    paid_at: String(payload.paid_at),
+    payment_method: String(payload.payment_method),
+    title: payload.title ? String(payload.title) : "Recette hébergement",
+    description: String(payload.description),
+    notes: payload.notes ? String(payload.notes) : null,
+    origin: String(payload.activity_type),
+    source: String(payload.source),
+    counterparty_type: payload.client_id ? "client" : null,
+    counterparty_id: payload.client_id as string | null,
+    idempotency_key: idempotencyKey,
+    payment_part: String(payload.payment_part),
+    allocations: [{
+      amount,
+      apartment_id: apartment.id,
+      reservation_id: payload.reservation_id as string | null,
+      client_id: payload.client_id as string | null,
+      owner_id: payload.owner_id as string | null,
+      allocation_category: "accommodation",
+    }],
+  });
+  const payment = result.ok ? { id: result.paymentId } : null;
+  const insertError = result.ok ? null : { code: result.code, message: result.message, details: null, hint: null };
 
   if (insertError) {
     console.error("createAccommodationRevenueAction:insert_failed", {
@@ -1423,7 +1451,9 @@ export async function createPaymentAction(formData: FormData): Promise<void> {
 
   const supabase = createSupabaseAdminClient();
   const paymentInput = normalizePaymentInput(parsed.data);
-  const apartmentId = paymentInput.apartment_id as string | null;
+  if (parsed.data.create_reservation) {
+    redirectFormError(errorPath, "Créez d’abord le document de réservation, puis enregistrez sa transaction financière.");
+  }
 
   if (paymentInput.reservation_id) {
     const { data: linkedReservation, error: reservationLookupError } = await supabase
@@ -1454,59 +1484,71 @@ export async function createPaymentAction(formData: FormData): Promise<void> {
     paymentInput.owner_id = paymentInput.owner_id || apartment.owner_id || null;
   }
 
-  if (parsed.data.create_reservation && apartmentId && parsed.data.stay_check_in && parsed.data.stay_check_out) {
-    const totalAmount = Number(parsed.data.total_amount || parsed.data.amount || 0);
-    const depositAmount = ["deposit", "partial"].includes(String(parsed.data.payment_part)) || parsed.data.status === "partial"
-      ? Number(parsed.data.amount || 0)
-      : parsed.data.status === "paid"
-        ? totalAmount || Number(parsed.data.amount || 0)
-        : 0;
-    const { data: reservation, error: reservationError } = await supabase
-      .from("reservations")
-      .insert([{
-        company_id: companyId,
-        apartment_id: apartmentId,
-        client_id: paymentInput.client_id || null,
-        check_in: parsed.data.stay_check_in,
-        check_out: parsed.data.stay_check_out,
-        people_count: parsed.data.guests_count || 1,
-        total_amount: totalAmount || Number(parsed.data.amount || 0),
-        deposit_amount: depositAmount,
-        reservation_status: parsed.data.status === "pending" ? "draft" : "confirmed",
-      }])
-      .select("id")
-      .single();
-    if (reservationError) {
-      logger.error("createPaymentAction reservation create failed", reservationError);
-      redirectFormError(errorPath, databaseErrorMessage(reservationError));
-    }
-    paymentInput.reservation_id = reservation?.id ?? paymentInput.reservation_id;
+  const amount = Number(parsed.data.amount);
+  const rawCategory = String(paymentInput.payment_type || "other");
+  const category = rawCategory === "trip" ? "transport" : rawCategory;
+  const idempotencyKey = String(formData.get("idempotency_key") ?? "").trim();
+  if (!idempotencyKey) redirectFormError(errorPath, "Clé d’idempotence manquante. Rechargez le formulaire.");
+  const result = await recordFinancialTransaction({
+    direction: category === "owner_payout" ? "outflow" : "inflow",
+    status: parsed.data.status === "partial" ? "pending" : parsed.data.status,
+    category: category as "accommodation" | "transport" | "package" | "service" | "owner_payout" | "other",
+    amount: amount.toFixed(2),
+    currency: String(paymentInput.currency || "MAD").toUpperCase(),
+    occurred_on: String(paymentInput.paid_at),
+    due_on: paymentInput.due_date ? String(paymentInput.due_date) : null,
+    paid_at: String(paymentInput.paid_at),
+    payment_method: String(paymentInput.payment_method || "other"),
+    reference: paymentInput.payment_reference ? String(paymentInput.payment_reference) : null,
+    title: paymentInput.title ? String(paymentInput.title) : null,
+    description: paymentInput.description ? String(paymentInput.description) : null,
+    notes: paymentInput.notes ? String(paymentInput.notes) : null,
+    origin: String(paymentInput.activity_type || "other"),
+    source: String(paymentInput.source || "dashboard"),
+    counterparty_type: paymentInput.partner_id ? "partner" : paymentInput.client_id ? "client" : null,
+    counterparty_id: (paymentInput.partner_id || paymentInput.client_id || null) as string | null,
+    idempotency_key: idempotencyKey,
+    payment_part: paymentInput.payment_part ? String(paymentInput.payment_part) : null,
+    allocations: [{
+      amount: amount.toFixed(2), reservation_id: paymentInput.reservation_id as string | null,
+      apartment_id: paymentInput.apartment_id as string | null, client_id: paymentInput.client_id as string | null,
+      owner_id: paymentInput.owner_id as string | null, trip_id: paymentInput.trip_id as string | null,
+      transfer_id: paymentInput.transfer_id as string | null, package_id: paymentInput.package_id as string | null,
+      partner_id: paymentInput.partner_id as string | null, allocation_category: category,
+    }],
+  });
+  if (!result.ok) redirectFormError(errorPath, result.message);
+  const expectedReservationId = paymentInput.reservation_id as string | null;
+  const [{ data: storedPayment, error: storedPaymentError }, { data: storedAllocation, error: storedAllocationError }] = await Promise.all([
+    supabase.from("payments").select("id,company_id,amount,currency,direction,status,paid_at").eq("id", result.paymentId).eq("company_id", companyId).single(),
+    supabase.from("payment_allocations").select("payment_id,reservation_id,apartment_id,client_id,owner_id,amount").eq("payment_id", result.paymentId).maybeSingle(),
+  ]);
+  const relationMismatch = expectedReservationId && storedAllocation?.reservation_id !== expectedReservationId;
+  if (storedPaymentError || storedAllocationError || !storedPayment || !storedAllocation || relationMismatch || storedPayment.direction !== (category === "owner_payout" ? "outflow" : "inflow") || Number(storedPayment.amount) !== amount) {
+    logger.error("createPaymentAction verification failed", { paymentId: result.paymentId, expectedReservationId, storedPaymentError, storedAllocationError, storedPayment, storedAllocation });
+    redirectFormError(errorPath, `Le paiement ${result.transactionNumber} a été enregistré, mais sa liaison doit être vérifiée avant de continuer.`);
   }
+  revalidatePaymentGraph({ paymentId: result.paymentId, reservationId: paymentInput.reservation_id as string | null, apartmentId: paymentInput.apartment_id as string | null, clientId: paymentInput.client_id as string | null, ownerId: paymentInput.owner_id as string | null, organizationId: companyId });
+  redirect(`/dashboard/payments/${result.paymentId}`);
+}
 
-  const { data: payment, error } = await supabase
-    .from("payments")
-    .insert([{ ...paymentInput, company_id: companyId }])
-    .select("id, apartment_id, reservation_id")
-    .single();
-  if (error) {
-    logger.error("createPaymentAction:insert", {
-      step: "insert_payment",
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-    });
-    console.error("PAYMENT_CREATION_FAILED", {
-      apartmentId: paymentInput.apartment_id,
-      paymentType: paymentInput.payment_type,
-      columns: Object.keys(paymentInput),
-      code: error.code,
-      message: error.message,
-    });
-    redirectFormError(errorPath, databaseErrorMessage(error));
+export async function convertLeadToClientAtomicAction(leadId: string): Promise<void> {
+  requireValidUUID(leadId, "lead");
+  if (!hasSupabaseEnv()) redirectFormError(`/dashboard/leads/${leadId}`, "Supabase n’est pas configuré.");
+  const supabase = await createSupabaseActionClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user) redirectFormError(`/dashboard/leads/${leadId}`, "Votre session a expiré.");
+  const { data, error } = await supabase.rpc("convert_lead_to_client", { p_lead_id: leadId });
+  const clientId = typeof data === "string" ? data : null;
+  if (error || !clientId || !isValidUUID(clientId)) {
+    logger.error("convertLeadToClientAtomicAction failed", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
+    redirectFormError(`/dashboard/leads/${leadId}`, "La conversion du lead en client n’a pas pu être effectuée.");
   }
-  revalidatePaymentGraph({ paymentId: payment?.id, reservationId: payment?.reservation_id, apartmentId: payment?.apartment_id, clientId: paymentInput.client_id as string | null, ownerId: paymentInput.owner_id as string | null, organizationId: companyId });
-  redirect(payment?.id ? `/dashboard/payments/${payment.id}` : "/dashboard/payments");
+  revalidatePath("/dashboard/leads");
+  revalidatePath(`/dashboard/leads/${leadId}`);
+  revalidatePath("/dashboard/clients");
+  revalidatePath(`/dashboard/clients/${clientId}`);
+  redirect(`/dashboard/clients/${clientId}`);
 }
 
 export async function updatePaymentAction(id: string, formData: FormData): Promise<void> {

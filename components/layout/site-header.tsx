@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { site } from "@/lib/constants/site";
 import { buildWhatsAppUrl } from "@/lib/utils/whatsapp";
-import { YakoutLogo } from "@/components/brand/yakout-logo";
+import { YakoutLogo } from "@/components/branding/YakoutLogo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { PremiumButton } from "@/components/ui/premium-button";
 
@@ -31,11 +31,11 @@ export function SiteHeader() {
     <>
       <header className="fixed top-0 left-0 right-0 z-30 h-[80px] border-b border-border/50 bg-background/85 shadow-elevation-1 backdrop-blur-2xl">
         <div className="container mx-auto flex h-[80px] items-center justify-between px-6 md:px-12">
-          <Link href="/" className="flex items-center gap-3">
-            <YakoutLogo width={152} height={46} />
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Yakout — Accueil">
+            <YakoutLogo size="md" priority />
           </Link>
 
-          <nav className="hidden items-center gap-0.5 md:flex" aria-label="Navigation principale">
+          <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Navigation principale">
             {nav.map(([label, href]) => {
               const active = isActive(href);
               return (
@@ -60,16 +60,16 @@ export function SiteHeader() {
               href={buildWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#25D366]/20 bg-[#25D366]/8 text-[#25D366] transition hover:bg-[#25D366]/15 hover:shadow-glow-gold md:inline-flex"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#25D366]/20 bg-[#25D366]/8 text-[#25D366] transition hover:bg-[#25D366]/15 hover:shadow-glow-gold xl:inline-flex"
               aria-label="Contacter sur WhatsApp"
             >
               <MessageCircle className="h-4 w-4" />
             </Link>
-            <PremiumButton href="/contact?type=proprietaire" variant="primary" size="sm" className="hidden md:inline-flex">
+            <PremiumButton href="/contact?type=proprietaire" variant="primary" size="sm" className="hidden xl:inline-flex">
               Confier mon bien <ArrowRight className="h-3.5 w-3.5" />
             </PremiumButton>
             <button
-              className="flex h-9 w-9 items-center justify-center text-muted-foreground transition hover:text-foreground md:hidden"
+              className="flex h-9 w-9 items-center justify-center text-muted-foreground transition hover:text-foreground xl:hidden"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
               aria-expanded={mobileOpen}
@@ -81,7 +81,7 @@ export function SiteHeader() {
         </div>
 
         {mobileOpen && (
-          <div id="mobile-menu" role="navigation" aria-label="Navigation mobile" className="absolute inset-x-0 top-[80px] border-b border-border/50 bg-background/98 shadow-elevation-3 backdrop-blur-2xl md:hidden">
+          <div id="mobile-menu" role="navigation" aria-label="Navigation mobile" className="absolute inset-x-0 top-[80px] border-b border-border/50 bg-background/98 shadow-elevation-3 backdrop-blur-2xl xl:hidden">
             <div className="flex flex-col gap-0.5 px-6 py-8">
               {nav.map(([label, href]) => {
                 const active = isActive(href);

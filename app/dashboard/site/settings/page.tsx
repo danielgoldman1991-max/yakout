@@ -16,7 +16,7 @@ const defaultSettings = {
   facebook: "",
   tiktok: "",
   google_maps_url: "",
-  logo_url: "/logo/yakout_logo_transparent_cropped.png",
+  logo_url: "/branding/yakout-logo-light.png",
   favicon_url: "",
   default_og_image_url: "",
   footer_text: "Excellence, discretion et devouement pour vos sejours a Marrakech.",

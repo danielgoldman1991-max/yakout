@@ -597,19 +597,11 @@ export async function deleteTrip(id: string): Promise<{ ok: boolean; error?: str
 // ─── Payments ───
 
 export async function getPayments(): Promise<Payment[]> {
-  if (isDemo()) { demoWarning("getPayments"); return [...mockPayments]; }
+  if (isDemo()) { demoWarning("getPayments"); return []; }
   const supabase = await getClient();
   const { data, error } = await supabase.from("payments").select("*").order("paid_at", { ascending: false });
-  if (error) return publicFallback("getPayments", error, [...mockPayments]);
+  if (error) return publicFallback("getPayments", error, []);
   return data as Payment[];
-}
-
-export async function createPayment(input: Partial<Payment>): Promise<{ ok: boolean; error?: string }> {
-  if (isDemo()) { demoWarning("createPayment"); return { ok: true }; }
-  const supabase = await getClient();
-  const { error } = await supabase.from("payments").insert([input]);
-  if (error) { logger.error("createPayment failed", error); return { ok: false, error: error.message }; }
-  return { ok: true };
 }
 
 export async function getPaymentById(id: string): Promise<Payment | null> {

@@ -5,6 +5,7 @@ import { computeMargin } from "../calculations";
 import { optionalNumber } from "../safe-values";
 import { assertSupabaseResults } from "../supabase-results";
 import type { ReportFilters, ReportData, ReportKPI, ReportTable, ReportChart } from "./types";
+import { normalizePaymentStatus } from "@/lib/finance/reservation-financial-summary";
 
 async function getClient() {
   return createSupabaseServerClient();
@@ -15,24 +16,24 @@ export async function getExecutiveDashboard(filters: ReportFilters): Promise<Rep
   const ps = filters.period_start ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
   const pe = filters.period_end ?? new Date().toISOString().slice(0, 10);
 
-  const [paymentsRes, expensesRes, leadsRes, reservationsRes, tripsRes] = await Promise.all([
-    supabase.from("payments").select("amount, status, paid_at").gte("paid_at", ps).lte("paid_at", pe),
-    supabase.from("expenses").select("amount, expense_date").gte("expense_date", ps).lte("expense_date", pe),
+  const [paymentsRes, leadsRes, reservationsRes, tripsRes] = await Promise.all([
+    supabase.from("payments").select("amount, status, paid_at, direction, category").gte("paid_at", ps).lte("paid_at", pe),
     supabase.from("leads").select("id, status, source, request_type, created_at").gte("created_at", `${ps}T00:00:00`).lte("created_at", `${pe}T23:59:59`),
     supabase.from("reservations").select("id, total_amount, reservation_status, check_in, check_out, nights").lte("check_in", pe).gte("check_out", ps),
     supabase.from("trips").select("id, sold_price, cost_price, trip_status, trip_date").gte("trip_date", ps).lte("trip_date", pe),
   ]);
-  assertSupabaseResults("Tableau de bord exécutif", [paymentsRes, expensesRes, leadsRes, reservationsRes, tripsRes]);
+  assertSupabaseResults("Tableau de bord exécutif", [paymentsRes, leadsRes, reservationsRes, tripsRes]);
 
   const payments = paymentsRes.data ?? [];
-  const expenses = expensesRes.data ?? [];
   const leads = leadsRes.data ?? [];
   const reservations = reservationsRes.data ?? [];
   const trips = tripsRes.data ?? [];
 
-  const confirmedPayments = payments.filter((p) => p.status === "Paye" || p.status === "confirmed" || p.status === "completed");
-  const revenue = confirmedPayments.reduce((s, p) => s + Number(p.amount), 0);
-  const expenseTotal = expenses.reduce((s, e) => s + Number(e.amount), 0);
+  const confirmedPayments = payments.filter((p) => normalizePaymentStatus(p.status) === "paid");
+  const inflows = confirmedPayments.filter((payment) => payment.direction === "inflow" && payment.category !== "refund");
+  const outflows = confirmedPayments.filter((payment) => payment.direction === "outflow");
+  const revenue = inflows.reduce((s, p) => s + Number(p.amount), 0);
+  const expenseTotal = outflows.reduce((s, p) => s + Number(p.amount), 0);
   const margin = computeMargin(revenue, expenseTotal);
 
   const activeReservations = reservations.filter((r) => r.reservation_status !== "cancelled");
@@ -46,9 +47,9 @@ export async function getExecutiveDashboard(filters: ReportFilters): Promise<Rep
   const confirmedLeads = leads.filter((l) => l.status === "Confirme" || l.status === "confirmed").length;
 
   const kpis: ReportKPI[] = [
-    { label: "CA total", value: formatCurrency(revenue), description: "Paiements encaissés sur la période" },
-    { label: "Dépenses", value: formatCurrency(expenseTotal), description: "Dépenses enregistrées" },
-    { label: "Marge brute", value: formatCurrency(revenue - expenseTotal), trend: { value: formatPercent(margin), positive: margin >= 0 } },
+    { label: "Encaissements", value: formatCurrency(revenue), description: "Entrées réelles dans payments" },
+    { label: "Décaissements", value: formatCurrency(expenseTotal), description: "Sorties réelles dans payments" },
+    { label: "Flux net", value: formatCurrency(revenue - expenseTotal), trend: { value: formatPercent(margin), positive: margin >= 0 } },
     { label: "Réservations actives", value: formatInteger(activeReservations.length) },
     { label: "Revenus hébergement", value: formatCurrency(reservationRevenue) },
     { label: "CA transport", value: formatCurrency(tripRevenue), description: `Coût ${formatCurrency(tripCost)} · Marge ${formatPercent(tripMargin)}` },
@@ -82,7 +83,7 @@ export async function getExecutiveDashboard(filters: ReportFilters): Promise<Rep
 
   if (payments.length > 0) {
     const byMonth: Record<string, number> = {};
-    for (const p of confirmedPayments) {
+    for (const p of inflows) {
       const m = String(p.paid_at).slice(0, 7);
       byMonth[m] = (byMonth[m] ?? 0) + Number(p.amount);
     }
@@ -128,14 +129,14 @@ export async function getExecutiveDashboard(filters: ReportFilters): Promise<Rep
       generatedAt: new Date().toISOString(),
       periodStart: ps,
       periodEnd: pe,
-      status: paymentsRes.error || expensesRes.error ? "partial" : "ready",
+      status: "ready",
     },
     kpis,
     charts: charts.length > 0 ? charts : undefined,
     tables,
     totals: { revenue, expenses: expenseTotal, margin: revenue - expenseTotal },
     warnings: payments.length === 0 ? ["Aucun paiement trouvé sur la période — vérifiez les filtres."] : [],
-    sourceCounts: { payments: payments.length, expenses: expenses.length, leads: leads.length, reservations: reservations.length, trips: trips.length },
+    sourceCounts: { payments: payments.length, leads: leads.length, reservations: reservations.length, trips: trips.length },
   };
 }
 
@@ -145,27 +146,24 @@ export async function getExecutivePerformance(filters: ReportFilters): Promise<R
   const pe = filters.period_end ?? new Date().toISOString().slice(0, 10);
 
   const [paymentsRes, tripsRes] = await Promise.all([
-    supabase.from("payments").select("amount, activity_type, paid_at, status").gte("paid_at", ps).lte("paid_at", pe),
+    supabase.from("payments").select("amount, category, direction, paid_at, status").gte("paid_at", ps).lte("paid_at", pe),
     supabase.from("trips").select("sold_price, cost_price, trip_status").gte("trip_date", ps).lte("trip_date", pe),
   ]);
   assertSupabaseResults("Performance par activité", [paymentsRes, tripsRes]);
 
-  const payments = (paymentsRes.data ?? []).filter((p) => p.status === "Paye" || p.status === "confirmed" || p.status === "completed");
+  const payments = (paymentsRes.data ?? []).filter((p) => normalizePaymentStatus(p.status) === "paid");
   const trips = (tripsRes.data ?? []).filter((t) => t.trip_status !== "cancelled");
 
   const byActivity: Record<string, { revenue: number; cost: number }> = {};
 
   for (const p of payments) {
-    const a = p.activity_type || "Autre";
+    const a = p.category || "other";
     if (!byActivity[a]) byActivity[a] = { revenue: 0, cost: 0 };
-    byActivity[a].revenue += Number(p.amount);
+    if (p.direction === "inflow") byActivity[a].revenue += Number(p.amount);
+    else byActivity[a].cost += Number(p.amount);
   }
 
-  byActivity["Transport"] = byActivity["Transport"] ?? { revenue: 0, cost: 0 };
-  for (const t of trips) {
-    byActivity["Transport"].revenue += Number(t.sold_price);
-    byActivity["Transport"].cost += Number(t.cost_price);
-  }
+  byActivity.transport = byActivity.transport ?? { revenue: 0, cost: 0 };
 
   const totalRevenue = Object.values(byActivity).reduce((s, a) => s + a.revenue, 0);
   const totalCost = Object.values(byActivity).reduce((s, a) => s + a.cost, 0);
@@ -210,7 +208,7 @@ export async function getExecutivePerformance(filters: ReportFilters): Promise<R
     ],
     tables,
     totals: { revenue: totalRevenue, cost: totalCost, margin: totalRevenue - totalCost },
-    warnings: [],
+    warnings: trips.length > 0 ? ["Les montants commerciaux des trajets sont informatifs ; les flux réels proviennent exclusivement de payments."] : [],
     sourceCounts: { payments: payments.length, trips: trips.length },
   };
 }

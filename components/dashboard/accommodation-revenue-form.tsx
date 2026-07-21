@@ -32,6 +32,7 @@ export function AccommodationRevenueForm({
   defaultReservationId,
   defaultPaid,
   remaining,
+  financialUnavailable,
   apartmentOwnerId,
 }: {
   apartments: SelectOption[];
@@ -40,8 +41,9 @@ export function AccommodationRevenueForm({
   defaultApartmentId: string;
   defaultClientId: string;
   defaultReservationId: string;
-  defaultPaid: number;
-  remaining: number;
+  defaultPaid: number | null;
+  remaining: number | null;
+  financialUnavailable: boolean;
   apartmentOwnerId: string;
 }) {
   const router = useRouter();
@@ -79,10 +81,16 @@ export function AccommodationRevenueForm({
           {globalError}
         </div>
       )}
+      {financialUnavailable && (
+        <div className="rounded-sm border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-300" role="alert">
+          La synthèse financière de cette réservation est indisponible. Le montant n’est pas prérempli afin d’éviter une valeur trompeuse.
+        </div>
+      )}
 
       <input type="hidden" name="owner_id" value={apartmentOwnerId} />
       <input type="hidden" name="activity_type" value="apartment" />
       <input type="hidden" name="payment_type" value="accommodation" />
+      <input type="hidden" name="idempotency_key" value={crypto.randomUUID()} />
 
       <section className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sejour</p>
@@ -164,14 +172,14 @@ export function AccommodationRevenueForm({
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">Montant encaisse *</label>
-            <Input name="amount" type="number" min="0.01" step="0.01" defaultValue={remaining || defaultPaid || ""} required />
+            <Input name="amount" type="number" min="0.01" step="0.01" defaultValue={remaining ?? defaultPaid ?? ""} required />
             {fieldErrors.amount && (
               <p className="text-xs text-red-400">{fieldErrors.amount[0]}</p>
             )}
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">Type de paiement</label>
-            <select name="payment_part" defaultValue={remaining ? "balance" : "deposit"}
+            <select name="payment_part" defaultValue={remaining && remaining > 0 ? "balance" : "deposit"}
               className="w-full rounded-md border bg-surface px-3 py-2 text-sm">
               <option value="deposit">Acompte</option>
               <option value="balance">Solde</option>

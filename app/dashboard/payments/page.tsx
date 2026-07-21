@@ -49,6 +49,16 @@ function getMonthRange() {
   return { start, end };
 }
 
+function totalsByCurrency(payments: Awaited<ReturnType<typeof getPayments>>, direction: "inflow" | "outflow") {
+  const totals = new Map<string, number>();
+  for (const payment of payments) {
+    if (payment.status !== "paid" || (payment.direction ?? "inflow") !== direction) continue;
+    const currency = (payment.currency || "MAD").toUpperCase();
+    totals.set(currency, (totals.get(currency) ?? 0) + payment.amount);
+  }
+  return [...totals.entries()].map(([currency, amount]) => new Intl.NumberFormat("fr-MA", { style: "currency", currency }).format(amount)).join(" · ") || "—";
+}
+
 export default async function PaymentsPage({
   searchParams,
 }: {
@@ -66,9 +76,6 @@ export default async function PaymentsPage({
   const apartmentMap = new Map(apartments.map((a) => [a.id, a.label]));
   const reservationMap = new Map(reservations.map((r) => [r.id, r.label]));
 
-  const accommodationPayments = allPayments.filter((p) => p.payment_type === "accommodation");
-  const totalCollected = allPayments.filter((p) => p.status === "paid").reduce((sum, p) => sum + p.amount, 0);
-  const accommodationCollected = accommodationPayments.filter((p) => p.status === "paid").reduce((sum, p) => sum + p.amount, 0);
   const pendingCount = allPayments.filter((p) => p.status === "pending" || p.status === "partial").length;
 
   const { start, end } = getMonthRange();
@@ -86,10 +93,10 @@ export default async function PaymentsPage({
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm text-muted-foreground">Dashboard / Paiements</p>
-          <h1 className="mt-2 text-3xl font-semibold">Paiements</h1>
+          <p className="text-sm text-muted-foreground">Dashboard / Paiements & Trésorerie</p>
+          <h1 className="mt-2 text-3xl font-semibold">Paiements & Trésorerie</h1>
           <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-            Encaissements clients, recettes d&apos;hebergement, paiements transport et services.
+            Registre central des encaissements, décaissements, ventilations et rapprochements.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -99,8 +106,8 @@ export default async function PaymentsPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric title="Total encaisse" value={formatCurrency(totalCollected)} />
-        <Metric title="Hebergement encaisse" value={formatCurrency(accommodationCollected)} />
+        <Metric title="Entrées encaissées" value={totalsByCurrency(allPayments, "inflow")} />
+        <Metric title="Sorties décaissées" value={totalsByCurrency(allPayments, "outflow")} />
         <Metric title="En attente / partiel" value={String(pendingCount)} />
         <Metric title="Payes ce mois" value={String(paidThisMonth)} />
       </div>

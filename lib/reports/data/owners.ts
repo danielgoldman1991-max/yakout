@@ -1,308 +1,182 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { formatCurrency, formatPercent, formatInteger } from "../formatters";
-import { optionalNumber } from "../safe-values";
+import { formatCurrency, formatInteger } from "../formatters";
 import { assertSupabaseResults } from "../supabase-results";
-import type { ReportFilters, ReportData, ReportTable } from "./types";
+import type { ReportData, ReportFilters, ReportTable } from "./types";
 
-async function getClient() {
-  return createSupabaseServerClient();
+type CanonicalPayment = {
+  id: string;
+  direction: "inflow" | "outflow";
+  status: string;
+  category: string;
+  currency: string;
+  occurred_on: string;
+  title: string | null;
+};
+
+type OwnerAllocation = {
+  id: string;
+  amount: number | string;
+  owner_id: string | null;
+  apartment_id: string | null;
+  allocation_category: string;
+  payment: CanonicalPayment | CanonicalPayment[];
+};
+
+function paymentOf(allocation: OwnerAllocation): CanonicalPayment | null {
+  return Array.isArray(allocation.payment) ? allocation.payment[0] ?? null : allocation.payment;
+}
+
+function summarize(allocations: OwnerAllocation[]) {
+  let inflows = 0;
+  let operatingOutflows = 0;
+  let payouts = 0;
+  for (const allocation of allocations) {
+    const payment = paymentOf(allocation);
+    if (!payment || payment.status !== "paid") continue;
+    const amount = Number(allocation.amount);
+    if (payment.direction === "inflow") inflows += amount;
+    else if (payment.category === "owner_payout") payouts += amount;
+    else operatingOutflows += amount;
+  }
+  return { inflows, operatingOutflows, payouts, balance: inflows - operatingOutflows - payouts };
+}
+
+async function getOwnerAllocations(ownerId: string, apartmentIds: string[], periodStart: string, periodEnd: string, currency: string) {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("payment_allocations")
+    .select("id,amount,owner_id,apartment_id,allocation_category,payment:payments!inner(id,direction,status,category,currency,occurred_on,title)")
+    .eq("payment.status", "paid")
+    .eq("payment.currency", currency)
+    .gte("payment.occurred_on", periodStart)
+    .lte("payment.occurred_on", periodEnd);
+  query = apartmentIds.length > 0
+    ? query.or(`owner_id.eq.${ownerId},apartment_id.in.(${apartmentIds.join(",")})`)
+    : query.eq("owner_id", ownerId);
+  const result = await query.order("created_at", { ascending: false });
+  assertSupabaseResults("Flux propriétaire", [result]);
+  return (result.data ?? []) as unknown as OwnerAllocation[];
 }
 
 export async function getOwnerMonthlyStatement(filters: ReportFilters): Promise<ReportData> {
-  const supabase = await getClient();
   const ownerId = filters.owner_id;
+  const generatedAt = new Date().toISOString();
   if (!ownerId) {
-    return {
-      metadata: { reportId: "owners-monthly-statement", title: "Relevé mensuel propriétaire", generatedAt: new Date().toISOString(), status: "error" },
-      kpis: [], tables: [], totals: undefined, warnings: ["Veuillez sélectionner un propriétaire."], sourceCounts: {},
-    };
+    return { metadata: { reportId: "owners-monthly-statement", title: "Relevé mensuel propriétaire", generatedAt, status: "error" }, kpis: [], tables: [], warnings: ["Veuillez sélectionner un propriétaire."], sourceCounts: {} };
   }
 
-  const ps = filters.period_start ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
-  const pe = filters.period_end ?? new Date().toISOString().slice(0, 10);
-
-  const [ownerRes, propertiesRes] = await Promise.all([
-    supabase.from("owners").select("id, full_name, phone, email, city").eq("id", ownerId).single(),
-    supabase.from("apartments").select("id, internal_name, district, commission_rate").eq("owner_id", ownerId),
+  const periodStart = filters.period_start ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
+  const periodEnd = filters.period_end ?? generatedAt.slice(0, 10);
+  const currency = filters.currency ?? "MAD";
+  const supabase = await createSupabaseServerClient();
+  const [ownerResult, apartmentsResult] = await Promise.all([
+    supabase.from("owners").select("id,full_name,city").eq("id", ownerId).maybeSingle(),
+    supabase.from("apartments").select("id,internal_name,district").eq("owner_id", ownerId),
   ]);
-  assertSupabaseResults("Relevé mensuel propriétaire", [ownerRes, propertiesRes]);
-
-  if (ownerRes.error || !ownerRes.data) {
-    return {
-      metadata: { reportId: "owners-monthly-statement", title: "Relevé mensuel propriétaire", generatedAt: new Date().toISOString(), status: "error" },
-      kpis: [], tables: [], totals: undefined, warnings: ["Propriétaire introuvable."], sourceCounts: {},
-    };
+  assertSupabaseResults("Relevé mensuel propriétaire", [ownerResult, apartmentsResult]);
+  if (!ownerResult.data) {
+    return { metadata: { reportId: "owners-monthly-statement", title: "Relevé mensuel propriétaire", generatedAt, status: "error" }, kpis: [], tables: [], warnings: ["Propriétaire introuvable."], sourceCounts: {} };
   }
 
-  const owner = ownerRes.data;
-  const properties = propertiesRes.data ?? [];
-  const propertyIds = properties.map((p) => p.id);
-
-  if (propertyIds.length === 0) {
-    return {
-      metadata: { reportId: "owners-monthly-statement", title: `Relevé — ${owner.full_name}`, generatedAt: new Date().toISOString(), periodStart: ps, periodEnd: pe, status: "ready" },
-      kpis: [
-        { label: "Propriétaire", value: owner.full_name },
-        { label: "Biens", value: "0" },
-        { label: "Revenus", value: formatCurrency(0) },
-      ],
-      tables: [], totals: undefined,
-      warnings: ["Ce propriétaire n'a aucun bien."],
-      sourceCounts: { properties: 0 },
-    };
-  }
-
-  const { data: reservations, error: reservationsError } = await supabase
-    .from("reservations")
-    .select("id, check_in, check_out, total_amount, reservation_status, nights")
-    .in("apartment_id", propertyIds)
-    .lte("check_in", pe).gte("check_out", ps);
-  assertSupabaseResults("Relevé mensuel propriétaire - réservations", [{ error: reservationsError }]);
-
-  const activeRes = (reservations ?? []).filter((r) => r.reservation_status !== "cancelled");
-  const totalRevenue = activeRes.reduce((s, r) => s + Number(r.total_amount), 0);
-
-  const { data: expenses, error: expensesError } = await supabase
-    .from("expenses")
-    .select("id, amount, category, expense_date, notes")
-    .in("apartment_id", propertyIds)
-    .gte("expense_date", ps).lte("expense_date", pe);
-  assertSupabaseResults("Relevé mensuel propriétaire - dépenses", [{ error: expensesError }]);
-
-  const expenseTotal = (expenses ?? []).reduce((s, e) => s + Number(e.amount), 0);
-  const commissionRate = 0.20;
-  const commissionAmount = totalRevenue * commissionRate;
-  const netAmount = totalRevenue - expenseTotal - commissionAmount;
-
-  const tables: ReportTable[] = [];
-
-  if (activeRes.length > 0) {
-    tables.push({
-      title: "Réservations sur la période",
-      columns: [
-        { key: "id", label: "ID" },
-        { key: "checkIn", label: "Arrivée" },
-        { key: "checkOut", label: "Départ" },
-        { key: "nights", label: "Nuits", align: "right", format: "integer" },
-        { key: "amount", label: "Montant", align: "right", format: "currency" },
-      ],
-      rows: activeRes.map((r) => ({
-        id: r.id.slice(0, 8),
-        checkIn: r.check_in,
-        checkOut: r.check_out,
-        nights: optionalNumber(r.nights),
-        amount: Number(r.total_amount),
-      })),
-      totals: { nights: activeRes.reduce((s, r) => s + optionalNumber(r.nights), 0), amount: totalRevenue },
-    });
-  }
-
-  if ((expenses ?? []).length > 0) {
-    tables.push({
-      title: "Dépenses sur la période",
-      columns: [
-        { key: "date", label: "Date" },
-        { key: "category", label: "Catégorie" },
-        { key: "amount", label: "Montant", align: "right", format: "currency" },
-      ],
-      rows: (expenses ?? []).map((e) => ({
-        date: e.expense_date,
-        category: e.category,
-        amount: Number(e.amount),
-      })),
-      totals: { amount: expenseTotal },
-    });
-  }
-
-  tables.push({
-    title: "Synthèse financière",
+  const apartments = apartmentsResult.data ?? [];
+  const apartmentIds = apartments.map((apartment) => apartment.id);
+  const allocations = await getOwnerAllocations(ownerId, apartmentIds, periodStart, periodEnd, currency);
+  const totals = summarize(allocations);
+  const tables: ReportTable[] = [{
+    title: "Flux financiers comptabilisés",
     columns: [
-      { key: "item", label: "" },
-      { key: "amount", label: "Montant", align: "right", format: "currency" },
+      { key: "date", label: "Date", format: "date" },
+      { key: "title", label: "Libellé" },
+      { key: "category", label: "Catégorie" },
+      { key: "direction", label: "Sens" },
+      { key: "amount", label: `Montant (${currency})`, align: "right", format: "currency" },
     ],
-    rows: [
-      { item: "Revenus bruts", amount: totalRevenue },
-      { item: "Dépenses", amount: expenseTotal },
-      { item: "Commission Yakout (20%)", amount: commissionAmount },
-      { item: "Net propriétaire", amount: netAmount },
-    ],
-  });
+    rows: allocations.map((allocation) => {
+      const payment = paymentOf(allocation);
+      return { date: payment?.occurred_on, title: payment?.title ?? "Transaction", category: payment?.category ?? allocation.allocation_category, direction: payment?.direction === "inflow" ? "Entrée" : "Sortie", amount: Number(allocation.amount) };
+    }),
+  }];
+  const warnings = allocations.length === 0 ? ["Aucun flux financier payé et ventilé vers ce propriétaire ou ses biens sur la période."] : [];
 
   return {
-    metadata: {
-      reportId: "owners-monthly-statement", title: `Relevé — ${owner.full_name}`,
-      generatedAt: new Date().toISOString(), periodStart: ps, periodEnd: pe, status: "ready",
-    },
+    metadata: { reportId: "owners-monthly-statement", title: `Relevé — ${ownerResult.data.full_name}`, generatedAt, periodStart, periodEnd, status: warnings.length ? "partial" : "ready", formulaVersion: "owner-cash-allocations-v1", dataSourceVersion: "payments+payment_allocations" },
     kpis: [
-      { label: "Propriétaire", value: owner.full_name, description: `${owner.city || ""}` },
-      { label: "Biens", value: formatInteger(properties.length) },
-      { label: "Revenus", value: formatCurrency(totalRevenue) },
-      { label: "Net", value: formatCurrency(netAmount), trend: { value: `${formatPercent(netAmount / (totalRevenue || 1) * 100)} de marge nette`, positive: netAmount >= 0 } },
+      { label: "Propriétaire", value: ownerResult.data.full_name, description: ownerResult.data.city ?? undefined },
+      { label: "Biens", value: formatInteger(apartments.length) },
+      { label: "Encaissements alloués", value: formatCurrency(totals.inflows, currency) },
+      { label: "Solde après sorties", value: formatCurrency(totals.balance, currency) },
     ],
     tables,
-    totals: { revenue: totalRevenue, expenses: expenseTotal, commission: commissionAmount, net: netAmount },
-    warnings: activeRes.length === 0 ? ["Aucune réservation active sur la période."] : [],
-    sourceCounts: { reservations: (reservations ?? []).length, expenses: (expenses ?? []).length },
+    totals: { inflows: totals.inflows, expenses: totals.operatingOutflows, payouts: totals.payouts, balance: totals.balance },
+    warnings,
+    sourceCounts: { apartments: apartments.length, payment_allocations: allocations.length },
   };
 }
 
 export async function getOwnersConsolidated(filters: ReportFilters): Promise<ReportData> {
-  const supabase = await getClient();
-  const ps = filters.period_start ?? new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10);
-  const pe = filters.period_end ?? new Date().toISOString().slice(0, 10);
+  const generatedAt = new Date().toISOString();
+  const periodStart = filters.period_start ?? new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10);
+  const periodEnd = filters.period_end ?? generatedAt.slice(0, 10);
+  const currency = filters.currency ?? "MAD";
+  const supabase = await createSupabaseServerClient();
+  const [ownersResult, apartmentsResult, allocationsResult] = await Promise.all([
+    supabase.from("owners").select("id,full_name,status").order("full_name"),
+    supabase.from("apartments").select("id,owner_id"),
+    supabase.from("payment_allocations").select("id,amount,owner_id,apartment_id,allocation_category,payment:payments!inner(id,direction,status,category,currency,occurred_on,title)").eq("payment.status", "paid").eq("payment.currency", currency).gte("payment.occurred_on", periodStart).lte("payment.occurred_on", periodEnd),
+  ]);
+  assertSupabaseResults("Rapport consolidé propriétaires", [ownersResult, apartmentsResult, allocationsResult]);
 
-  const { data: owners, error: ownersError } = await supabase.from("owners").select("id, full_name, status, city").order("full_name", { ascending: true });
-  assertSupabaseResults("Rapport consolidé propriétaires", [{ error: ownersError }]);
-
-  if (!owners || owners.length === 0) {
-    return {
-      metadata: { reportId: "owners-consolidated", title: "Rapport consolidé propriétaires", generatedAt: new Date().toISOString(), status: "ready" },
-      kpis: [{ label: "Propriétaires", value: "0" }], tables: [], totals: undefined, warnings: ["Aucun propriétaire trouvé."], sourceCounts: {},
-    };
-  }
-
-  const rows: Record<string, unknown>[] = [];
-  let totalRevenue = 0;
-  let totalExpenses = 0;
-
-  for (const owner of owners) {
-    const { data: properties, error: propertiesError } = await supabase.from("apartments").select("id").eq("owner_id", owner.id);
-    assertSupabaseResults("Rapport consolidé propriétaires - biens", [{ error: propertiesError }]);
-    const propertyIds = (properties ?? []).map((p) => p.id);
-    if (propertyIds.length === 0) {
-      rows.push({ owner: owner.full_name, status: owner.status || "-", properties: 0, revenue: 0, expenses: 0, net: 0 });
-      continue;
-    }
-
-    const { data: reservations, error: reservationsError } = await supabase
-      .from("reservations")
-      .select("total_amount, reservation_status, check_in, check_out")
-      .in("apartment_id", propertyIds)
-      .lte("check_in", pe).gte("check_out", ps);
-    assertSupabaseResults("Rapport consolidé propriétaires - réservations", [{ error: reservationsError }]);
-
-    const revenue = (reservations ?? []).filter((r) => r.reservation_status !== "cancelled").reduce((s, r) => s + Number(r.total_amount), 0);
-
-    const { data: expensesData, error: expensesError } = await supabase
-      .from("expenses")
-      .select("amount")
-      .in("apartment_id", propertyIds)
-      .gte("expense_date", ps).lte("expense_date", pe);
-    assertSupabaseResults("Rapport consolidé propriétaires - dépenses", [{ error: expensesError }]);
-
-    const expenses = (expensesData ?? []).reduce((s, e) => s + Number(e.amount), 0);
-
-    const commission = revenue * 0.2;
-    const net = revenue - expenses - commission;
-
-    rows.push({
-      owner: owner.full_name,
-      status: owner.status || "-",
-      properties: propertyIds.length,
-      revenue,
-      expenses,
-      commission,
-      net,
-    });
-
-    totalRevenue += revenue;
-    totalExpenses += expenses;
-  }
-
-  const totalCommission = totalRevenue * 0.2;
-
-  const tables: ReportTable[] = [{
-    title: "Portefeuille propriétaires",
-    columns: [
-      { key: "owner", label: "Propriétaire" },
-      { key: "status", label: "Statut" },
-      { key: "properties", label: "Biens", align: "right", format: "integer" },
-      { key: "revenue", label: "Revenus", align: "right", format: "currency" },
-      { key: "expenses", label: "Dépenses", align: "right", format: "currency" },
-      { key: "commission", label: "Commission", align: "right", format: "currency" },
-      { key: "net", label: "Net", align: "right", format: "currency" },
-    ],
-    rows,
-    totals: { properties: rows.reduce((s, r) => s + optionalNumber(r.properties), 0), revenue: totalRevenue, expenses: totalExpenses, commission: totalCommission, net: totalRevenue - totalExpenses - totalCommission },
-  }];
-
-  const activeOwners = owners.filter((o) => o.status === "active_management" || o.status === "published").length;
+  const owners = ownersResult.data ?? [];
+  const apartments = apartmentsResult.data ?? [];
+  const allocations = (allocationsResult.data ?? []) as unknown as OwnerAllocation[];
+  const apartmentOwner = new Map(apartments.map((apartment) => [apartment.id, apartment.owner_id]));
+  const rows = owners.map((owner) => {
+    const ownerAllocations = allocations.filter((allocation) => allocation.owner_id === owner.id || apartmentOwner.get(allocation.apartment_id ?? "") === owner.id);
+    const totals = summarize(ownerAllocations);
+    return { owner: owner.full_name, status: owner.status ?? "-", properties: apartments.filter((apartment) => apartment.owner_id === owner.id).length, inflows: totals.inflows, outflows: totals.operatingOutflows, payouts: totals.payouts, balance: totals.balance };
+  });
+  const totals = summarize(allocations);
+  const warnings = allocations.length === 0 ? ["Aucun flux payé n’est ventilé vers les propriétaires ou les appartements sur la période."] : [];
 
   return {
-    metadata: {
-      reportId: "owners-consolidated", title: "Rapport consolidé propriétaires",
-      generatedAt: new Date().toISOString(), periodStart: ps, periodEnd: pe, status: "ready",
-    },
+    metadata: { reportId: "owners-consolidated", title: "Rapport consolidé propriétaires", generatedAt, periodStart, periodEnd, status: warnings.length ? "partial" : "ready", formulaVersion: "owner-cash-allocations-v1", dataSourceVersion: "payments+payment_allocations" },
     kpis: [
-      { label: "Propriétaires", value: formatInteger(owners.length), description: `${formatInteger(activeOwners)} en gestion active` },
-      { label: "Revenus totaux", value: formatCurrency(totalRevenue) },
-      { label: "Dépenses", value: formatCurrency(totalExpenses) },
-      { label: "Net consolidé", value: formatCurrency(totalRevenue - totalExpenses - totalCommission) },
+      { label: "Propriétaires", value: formatInteger(owners.length) },
+      { label: "Encaissements alloués", value: formatCurrency(totals.inflows, currency) },
+      { label: "Sorties d’exploitation", value: formatCurrency(totals.operatingOutflows, currency) },
+      { label: "Solde consolidé", value: formatCurrency(totals.balance, currency) },
     ],
-    tables,
-    totals: { revenue: totalRevenue, expenses: totalExpenses },
-    warnings: [],
-    sourceCounts: { owners: owners.length },
+    tables: [{ title: "Portefeuille propriétaires", columns: [
+      { key: "owner", label: "Propriétaire" }, { key: "status", label: "Statut" }, { key: "properties", label: "Biens", align: "right", format: "integer" },
+      { key: "inflows", label: "Entrées", align: "right", format: "currency" }, { key: "outflows", label: "Sorties", align: "right", format: "currency" },
+      { key: "payouts", label: "Reversements", align: "right", format: "currency" }, { key: "balance", label: "Solde", align: "right", format: "currency" },
+    ], rows, totals: { properties: rows.reduce((sum, row) => sum + row.properties, 0), inflows: totals.inflows, outflows: totals.operatingOutflows, payouts: totals.payouts, balance: totals.balance } }],
+    totals: { inflows: totals.inflows, expenses: totals.operatingOutflows, payouts: totals.payouts, balance: totals.balance }, warnings,
+    sourceCounts: { owners: owners.length, apartments: apartments.length, payment_allocations: allocations.length },
   };
 }
 
 export async function getOwnerPayouts(filters: ReportFilters): Promise<ReportData> {
-  const supabase = await getClient();
-  const ps = filters.period_start;
-  const pe = filters.period_end;
-
-  let query = supabase
-    .from("owner_payouts")
-    .select("id, owner_id, amount, payout_status, paid_at, notes");
-  if (ps) query = query.gte("created_at", `${ps}T00:00:00`);
-  if (pe) query = query.lte("created_at", `${pe}T23:59:59`);
-
-  const { data: payouts, error: payoutsError } = await query.order("created_at", { ascending: false });
-  assertSupabaseResults("Reversements propriétaires", [{ error: payoutsError }]);
-
-  if (!payouts) {
-    return {
-      metadata: { reportId: "owners-payouts", title: "Reversements propriétaires", generatedAt: new Date().toISOString(), status: "error" },
-      kpis: [], tables: [], totals: undefined, warnings: ["Données indisponibles ou non certifiées."], sourceCounts: {},
-    };
-  }
-
-  const totalPaid = payouts.filter((p) => p.payout_status === "paid").reduce((s, p) => s + Number(p.amount), 0);
-  const totalPending = payouts.filter((p) => p.payout_status === "pending").reduce((s, p) => s + Number(p.amount), 0);
-
-  const tables: ReportTable[] = [{
-    title: "Reversements",
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "amount", label: "Montant", align: "right", format: "currency" },
-      { key: "status", label: "Statut" },
-      { key: "paidAt", label: "Payé le" },
-      { key: "notes", label: "Notes" },
-    ],
-    rows: payouts.map((p) => ({
-      id: p.id.slice(0, 8),
-      amount: Number(p.amount),
-      status: p.payout_status,
-      paidAt: p.paid_at ? new Date(p.paid_at).toLocaleDateString("fr-FR") : "-",
-      notes: p.notes || "-",
-    })),
-    totals: { amount: totalPaid + totalPending },
-  }];
-
+  const generatedAt = new Date().toISOString();
+  const periodStart = filters.period_start;
+  const periodEnd = filters.period_end;
+  const currency = filters.currency ?? "MAD";
+  const supabase = await createSupabaseServerClient();
+  let query = supabase.from("payments").select("id,owner_id,amount,status,occurred_on,paid_at,title,currency").eq("direction", "outflow").eq("category", "owner_payout").eq("currency", currency);
+  if (periodStart) query = query.gte("occurred_on", periodStart);
+  if (periodEnd) query = query.lte("occurred_on", periodEnd);
+  const result = await query.order("occurred_on", { ascending: false });
+  assertSupabaseResults("Reversements propriétaires", [result]);
+  const payouts = result.data ?? [];
+  const paid = payouts.filter((payout) => payout.status === "paid").reduce((sum, payout) => sum + Number(payout.amount), 0);
+  const pending = payouts.filter((payout) => payout.status === "pending").reduce((sum, payout) => sum + Number(payout.amount), 0);
   return {
-    metadata: {
-      reportId: "owners-payouts", title: "Reversements propriétaires",
-      generatedAt: new Date().toISOString(), periodStart: ps, periodEnd: pe, status: "ready",
-    },
-    kpis: [
-      { label: "Total versé", value: formatCurrency(totalPaid) },
-      { label: "En attente", value: formatCurrency(totalPending) },
-      { label: "Nombre de reversements", value: formatInteger(payouts.length) },
-    ],
-    tables,
-    totals: { paid: totalPaid, pending: totalPending },
-    warnings: payouts.length === 0 ? ["Aucun reversement trouvé pour la période."] : [],
-    sourceCounts: { payouts: payouts.length },
+    metadata: { reportId: "owners-payouts", title: "Reversements propriétaires", generatedAt, periodStart, periodEnd, status: "ready", formulaVersion: "owner-payouts-v1", dataSourceVersion: "payments" },
+    kpis: [{ label: "Total versé", value: formatCurrency(paid, currency) }, { label: "En attente", value: formatCurrency(pending, currency) }, { label: "Reversements", value: formatInteger(payouts.length) }],
+    tables: [{ title: "Reversements", columns: [
+      { key: "id", label: "ID" }, { key: "date", label: "Date", format: "date" }, { key: "amount", label: `Montant (${currency})`, align: "right", format: "currency" }, { key: "status", label: "Statut" }, { key: "title", label: "Libellé" },
+    ], rows: payouts.map((payout) => ({ id: payout.id.slice(0, 8), date: payout.occurred_on, amount: Number(payout.amount), status: payout.status, title: payout.title ?? "-" })), totals: { amount: paid + pending } }],
+    totals: { paid, pending }, warnings: [], sourceCounts: { payments: payouts.length },
   };
 }

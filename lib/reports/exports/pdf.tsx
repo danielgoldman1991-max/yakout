@@ -101,6 +101,14 @@ function formatCellValue(val: string | number | null | undefined, col: ReportTab
 
 function ReportDocument({ report }: { report: ReportData }) {
   const genDate = formatReportDate(report.metadata.generatedAt);
+  const period = report.metadata.periodStart && report.metadata.periodEnd
+    ? `${formatReportDate(report.metadata.periodStart)} → ${formatReportDate(report.metadata.periodEnd)}`
+    : "Période non applicable";
+  const availability = report.metadata.availability === "available"
+    ? "Disponible"
+    : report.metadata.availability === "available_with_warnings"
+      ? "Disponible avec réserves"
+      : "Indisponible";
 
   return (
     <Document>
@@ -110,10 +118,7 @@ function ReportDocument({ report }: { report: ReportData }) {
           <View>
             <Text style={styles.title}>{report.metadata.title}</Text>
             <Text style={styles.meta}>
-              {report.metadata.periodStart && report.metadata.periodEnd
-                ? `${report.metadata.periodStart} → ${report.metadata.periodEnd} · `
-                : ""}
-              Généré le {genDate}
+              {period} · Généré le {genDate} · {availability}
             </Text>
           </View>
         </View>
@@ -121,7 +126,7 @@ function ReportDocument({ report }: { report: ReportData }) {
         {report.warnings.length > 0 && (
           <View style={styles.warning} wrap={false}>
             {report.warnings.map((w, i) => (
-              <Text key={i}>⚠ {w}</Text>
+              <Text key={i}>Réserve : {w}</Text>
             ))}
           </View>
         )}

@@ -1,70 +1,25 @@
-import type { ReportData } from "@/lib/reports/data/types";
+import type { ReportAvailability, ReportData } from "@/lib/reports/data/types";
 
-export type ReportCertificationStatus = "draft" | "under_review" | "certified" | "suspended";
-
-export const REPORTS_UNCERTIFIED_MESSAGE =
-  "Les rapports sont en cours de vérification. Ne pas utiliser ces données pour une décision financière ou opérationnelle.";
-
-export const REPORTS_UNAVAILABLE_MESSAGE = "Données indisponibles ou non certifiées.";
-
-export function isReportingCertified(): boolean {
-  return process.env.REPORTS_CERTIFIED === "true";
+export function deriveReportAvailability(report: ReportData): ReportAvailability {
+  if (report.metadata.status === "error") return "unavailable";
+  if (report.metadata.status === "suspended") return "not_configured";
+  if (report.metadata.status === "partial" || report.warnings.length > 0 || (report.anomalies?.length ?? 0) > 0) return "available_with_warnings";
+  return "available";
 }
 
-export function isReportTestingModeEnabled(): boolean {
-  return process.env.REPORTS_ALLOW_UNCERTIFIED_TESTING === "true";
+export function canUseReportOutputs(report: ReportData): boolean {
+  const availability = report.metadata.availability ?? deriveReportAvailability(report);
+  return availability === "available" || availability === "available_with_warnings";
 }
 
-export function getReportCertificationStatus(): ReportCertificationStatus {
-  if (isReportingCertified()) return "certified";
-  if (isReportTestingModeEnabled()) return "under_review";
-  return "suspended";
-}
-
-export function canUseReportOutputs(status = getReportCertificationStatus()): boolean {
-  return status === "certified";
-}
-
-export function canExportReports(): boolean {
-  return canUseReportOutputs();
-}
-
-export function applyCertificationGate(report: ReportData): ReportData {
-  const certificationStatus = getReportCertificationStatus();
-
-  if (certificationStatus === "certified") {
-    return {
-      ...report,
-      metadata: {
-        ...report.metadata,
-        certificationStatus,
-        testingMode: false,
-      },
-      warnings: report.warnings,
-    };
-  }
-
+export function applyReportAvailability(report: ReportData, filtersApplied = report.metadata.filtersApplied ?? {}): ReportData {
+  const availability = deriveReportAvailability(report);
   return {
     ...report,
     metadata: {
       ...report.metadata,
-      status: "suspended",
-      certificationStatus,
-      formulaVersion: report.metadata.formulaVersion ?? "non-certifiee",
-      dataSourceVersion: report.metadata.dataSourceVersion ?? "non-certifiee",
+      availability,
+      filtersApplied,
     },
-    kpis: [],
-    charts: [],
-    tables: [],
-    totals: undefined,
-    warnings: [REPORTS_UNCERTIFIED_MESSAGE, REPORTS_UNAVAILABLE_MESSAGE, ...report.warnings],
-    anomalies: [
-      {
-        severity: "critical",
-        code: "REPORTS_CERTIFICATION_LOCKDOWN",
-        message: "Module de reporting suspendu tant que les sources, formules, statuts et exports ne sont pas certifiés.",
-      },
-      ...(report.anomalies ?? []),
-    ],
   };
 }

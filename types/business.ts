@@ -16,6 +16,8 @@ export type Lead = {
   client_id?: string;
   owner_id?: string;
   converted_at?: string;
+  converted_by?: string;
+  booking_status?: "new" | "qualified" | "converted" | "booking_pending" | "partially_booked" | "booked" | "declined" | "cancelled";
   message?: string;
   desired_date?: string;
   people_count?: number;
@@ -262,8 +264,8 @@ export type ReservationListItem = {
   nights: number;
   peopleCount: number;
   totalAmount: number;
-  depositAmount: number;
-  remainingAmount: number;
+  depositAmount: number | null;
+  remainingAmount: number | null;
   paymentStatus: string;
   source: string | null;
   createdAt: string;
@@ -371,6 +373,9 @@ export type Transfer = {
 export type Payment = {
   id: string;
   company_id?: string;
+  transaction_number?: string;
+  direction?: "inflow" | "outflow";
+  category?: string;
   client_id?: string;
   lead_id?: string;
   reservation_id?: string;
@@ -387,6 +392,7 @@ export type Payment = {
   amount: number;
   currency?: string;
   payment_reference?: string;
+  external_reference?: string;
   payment_type?: string;
   payment_part?: string;
   source?: string;
@@ -394,6 +400,8 @@ export type Payment = {
   stay_check_out?: string;
   guests_count?: number;
   paid_at: string;
+  occurred_on?: string;
+  due_on?: string;
   due_date?: string;
   payment_method: string;
   activity_type: string;
@@ -401,6 +409,16 @@ export type Payment = {
   receipt_url?: string;
   notes?: string;
   refunded_at?: string;
+  counterparty_type?: string;
+  counterparty_id?: string;
+  counterparty_name_snapshot?: string;
+  reversed_payment_id?: string;
+  idempotency_key?: string;
+  is_reconciled?: boolean;
+  reconciliation_id?: string;
+  created_by?: string;
+  legacy_source_table?: string;
+  legacy_source_id?: string;
   created_at: string;
   updated_at?: string;
 };

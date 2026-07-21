@@ -4,6 +4,7 @@ import { formatCurrency, formatPercent, formatInteger, formatReportDate } from "
 import { computeOccupancyRate, computeADR, computeRevPAR } from "../calculations";
 import { assertSupabaseResults } from "../supabase-results";
 import type { ReportFilters, ReportData, ReportTable, ReportChart } from "./types";
+import { getReservationFinancialSummaries } from "@/lib/data/reservation-financial";
 
 async function getClient() {
   return createSupabaseServerClient();
@@ -132,7 +133,7 @@ export async function getAccommodationReservations(filters: ReportFilters): Prom
 
   let query = supabase
     .from("reservations")
-    .select("id, check_in, check_out, nights, total_amount, deposit_amount, remaining_amount, reservation_status, payment_status, people_count, apartment_id, client_id, created_at")
+    .select("id, check_in, check_out, nights, total_amount, currency, reservation_status, people_count, apartment_id, client_id, created_at")
     .lte("check_in", pe).gte("check_out", ps);
 
   if (filters.status) query = query.eq("reservation_status", filters.status);
@@ -147,9 +148,15 @@ export async function getAccommodationReservations(filters: ReportFilters): Prom
     };
   }
 
+  const financial = await getReservationFinancialSummaries(reservations.map((r) => ({ id: r.id, totalAmount: r.total_amount, currency: r.currency })));
+  const available = reservations.flatMap((r) => {
+    const summary = financial.get(r.id);
+    return summary?.state === "available" ? [{ reservation: r, summary }] : [];
+  });
+  const unavailableCount = reservations.length - available.length;
   const totalAmount = reservations.reduce((s, r) => s + Number(r.total_amount), 0);
-  const depositAmount = reservations.reduce((s, r) => s + Number(r.deposit_amount), 0);
-  const pendingAmount = reservations.filter((r) => r.payment_status !== "Paye").reduce((s, r) => s + Number(r.remaining_amount), 0);
+  const depositAmount = available.reduce((s, item) => s + item.summary.netPaid, 0);
+  const pendingAmount = available.reduce((s, item) => s + item.summary.balanceDue, 0);
 
   const tables: ReportTable[] = [{
     title: "Réservations",
@@ -164,17 +171,19 @@ export async function getAccommodationReservations(filters: ReportFilters): Prom
       { key: "status", label: "Statut" },
       { key: "paymentStatus", label: "Paiement" },
     ],
-    rows: reservations.map((r) => ({
+    rows: reservations.map((r) => {
+      const summary = financial.get(r.id);
+      return ({
       id: r.id.slice(0, 8),
       checkIn: formatReportDate(r.check_in),
       checkOut: formatReportDate(r.check_out),
       nights: Number(r.nights),
       totalAmount: Number(r.total_amount),
-      depositAmount: Number(r.deposit_amount),
-      remainingAmount: Number(r.remaining_amount),
+      depositAmount: summary?.state === "available" ? summary.netPaid : "Indisponible",
+      remainingAmount: summary?.state === "available" ? summary.balanceDue : "Indisponible",
       status: r.reservation_status,
-      paymentStatus: r.payment_status,
-    })),
+      paymentStatus: summary?.state === "available" ? summary.paymentStatus : "Données indisponibles",
+    }); }),
     totals: { totalAmount, depositAmount, remainingAmount: pendingAmount },
   }];
 
@@ -192,7 +201,10 @@ export async function getAccommodationReservations(filters: ReportFilters): Prom
     ],
     tables,
     totals: { totalAmount, depositAmount, pendingAmount },
-    warnings: reservations.length === 0 ? ["Aucune réservation trouvée sur la période."] : [],
+    warnings: [
+      ...(reservations.length === 0 ? ["Aucune réservation trouvée sur la période."] : []),
+      ...(unavailableCount > 0 ? [`Synthèse financière indisponible pour ${unavailableCount} réservation(s) ; ces montants sont exclus des totaux encaissés et restants.`] : []),
+    ],
     sourceCounts: { reservations: reservations.length },
   };
 }

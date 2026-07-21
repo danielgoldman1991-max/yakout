@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCurrency, formatPercent, formatInteger, formatReportDate } from "../formatters";
 import { assertSupabaseResults } from "../supabase-results";
 import type { ReportFilters, ReportData, ReportTable } from "./types";
+import { getReservationFinancialSummaries } from "@/lib/data/reservation-financial";
+import { normalizePaymentStatus } from "@/lib/finance/reservation-financial-summary";
 
 async function getClient() {
   return createSupabaseServerClient();
@@ -15,7 +17,7 @@ export async function getFinanceRevenueJournal(filters: ReportFilters): Promise<
 
   const { data: payments, error: paymentsError } = await supabase
     .from("payments")
-    .select("id, amount, paid_at, payment_method, activity_type, status, notes")
+    .select("id, amount, currency, paid_at, payment_method, activity_type, category, direction, status")
     .gte("paid_at", ps).lte("paid_at", pe)
     .order("paid_at", { ascending: false });
 
@@ -27,7 +29,7 @@ export async function getFinanceRevenueJournal(filters: ReportFilters): Promise<
     };
   }
 
-  const confirmedPayments = payments.filter((p) => p.status === "Paye" || p.status === "confirmed" || p.status === "completed");
+  const confirmedPayments = payments.filter((p) => normalizePaymentStatus(p.status) === "paid" && p.direction === "inflow" && p.category !== "refund");
   const totalRevenue = confirmedPayments.reduce((s, p) => s + Number(p.amount), 0);
   const pendingTotal = payments.filter((p) => p.status === "En attente" || p.status === "pending").reduce((s, p) => s + Number(p.amount), 0);
 
@@ -45,12 +47,12 @@ export async function getFinanceRevenueJournal(filters: ReportFilters): Promise<
       { key: "amount", label: "Montant", align: "right", format: "currency" },
       { key: "status", label: "Statut" },
     ],
-    rows: payments.map((p) => ({
+    rows: confirmedPayments.map((p) => ({
       date: formatReportDate(p.paid_at),
       activity: p.activity_type || "-",
       method: p.payment_method,
       amount: Number(p.amount),
-      status: p.status,
+      status: "paid",
     })),
     totals: { amount: totalRevenue },
   }];
@@ -80,12 +82,12 @@ export async function getFinanceRevenueJournal(filters: ReportFilters): Promise<
     kpis: [
       { label: "Recettes encaissées", value: formatCurrency(totalRevenue) },
       { label: "En attente", value: formatCurrency(pendingTotal) },
-      { label: "Nombre de paiements", value: formatInteger(payments.length) },
+      { label: "Nombre d’encaissements", value: formatInteger(confirmedPayments.length) },
     ],
     tables,
     totals: { revenue: totalRevenue, pending: pendingTotal },
     warnings: payments.length === 0 ? ["Aucun paiement trouvé sur la période."] : [],
-    sourceCounts: { payments: payments.length },
+    sourceCounts: { payments: confirmedPayments.length },
   };
 }
 
@@ -95,10 +97,11 @@ export async function getFinanceExpenseJournal(filters: ReportFilters): Promise<
   const pe = filters.period_end ?? new Date().toISOString().slice(0, 10);
 
   const { data: expenses, error: expensesError } = await supabase
-    .from("expenses")
-    .select("id, amount, expense_date, category, activity_type, notes")
-    .gte("expense_date", ps).lte("expense_date", pe)
-    .order("expense_date", { ascending: false });
+    .from("payments")
+    .select("id, amount, currency, paid_at, category, activity_type, direction, status")
+    .eq("direction", "outflow")
+    .gte("paid_at", ps).lte("paid_at", pe)
+    .order("paid_at", { ascending: false });
 
   assertSupabaseResults("Journal des dépenses", [{ error: expensesError }]);
   if (!expenses) {
@@ -108,10 +111,11 @@ export async function getFinanceExpenseJournal(filters: ReportFilters): Promise<
     };
   }
 
-  const totalExpenses = expenses.reduce((s, e) => s + Number(e.amount), 0);
+  const paidExpenses = expenses.filter((expense) => normalizePaymentStatus(expense.status) === "paid");
+  const totalExpenses = paidExpenses.reduce((s, e) => s + Number(e.amount), 0);
 
   const byCategory: Record<string, number> = {};
-  for (const e of expenses) {
+  for (const e of paidExpenses) {
     byCategory[e.category] = (byCategory[e.category] ?? 0) + Number(e.amount);
   }
 
@@ -123,8 +127,8 @@ export async function getFinanceExpenseJournal(filters: ReportFilters): Promise<
       { key: "activity", label: "Activité" },
       { key: "amount", label: "Montant", align: "right", format: "currency" },
     ],
-    rows: expenses.map((e) => ({
-      date: formatReportDate(e.expense_date),
+    rows: paidExpenses.map((e) => ({
+      date: formatReportDate(e.paid_at),
       category: e.category,
       activity: e.activity_type || "-",
       amount: Number(e.amount),
@@ -154,13 +158,13 @@ export async function getFinanceExpenseJournal(filters: ReportFilters): Promise<
     },
     kpis: [
       { label: "Total dépenses", value: formatCurrency(totalExpenses) },
-      { label: "Nombre de dépenses", value: formatInteger(expenses.length) },
-      { label: "Moyenne par dépense", value: formatCurrency(expenses.length > 0 ? totalExpenses / expenses.length : 0) },
+      { label: "Nombre de décaissements", value: formatInteger(paidExpenses.length) },
+      { label: "Moyenne par décaissement", value: paidExpenses.length > 0 ? formatCurrency(totalExpenses / paidExpenses.length) : "Non applicable" },
     ],
     tables,
     totals: { expenses: totalExpenses },
-    warnings: expenses.length === 0 ? ["Aucune dépense trouvée sur la période."] : [],
-    sourceCounts: { expenses: expenses.length },
+    warnings: paidExpenses.length === 0 ? ["Aucun décaissement réel trouvé sur la période. Les documents de dépense non réglés ne sont pas comptés."] : [],
+    sourceCounts: { payments: paidExpenses.length },
   };
 }
 
@@ -171,7 +175,7 @@ export async function getFinanceAccountsReceivable(filters: ReportFilters): Prom
 
   const { data: reservations, error: reservationsError } = await supabase
     .from("reservations")
-    .select("id, check_in, check_out, total_amount, deposit_amount, remaining_amount, payment_status, reservation_status, apartment_id")
+    .select("id, check_in, check_out, total_amount, currency, reservation_status, apartment_id")
     .lte("check_in", pe).gte("check_out", ps);
 
   assertSupabaseResults("Créances clients", [{ error: reservationsError }]);
@@ -182,8 +186,13 @@ export async function getFinanceAccountsReceivable(filters: ReportFilters): Prom
     };
   }
 
-  const withDebt = reservations.filter((r) => Number(r.remaining_amount) > 0 && r.reservation_status !== "cancelled");
-  const totalDebt = withDebt.reduce((s, r) => s + Number(r.remaining_amount), 0);
+  const financial = await getReservationFinancialSummaries(reservations.map((r) => ({ id: r.id, totalAmount: r.total_amount, currency: r.currency })));
+  const withDebt = reservations.flatMap((r) => {
+    const summary = financial.get(r.id);
+    return summary?.state === "available" && summary.balanceDue > 0 && r.reservation_status !== "cancelled" ? [{ reservation: r, summary }] : [];
+  });
+  const unavailableCount = reservations.filter((r) => financial.get(r.id)?.state !== "available").length;
+  const totalDebt = withDebt.reduce((s, item) => s + item.summary.balanceDue, 0);
   const totalReserved = reservations.filter((r) => r.reservation_status !== "cancelled").reduce((s, r) => s + Number(r.total_amount), 0);
 
   const tables: ReportTable[] = [{
@@ -197,14 +206,14 @@ export async function getFinanceAccountsReceivable(filters: ReportFilters): Prom
       { key: "remainingAmount", label: "Restant dû", align: "right", format: "currency" },
       { key: "paymentStatus", label: "Statut paiement" },
     ],
-    rows: withDebt.map((r) => ({
+    rows: withDebt.map(({ reservation: r, summary }) => ({
       id: r.id.slice(0, 8),
       checkIn: formatReportDate(r.check_in),
       checkOut: formatReportDate(r.check_out),
-      totalAmount: Number(r.total_amount),
-      depositAmount: Number(r.deposit_amount),
-      remainingAmount: Number(r.remaining_amount),
-      paymentStatus: r.payment_status,
+      totalAmount: summary.reservationTotal,
+      depositAmount: summary.netPaid,
+      remainingAmount: summary.balanceDue,
+      paymentStatus: summary.paymentStatus,
     })),
     totals: { totalAmount: totalDebt, depositAmount: 0, remainingAmount: totalDebt },
   }];
@@ -221,7 +230,10 @@ export async function getFinanceAccountsReceivable(filters: ReportFilters): Prom
     ],
     tables,
     totals: { debt: totalDebt },
-    warnings: withDebt.length === 0 ? ["Aucune créance sur la période."] : [],
+    warnings: [
+      ...(withDebt.length === 0 ? ["Aucune créance calculable sur la période."] : []),
+      ...(unavailableCount > 0 ? [`Synthèse financière indisponible pour ${unavailableCount} réservation(s) ; aucune valeur de remplacement n’a été inventée.`] : []),
+    ],
     sourceCounts: { reservations: reservations.length },
   };
 }
@@ -241,9 +253,10 @@ export async function getFinanceResultByApartment(filters: ReportFilters): Promi
   }
 
   const rows: Record<string, unknown>[] = [];
-  let totalRevenue = 0;
-  let totalExpenses = 0;
-  let totalCommission = 0;
+  let totalReserved = 0;
+  let totalInflows = 0;
+  let totalOutflows = 0;
+  let totalRefunds = 0;
 
   for (const apt of apartments) {
     if (filters.apartment_id && apt.id !== filters.apartment_id) continue;
@@ -255,45 +268,51 @@ export async function getFinanceResultByApartment(filters: ReportFilters): Promi
       .lte("check_in", pe).gte("check_out", ps);
     assertSupabaseResults("Résultat par appartement - réservations", [{ error: reservationsError }]);
 
-    const revenue = (reservations ?? [])
+    const reserved = (reservations ?? [])
       .filter((r) => r.reservation_status !== "cancelled")
       .reduce((s, r) => s + Number(r.total_amount), 0);
 
-    const { data: expenses, error: expensesError } = await supabase
-      .from("expenses")
-      .select("amount")
+    const { data: allocations, error: allocationError } = await supabase.from("payment_allocations")
+      .select("amount,payments!inner(direction,status,category,paid_at)")
       .eq("apartment_id", apt.id)
-      .gte("expense_date", ps).lte("expense_date", pe);
-    assertSupabaseResults("Résultat par appartement - dépenses", [{ error: expensesError }]);
-
-    const expenseTotal = (expenses ?? []).reduce((s, e) => s + Number(e.amount), 0);
-    const commission = revenue * 0.2;
-    const net = revenue - expenseTotal - commission;
+      .gte("payments.paid_at", ps).lte("payments.paid_at", pe);
+    assertSupabaseResults("Résultat par appartement - transactions", [{ error: allocationError }]);
+    const paid = (allocations ?? []).flatMap((allocation) => {
+      const payment = Array.isArray(allocation.payments) ? allocation.payments[0] : allocation.payments;
+      return payment && normalizePaymentStatus(payment.status) === "paid" ? [{ amount: Number(allocation.amount), ...payment }] : [];
+    });
+    const inflows = paid.filter((payment) => payment.direction === "inflow" && payment.category !== "refund").reduce((sum, payment) => sum + payment.amount, 0);
+    const outflows = paid.filter((payment) => payment.direction === "outflow" && payment.category !== "refund").reduce((sum, payment) => sum + payment.amount, 0);
+    const refunds = paid.filter((payment) => payment.category === "refund").reduce((sum, payment) => sum + payment.amount, 0);
+    const net = inflows - outflows - refunds;
 
     rows.push({
       apartment: apt.internal_name || "Sans titre",
-      revenue,
-      expenses: expenseTotal,
-      commission,
+      reserved,
+      inflows,
+      outflows,
+      refunds,
       net,
     });
 
-    totalRevenue += revenue;
-    totalExpenses += expenseTotal;
-    totalCommission += commission;
+    totalReserved += reserved;
+    totalInflows += inflows;
+    totalOutflows += outflows;
+    totalRefunds += refunds;
   }
 
   const tables: ReportTable[] = [{
     title: "Résultat financier par appartement",
     columns: [
       { key: "apartment", label: "Appartement" },
-      { key: "revenue", label: "Recettes", align: "right", format: "currency" },
-      { key: "expenses", label: "Dépenses", align: "right", format: "currency" },
-      { key: "commission", label: "Commission", align: "right", format: "currency" },
+      { key: "reserved", label: "Montant réservé", align: "right", format: "currency" },
+      { key: "inflows", label: "Encaissements", align: "right", format: "currency" },
+      { key: "outflows", label: "Sorties attribuées", align: "right", format: "currency" },
+      { key: "refunds", label: "Remboursements", align: "right", format: "currency" },
       { key: "net", label: "Net", align: "right", format: "currency" },
     ],
     rows,
-    totals: { revenue: totalRevenue, expenses: totalExpenses, commission: totalCommission, net: totalRevenue - totalExpenses - totalCommission },
+    totals: { reserved: totalReserved, inflows: totalInflows, outflows: totalOutflows, refunds: totalRefunds, net: totalInflows - totalOutflows - totalRefunds },
   }];
 
   return {
@@ -302,13 +321,13 @@ export async function getFinanceResultByApartment(filters: ReportFilters): Promi
       generatedAt: new Date().toISOString(), periodStart: ps, periodEnd: pe, status: "ready",
     },
     kpis: [
-      { label: "Recettes totales", value: formatCurrency(totalRevenue) },
-      { label: "Dépenses totales", value: formatCurrency(totalExpenses) },
-      { label: "Commission totale", value: formatCurrency(totalCommission) },
-      { label: "Net total", value: formatCurrency(totalRevenue - totalExpenses - totalCommission) },
+      { label: "Montant réservé", value: formatCurrency(totalReserved) },
+      { label: "Encaissements", value: formatCurrency(totalInflows) },
+      { label: "Sorties attribuées", value: formatCurrency(totalOutflows + totalRefunds) },
+      { label: "Flux net", value: formatCurrency(totalInflows - totalOutflows - totalRefunds) },
     ],
     tables,
-    totals: { revenue: totalRevenue, expenses: totalExpenses, commission: totalCommission },
+    totals: { reserved: totalReserved, inflows: totalInflows, outflows: totalOutflows, refunds: totalRefunds, net: totalInflows - totalOutflows - totalRefunds },
     warnings: rows.length === 0 ? ["Aucun appartement trouvé."] : [],
     sourceCounts: { apartments: apartments.length },
   };
@@ -320,25 +339,28 @@ export async function getFinanceReconciliation(filters: ReportFilters): Promise<
   const pe = filters.period_end ?? new Date().toISOString().slice(0, 10);
 
   const [paymentsRes, expensesRes, reservationsRes] = await Promise.all([
-    supabase.from("payments").select("id, amount, status, paid_at, activity_type, reservation_id, trip_id").gte("paid_at", ps).lte("paid_at", pe),
+    supabase.from("payments").select("id, amount, status, direction, category, paid_at, activity_type, reservation_id, trip_id").gte("paid_at", ps).lte("paid_at", pe),
     supabase.from("expenses").select("id, amount, expense_date, category, apartment_id, vehicle_id, trip_id").gte("expense_date", ps).lte("expense_date", pe),
     supabase.from("reservations").select("id, total_amount, reservation_status, check_in, check_out").lte("check_in", pe).gte("check_out", ps),
   ]);
   assertSupabaseResults("Rapprochement financier", [paymentsRes, expensesRes, reservationsRes]);
 
-  const payments = (paymentsRes.data ?? []).filter((p) => p.status === "Paye" || p.status === "confirmed" || p.status === "completed");
   const expenses = expensesRes.data ?? [];
   const reservations = (reservationsRes.data ?? []).filter((r) => r.reservation_status !== "cancelled");
+  const financial = await getReservationFinancialSummaries(reservations.map((r) => ({ id: r.id, totalAmount: r.total_amount })));
+  const availableFinancial = reservations.flatMap((reservation) => {
+    const summary = financial.get(reservation.id);
+    return summary?.state === "available" ? [{ reservation, summary }] : [];
+  });
 
-  const totalPayments = payments.reduce((s, p) => s + Number(p.amount), 0);
-  const totalExpenses = expenses.reduce((s, e) => s + Number(e.amount), 0);
+  const totalPayments = availableFinancial.reduce((s, item) => s + item.summary.netPaid, 0);
+  const paidPayments = (paymentsRes.data ?? []).filter((p) => normalizePaymentStatus(p.status) === "paid");
+  const totalExpenses = paidPayments.filter((payment) => payment.direction === "outflow").reduce((s, payment) => s + Number(payment.amount), 0);
   const totalReservations = reservations.reduce((s, r) => s + Number(r.total_amount), 0);
 
-  const paymentNoReservation = payments.filter((p) => !p.reservation_id && !p.trip_id).length;
-  const reservationNoPayment = reservations.filter((r) => {
-    const resPayments = payments.filter((p) => p.reservation_id === r.id);
-    return resPayments.reduce((s, p) => s + Number(p.amount), 0) === 0;
-  }).length;
+  const paymentNoReservation = paidPayments.filter((p) => !p.reservation_id && !p.trip_id).length;
+  const reservationNoPayment = availableFinancial.filter((item) => item.summary.paymentCount === 0).length;
+  const unavailableCount = reservations.length - availableFinancial.length;
 
   const anomalies: Record<string, unknown>[] = [];
   if (paymentNoReservation > 0) {
@@ -346,6 +368,9 @@ export async function getFinanceReconciliation(filters: ReportFilters): Promise<
   }
   if (reservationNoPayment > 0) {
     anomalies.push({ issue: "Réservations sans paiement", count: reservationNoPayment });
+  }
+  if (unavailableCount > 0) {
+    anomalies.push({ issue: "Synthèses financières indisponibles", count: unavailableCount });
   }
 
   const tables: ReportTable[] = [{
@@ -387,7 +412,10 @@ export async function getFinanceReconciliation(filters: ReportFilters): Promise<
     ],
     tables,
     totals: { reservations: totalReservations, payments: totalPayments, expenses: totalExpenses },
-    warnings: anomalies.length > 0 ? [`${anomalies.length} anomalie(s) détectée(s). Vérifiez le détail.`] : [],
-    sourceCounts: { payments: payments.length, expenses: expenses.length, reservations: reservations.length },
+    warnings: [
+      ...(anomalies.length > 0 ? [`${anomalies.length} anomalie(s) détectée(s). Vérifiez le détail.`] : []),
+      ...(expenses.length > 0 ? ["Les documents de dépense sont rapprochés à titre documentaire ; seuls les décaissements de payments alimentent le flux réel."] : []),
+    ],
+    sourceCounts: { payments: paidPayments.length, expenseDocuments: expenses.length, reservations: reservations.length },
   };
 }

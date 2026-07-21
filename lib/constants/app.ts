@@ -28,7 +28,7 @@ export const company = {
   city: "Marrakech",
   currency: "MAD",
   timezone: "Africa/Casablanca",
-  logo: "/logo/yakout_logo_transparent_cropped.png",
+  logo: "/branding/yakout-logo-light.png",
 };
 
 export type DashboardNavItem = {

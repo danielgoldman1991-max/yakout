@@ -47,23 +47,19 @@ for (const file of files) {
 const exportRoute = path.join(root, "app/api/reports/[reportId]/export/route.ts");
 if (fs.existsSync(exportRoute)) {
   const text = fs.readFileSync(exportRoute, "utf8");
-  if (!text.includes("canExportReports")) {
+  if (!text.includes("getUserPermissions") || !text.includes("canUseReportOutputs")) {
     findings.push({
       severity: "critical",
       code: "REPORT_EXPORT_NOT_LOCKED",
       file: "app/api/reports/[reportId]/export/route.ts",
-      message: "Export PDF/XLSX non protégé par la certification",
+      message: "Export PDF/XLSX sans contrôle serveur de permission et de disponibilité",
     });
   }
 }
 
 const result = {
   generatedAt: new Date().toISOString(),
-  certificationStatus: process.env.REPORTS_CERTIFIED === "true"
-    ? "certified"
-    : process.env.REPORTS_ALLOW_UNCERTIFIED_TESTING === "true"
-      ? "under_review_test_mode"
-      : "suspended",
+  reportingMode: "per_report_health",
   filesScanned: files.length,
   findings,
 };

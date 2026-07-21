@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPayments, getReservationById, getReservationEvents } from "@/lib/data";
+import { getReservationById, getReservationEvents } from "@/lib/data";
 import { getReservationItems } from "@/lib/data/reservations";
 import { changeReservationStatusAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 import { RESERVATION_STATUS_LABELS } from "@/lib/constants/reservations";
 import { CancelReservationForm } from "@/components/dashboard/cancel-reservation-form";
 import { DeleteReservationForm } from "@/components/dashboard/delete-reservation-form";
-import { getReservationFinancialSummary } from "@/lib/data/reservation-financial";
+import { getReservationFinancialSummary, getReservationLinkedPayments } from "@/lib/data/reservation-financial";
 import { reservationPaymentStatusLabels } from "@/lib/finance/reservation-financial-summary";
 
 type BadgeTone = "default" | "gold" | "ruby" | "muted" | "success" | "warning" | "info";
@@ -52,10 +52,10 @@ export default async function ReservationDetailPage({ params }: { params: Promis
   if (!reservation) notFound();
 
   const [payments, events, items, financial] = await Promise.all([
-    getPayments().then((all) => all.filter((p) => p.reservation_id === id)),
+    getReservationLinkedPayments(id),
     getReservationEvents(id),
     getReservationItems(id),
-    getReservationFinancialSummary(id, reservation.total_amount, reservation.currency ?? "MAD"),
+    getReservationFinancialSummary(id),
   ]);
 
   const paidTotal = financial.state === "available" ? financial.netPaid : null;
@@ -136,7 +136,7 @@ export default async function ReservationDetailPage({ params }: { params: Promis
           <div className="space-y-2">
             <InfoRow label="Total" value={formatCurrency(reservation.total_amount)} />
             <InfoRow label="Encaissé" value={financial.state === "available" ? formatCurrency(financial.netPaid) : "Données indisponibles"} />
-            <InfoRow label="Remboursé" value={financial.state === "available" ? formatCurrency(financial.refunded) : "Données indisponibles"} />
+            <InfoRow label="Remboursé" value={financial.state === "available" ? formatCurrency(financial.refundedAmount) : "Données indisponibles"} />
             <InfoRow label="Solde restant" value={financial.state === "available" ? formatCurrency(financial.balanceDue) : "Données indisponibles"} />
             <InfoRow label="Statut paiement" value={financial.state === "available" ? reservationPaymentStatusLabels[financial.paymentStatus] : "Données indisponibles"} />
           </div>

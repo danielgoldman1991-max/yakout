@@ -13,7 +13,7 @@ export const site = {
   facebookUrl: "",
   tiktokUrl: "",
   googleMapsUrl: "",
-  logo: "/logo/yakout_logo_transparent_cropped.webp",
+  logo: "/branding/yakout-logo-light.png",
   heroTitle: "Séjours premium, appartements sélectionnés et transport privé à Marrakech.",
   heroSubtitle:
     "Yakout Conciergerie et Services accompagne voyageurs et propriétaires avec une offre complète : location d'appartements, conciergerie immobilière, transport privé, transferts aéroport et services touristiques sur mesure.",

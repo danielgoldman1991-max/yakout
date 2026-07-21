@@ -67,7 +67,7 @@ export function mapReservationToCalendarEvent(row: RawReservation, financial?: R
     guestName: client?.full_name?.trim() || "Voyageur non renseigné", guestPhone: client?.phone ?? null,
     checkIn: String(row.check_in), checkOut: String(row.check_out), nights: calendarNights(String(row.check_in), String(row.check_out)),
     guests: Number(row.people_count ?? 1), reservationStatus: status, rawStatus: String(row.reservation_status ?? "Non renseigné"),
-    paymentStatus, totalAmount: total, paidAmount: available?.netPaid ?? null, refundedAmount: available?.refunded ?? null, balanceDue: available?.balanceDue ?? null,
+    paymentStatus, totalAmount: available?.reservationTotal ?? total, paidAmount: available?.netPaid ?? null, refundedAmount: available?.refundedAmount ?? null, balanceDue: available?.balanceDue ?? null,
     currency: available?.currency ?? "MAD", source: null, isConflict: false, isUnassigned: !row.apartment_id,
     requiresAttention: !row.apartment_id || status === "option" || !available || available.balanceDue > 0,
   };
@@ -88,13 +88,12 @@ export async function getReservationCalendarData(filters: CalendarFilters): Prom
     const supabase = await createSupabaseServerClient();
     let reservationQuery = supabase.from("reservations").select(`
       id, client_id, apartment_id, check_in, check_out, nights, people_count,
-      total_amount, deposit_amount, remaining_amount, payment_status, reservation_status, created_at,
+      total_amount, currency, reservation_status, created_at,
       client:clients(id,full_name,phone,email),
       apartment:apartments(id,internal_name,public_name,district,capacity,image_url,management_status)
     `).lt("check_in", filters.to).gt("check_out", filters.from).order("check_in", { ascending: true });
     if (filters.apartmentId) reservationQuery = reservationQuery.eq("apartment_id", filters.apartmentId);
     if (filters.status) reservationQuery = reservationQuery.eq("reservation_status", filters.status);
-    if (filters.paymentStatus) reservationQuery = reservationQuery.eq("payment_status", filters.paymentStatus);
 
     const [reservationResult, apartmentResult, maintenanceResult] = await Promise.all([
       reservationQuery,
@@ -112,8 +111,9 @@ export async function getReservationCalendarData(filters: CalendarFilters): Prom
     const warnings: CalendarWarning[] = [];
     if (maintenanceResult.error) warnings.push({ code: "MAINTENANCE_UNAVAILABLE", message: "Les interventions de maintenance sont indisponibles." });
     const reservationRows = (reservationResult.data ?? []) as unknown as RawReservation[];
-    const financials = await getReservationFinancialSummaries(reservationRows.map((row) => ({ id: String(row.id), totalAmount: row.total_amount, currency: "MAD" })));
+    const financials = await getReservationFinancialSummaries(reservationRows.map((row) => ({ id: String(row.id), totalAmount: row.total_amount, currency: row.currency })));
     let events = markConflicts(reservationRows.map((row) => mapReservationToCalendarEvent(row, financials.get(String(row.id)))));
+    if (filters.paymentStatus) events = events.filter((event) => event.paymentStatus === filters.paymentStatus);
     const query = filters.search?.trim().toLowerCase();
     if (query) events = events.filter((event) => [event.reservationNumber,event.guestName,event.guestPhone,event.apartmentTitle,event.source].some((value) => value?.toLowerCase().includes(query)));
     return {

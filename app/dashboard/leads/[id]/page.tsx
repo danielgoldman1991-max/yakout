@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { CalendarDays, Mail, MessageCircle, Package, Phone, Users } from "lucide-react";
 import { getLeadById } from "@/lib/data";
 import { getLeadReservations } from "@/lib/data/reservations";
-import { updateLeadAction, deleteLeadAction, convertLeadToClientAction } from "@/lib/data/actions";
+import { updateLeadAction, deleteLeadAction, convertLeadToClientAtomicAction } from "@/lib/data/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -295,7 +295,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   Voir le client
                 </Link>
               ) : (
-                <form action={convertLeadToClientAction.bind(null, id)}>
+                <form action={convertLeadToClientAtomicAction.bind(null, id)}>
                   <Button type="submit" className="w-full">Convertir en client</Button>
                 </form>
               )}

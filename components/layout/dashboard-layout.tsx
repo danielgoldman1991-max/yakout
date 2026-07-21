@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/auth/actions";
 import { company, dashboardNavGroups, type DashboardNavGroup } from "@/lib/constants/app";
@@ -10,6 +9,7 @@ import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Menu, X, LogOut } from "lucide-react";
+import { YakoutLogo } from "@/components/branding/YakoutLogo";
 
 function NavGroup({ group, pathname, onNav }: { group: DashboardNavGroup; pathname: string; onNav: () => void }) {
   const isActive = (href: string) => {
@@ -95,10 +95,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="border-b border-border/50 px-5 py-5">
-            <Link href="/dashboard" className="flex items-center gap-3" onClick={closeMobile}>
-              <Image src={company.logo} alt="Yakout" width={32} height={32} className="rounded-sm" />
+            <Link href="/dashboard" className="flex flex-col items-start gap-2" onClick={closeMobile}>
+              <YakoutLogo size="sm" priority />
               <div>
-                <p className="text-sm font-semibold text-foreground">Yakout</p>
                 <p className="text-[10px] text-muted-foreground/60 tracking-[0.12em] uppercase">Espace privé</p>
               </div>
             </Link>

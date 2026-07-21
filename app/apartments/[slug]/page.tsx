@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { ApartmentGallery } from "@/components/public/apartment-gallery";
 import { ApartmentBookingCard } from "@/components/public/apartment-booking-card";
 import { ApartmentShareButton } from "@/components/public/apartment-share-button";
+import { YakoutLogo } from "@/components/branding/YakoutLogo";
 import { getApartmentBySlug, getPublicApartments } from "@/lib/data";
 import { getApartmentImages } from "@/lib/data/apartments";
 import { fallbackImages } from "@/lib/images";
@@ -47,7 +48,7 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
 
     <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16"><div className="min-w-0 divide-y divide-border">
       <section className="pb-8"><h2 className="font-display text-2xl font-semibold">{propertyLabel || "Logement"}{district ? ` à ${district}` : ` à ${city}`}</h2>{facts.length ? <p className="mt-2 text-base text-muted-foreground">{facts.join(" · ")}</p> : <p className="mt-2 text-sm text-muted-foreground">Les informations de capacité seront confirmées par Yakout.</p>}
-        <div className="mt-7 flex items-center gap-4 rounded-2xl border border-gold/20 bg-gold/[0.04] p-5"><div className="relative h-12 w-12 overflow-hidden rounded-full border border-gold/20 bg-card"><Image src="/logo/yakout_logo_transparent_cropped.png" alt="Yakout" fill sizes="48px" className="object-contain p-2" /></div><div><h3 className="font-semibold">Géré par Yakout</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">Une équipe locale vous accompagne pour la réservation, l’arrivée et les services complémentaires.</p></div></div>
+        <div className="mt-7 flex items-center gap-4 rounded-2xl border border-gold/20 bg-gold/[0.04] p-5"><div className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/20 bg-card"><YakoutLogo iconOnly size="sm" /></div><div><h3 className="font-semibold">Géré par Yakout</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">Une équipe locale vous accompagne pour la réservation, l’arrivée et les services complémentaires.</p></div></div>
       </section>
       {highlights.length > 0 && <DetailSection title="Points forts"><div className="grid gap-3 sm:grid-cols-2">{highlights.map((item) => <InfoLine key={item} icon={Sparkles}>{item}</InfoLine>)}</div></DetailSection>}
       {description && <DetailSection title="À propos de ce logement"><div className="whitespace-pre-line text-[15px] leading-7 text-muted-foreground">{description}</div></DetailSection>}

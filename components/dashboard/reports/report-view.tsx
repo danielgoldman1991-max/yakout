@@ -9,6 +9,8 @@ import type { ReportData, ReportTable, ReportChart, ReportTableColumn } from "@/
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { useState } from "react";
 import Link from "next/link";
+import { canUseReportOutputs } from "@/lib/reports/certification";
+import type { ReportFormat } from "@/lib/reports/definitions";
 
 const CHART_COLORS = ["#c8a44e", "#9c2a2a", "#3c2a1e", "#f5ede0", "#d4a574", "#6b5b4a", "#e8c86a", "#7a4a4a"];
 
@@ -67,7 +69,7 @@ function ReportTableComponent({ table }: { table: ReportTable }) {
 function ReportChartComponent({ chart }: { chart: ReportChart }) {
   const data = chart.labels.map((label, i) => ({
     name: label,
-    ...Object.fromEntries(chart.datasets.map((ds) => [ds.label, ds.values[i] ?? 0])),
+    ...Object.fromEntries(chart.datasets.map((ds) => [ds.label, ds.values[i]])),
   }));
 
   const renderChart = () => {
@@ -129,13 +131,14 @@ function ReportChartComponent({ chart }: { chart: ReportChart }) {
 type ReportViewProps = {
   report: ReportData;
   reportId: string;
+  supportedFormats: ReportFormat[];
 };
 
-export function ReportView({ report, reportId }: ReportViewProps) {
+export function ReportView({ report, reportId, supportedFormats }: ReportViewProps) {
   const router = useRouter();
   const [exporting, setExporting] = useState<"pdf" | "xlsx" | null>(null);
-  const isCertified = report.metadata.certificationStatus === "certified";
-  const canUseOutputs = isCertified;
+  const canUseOutputs = canUseReportOutputs(report);
+  const availability = report.metadata.availability ?? "unavailable";
 
   const handleExport = async (format: "pdf" | "xlsx") => {
     setExporting(format);
@@ -144,13 +147,13 @@ export function ReportView({ report, reportId }: ReportViewProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          filters: { period_start: report.metadata.periodStart, period_end: report.metadata.periodEnd },
+          filters: report.metadata.filtersApplied ?? { period_start: report.metadata.periodStart, period_end: report.metadata.periodEnd },
         }),
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Erreur serveur" }));
-        alert(err.error || "L'export n'a pas pu Ãªtre gÃ©nÃ©rÃ©.");
+        alert(err.error || "L’export n’a pas pu être généré.");
         return;
       }
 
@@ -163,7 +166,7 @@ export function ReportView({ report, reportId }: ReportViewProps) {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert("L'export n'a pas pu Ãªtre gÃ©nÃ©rÃ©.");
+      alert("L’export n’a pas pu être généré.");
     } finally {
       setExporting(null);
     }
@@ -183,33 +186,26 @@ export function ReportView({ report, reportId }: ReportViewProps) {
             <RefreshCw className="h-3.5 w-3.5" />
             Actualiser
           </button>
-          <button onClick={() => handleExport("pdf")} disabled={!canUseOutputs || exporting === "pdf"} title={!isCertified ? "Export dÃ©sactivÃ© tant que le rapport n'est pas certifiÃ©." : undefined} className="flex items-center gap-1.5 rounded-sm border border-border/40 bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent/50 transition-colors disabled:opacity-50">
+          {supportedFormats.includes("pdf") && <button onClick={() => handleExport("pdf")} disabled={!canUseOutputs || exporting === "pdf"} className="flex items-center gap-1.5 rounded-sm border border-border/40 bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent/50 transition-colors disabled:opacity-50">
             <Download className="h-3.5 w-3.5" />
             {exporting === "pdf" ? "GÃ©nÃ©ration..." : "PDF"}
-          </button>
-          <button onClick={() => handleExport("xlsx")} disabled={!canUseOutputs || exporting === "xlsx"} title={!isCertified ? "Export dÃ©sactivÃ© tant que le rapport n'est pas certifiÃ©." : undefined} className="flex items-center gap-1.5 rounded-sm border border-border/40 bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent/50 transition-colors disabled:opacity-50">
+          </button>}
+          {supportedFormats.includes("xlsx") && <button onClick={() => handleExport("xlsx")} disabled={!canUseOutputs || exporting === "xlsx"} className="flex items-center gap-1.5 rounded-sm border border-border/40 bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent/50 transition-colors disabled:opacity-50">
             <FileSpreadsheet className="h-3.5 w-3.5" />
             {exporting === "xlsx" ? "GÃ©nÃ©ration..." : "XLSX"}
-          </button>
-          <button onClick={() => canUseOutputs && window.print()} disabled={!canUseOutputs} title={!isCertified ? "Impression dÃ©sactivÃ©e tant que le rapport n'est pas certifiÃ©." : undefined} className="flex items-center gap-1.5 rounded-sm border border-border/40 bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent/50 transition-colors disabled:opacity-50">
+          </button>}
+          {supportedFormats.includes("print") && <button onClick={() => canUseOutputs && window.print()} disabled={!canUseOutputs} className="flex items-center gap-1.5 rounded-sm border border-border/40 bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent/50 transition-colors disabled:opacity-50">
             <Printer className="h-3.5 w-3.5" />
             Imprimer
-          </button>
+          </button>}
         </div>
       </div>
 
-      {!isCertified && (
-        <div className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
-          <div className="font-semibold">Données non certifiées</div>
-          <p className="mt-1 text-xs leading-relaxed">
-            {"Les exports PDF, XLSX, l'impression et les totaux sont désactivés jusqu'à certification indépendante du rapport."}
-          </p>
-        </div>
-      )}
+      <div className={`rounded-sm border px-4 py-3 text-sm ${availability === "available" ? "border-emerald-500/30 bg-emerald-500/10" : availability === "available_with_warnings" ? "border-amber-500/40 bg-amber-500/10" : "border-destructive/40 bg-destructive/10"}`}><strong>{availability === "available" ? "Disponible" : availability === "available_with_warnings" ? "Disponible avec réserves" : availability === "not_configured" ? "Configuration incomplète" : "Indisponible"}</strong></div>
 
       {report.warnings.length > 0 && (
         <div className="rounded-sm border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-200">
-          {report.warnings.map((w, i) => (<div key={i} className="flex items-start gap-2"><span>âš </span><span>{w}</span></div>))}
+          {report.warnings.map((warning, index) => (<div key={index} className="flex items-start gap-2"><span aria-hidden="true">⚠</span><span>{warning}</span></div>))}
         </div>
       )}
 
@@ -243,12 +239,12 @@ export function ReportView({ report, reportId }: ReportViewProps) {
       {!canUseOutputs && report.tables.length === 0 && report.kpis.length === 0 && (
         <Card>
           <CardContent className="p-6 text-sm text-muted-foreground">
-            DonnÃ©es indisponibles ou non certifiÃ©es.
+            Ce rapport est temporairement indisponible. Aucune valeur de remplacement n’a été générée.
           </CardContent>
         </Card>
       )}
 
-      <div className="text-center text-[9px] text-muted-foreground/40 print:block no-print:hidden">
+      <div className="text-center text-xs text-muted-foreground/60 print:block no-print:hidden">
         Yakout Hospitality Â· GÃ©nÃ©rÃ© le {formatReportDate(report.metadata.generatedAt)}
       </div>
     </div>

@@ -1,14 +1,12 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useYakoutTheme } from "@/components/providers/theme-provider";
-
-const noopSubscribe = () => () => {};
+import { useHydrated } from "@/hooks/use-hydrated";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useYakoutTheme();
-  const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
+  const mounted = useHydrated();
 
   if (!mounted) {
     return (
