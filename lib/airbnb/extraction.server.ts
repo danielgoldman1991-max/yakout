@@ -14,6 +14,12 @@ const numberNear = (text: string, words: string[]) => {
   return null;
 };
 
+const shouldWriteDebugArtifacts = () =>
+  process.env.AIRBNB_WRITE_DEBUG_ARTIFACTS === "true" &&
+  process.env.VERCEL !== "1" &&
+  !process.env.AWS_EXECUTION_ENV &&
+  !process.env.AWS_LAMBDA_FUNCTION_NAME;
+
 function extractJsonLd(html: string) {
   const results: Record<string, unknown>[] = [];
   const regex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
@@ -159,9 +165,6 @@ export async function extractAirbnbListing(inputUrl: string): Promise<AirbnbList
 }
 
 async function parseAirbnbHtml(html: string, url: string, listingId: string): Promise<AirbnbListingExtraction> {
-  const root = path.join(process.cwd(), "airbnb-import-artifacts");
-  await mkdir(path.join(root, "raw"), { recursive: true });
-
   const jsonLd = extractJsonLd(html);
   const text = extractBodyText(html);
   const headings = extractHeadingText(html);
@@ -248,9 +251,13 @@ async function parseAirbnbHtml(html: string, url: string, listingId: string): Pr
   if (!extraction.photos.length) extraction.warnings.push("Aucune photo publique détectée.");
 
   const parsed = airbnbExtractionSchema.parse(extraction);
-  await Promise.all([
-    writeFile(path.join(root, "raw", "page.json"), JSON.stringify({ jsonLd, title, pageTitle, description, lang, location, headings }, null, 2), "utf8"),
-    writeFile(path.join(root, "raw", "page.html"), html, "utf8"),
-  ]);
+  if (shouldWriteDebugArtifacts()) {
+    const root = path.join(process.cwd(), "airbnb-import-artifacts", "raw");
+    await mkdir(root, { recursive: true });
+    await Promise.all([
+      writeFile(path.join(root, "page.json"), JSON.stringify({ jsonLd, title, pageTitle, description, lang, location, headings }, null, 2), "utf8"),
+      writeFile(path.join(root, "page.html"), html, "utf8"),
+    ]);
+  }
   return parsed;
 }
