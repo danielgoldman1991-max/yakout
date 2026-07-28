@@ -25,6 +25,21 @@ export type NormalizedAirbnbError = {
   status: number;
 };
 
+export type AirbnbConfirmationStage =
+  | "validation"
+  | "owner-verification"
+  | "duplicate-check"
+  | "apartment-write"
+  | "photo-import"
+  | "import-audit";
+
+export type NormalizedAirbnbConfirmationError = {
+  code: string;
+  publicMessage: string;
+  internalMessage: string;
+  stage: AirbnbConfirmationStage;
+};
+
 const definitions: Record<AirbnbImportErrorCode, Omit<NormalizedAirbnbError, "code" | "internalMessage" | "stage">> = {
   INVALID_AIRBNB_URL: { publicMessage: "L’URL Airbnb n’est pas valide.", retryable: false, status: 400 },
   AIRBNB_AUTH_REQUIRED: { publicMessage: "Votre session a expiré. Reconnectez-vous, puis relancez l’analyse.", retryable: false, status: 401 },
@@ -69,6 +84,40 @@ export function createAirbnbImportError(error: unknown, stage: AirbnbImportStage
   if (error instanceof AirbnbImportError) return error;
   const normalized = normalizeAirbnbError(error, stage);
   return new AirbnbImportError(normalized.code, normalized.internalMessage, normalized.stage, normalized.status, normalized.retryable, { cause: error });
+}
+
+function errorRecord(error: unknown): Record<string, unknown> {
+  return error && typeof error === "object" ? error as Record<string, unknown> : {};
+}
+
+export function normalizeAirbnbConfirmationError(
+  error: unknown,
+  stage: AirbnbConfirmationStage,
+): NormalizedAirbnbConfirmationError {
+  const record = errorRecord(error);
+  const code = typeof record.code === "string" ? record.code : "AIRBNB_CONFIRMATION_FAILED";
+  const internalMessage = [
+    error instanceof Error ? error.message : typeof record.message === "string" ? record.message : String(error),
+    typeof record.details === "string" ? record.details : "",
+    typeof record.hint === "string" ? record.hint : "",
+  ].filter(Boolean).join(" | ");
+
+  let publicMessage = "L’enregistrement de l’appartement a échoué. Réessayez dans quelques instants.";
+  if (code === "23505") {
+    publicMessage = "Cette annonce est déjà liée à une fiche Yakout. Utilisez le mode de mise à jour.";
+  } else if (code === "23503" || stage === "owner-verification") {
+    publicMessage = "Le propriétaire sélectionné n’est plus disponible. Rechargez la page et choisissez-le à nouveau.";
+  } else if (["PGRST204", "42703", "42P01"].includes(code)) {
+    publicMessage = "La base Yakout n’est pas à jour pour cet import. La fiche n’a pas été créée.";
+  } else if (code === "42501") {
+    publicMessage = "La base Yakout a refusé l’enregistrement pour ce compte.";
+  } else if (stage === "photo-import") {
+    publicMessage = "La fiche n’a pas pu finaliser l’import de ses photos.";
+  } else if (stage === "import-audit") {
+    publicMessage = "La fiche a été préparée, mais son historique d’import n’a pas pu être enregistré.";
+  }
+
+  return { code, publicMessage, internalMessage, stage };
 }
 
 export const MANUAL_FALLBACK_CODES = new Set<AirbnbImportErrorCode>(["AIRBNB_BLOCKED", "AIRBNB_EXTRACTION_EMPTY", "AIRBNB_NAVIGATION_TIMEOUT", "AIRBNB_LISTING_NOT_FOUND"]);
