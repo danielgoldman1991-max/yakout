@@ -6,7 +6,7 @@ import { createSupabaseActionClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils/slug";
 import { airbnbImportConfirmationSchema, airbnbUrlSchema } from "./schemas";
-import { buildShortDescription, extractionContentHash, mapPropertyType } from "./normalization";
+import { buildShortDescription, extractionContentHash, mapPropertyType, normalizeIntegerCount } from "./normalization";
 import type { AirbnbListingExtraction } from "./types";
 import { AirbnbImportError, normalizeAirbnbConfirmationError, normalizeAirbnbError, type AirbnbConfirmationStage } from "./errors";
 import { runAirbnbAnalysis } from "./action-runner.server";
@@ -134,7 +134,12 @@ export async function confirmAirbnbImportAction(_state: AirbnbConfirmationState,
     const { data: existing, error: existingError } = await admin.from("apartments").select("id,slug").eq("company_id", companyId).eq("source_platform", "airbnb").eq("source_listing_id", parsed.extraction.source.listingId).maybeSingle();
     if (existingError) throw existingError;
     if (existing && parsed.mode === "create") throw new Error("Cette annonce est déjà importée. Choisissez Compléter les champs vides ou Mise à jour sélective.");
-    const payload = { company_id: companyId, owner_id: parsed.ownerId, internal_name: parsed.title, public_name: parsed.title, property_type: parsed.propertyType, city: parsed.city, district: parsed.extraction.location.district, public_district: parsed.extraction.location.district, capacity: parsed.extraction.capacity.maxGuests ?? 0, bedrooms: parsed.extraction.capacity.bedrooms ?? 0, beds: parsed.extraction.capacity.beds, bathrooms: parsed.extraction.capacity.bathrooms ?? 0, short_description: parsed.shortDescription, detailed_description: parsed.extraction.descriptions.summary, description: parsed.extraction.descriptions.summary, amenities: parsed.extraction.amenities.available.map((item) => item.sourceLabel).slice(0, 12), house_rules: parsed.extraction.rules.additionalRules.slice(0, 12), price_per_night: parsed.pricePerNight, price_from: parsed.pricePerNight ?? 0, currency: parsed.currency, public_status: "draft", is_published: false, management_status: "info_missing", source_platform: "airbnb", source_listing_id: parsed.extraction.source.listingId, source_url: parsed.extraction.source.url, source_imported_at: new Date().toISOString() };
+    const sourceBathrooms = parsed.extraction.capacity.bathrooms;
+    const normalizedBathrooms = normalizeIntegerCount(sourceBathrooms);
+    const mappingWarnings = sourceBathrooms != null && sourceBathrooms !== normalizedBathrooms
+      ? [`Airbnb indique ${sourceBathrooms} salle(s) de bain. La base actuelle conserve ${normalizedBathrooms} salle(s) de bain complète(s) ; vérifiez ce champ avant publication.`]
+      : [];
+    const payload = { company_id: companyId, owner_id: parsed.ownerId, internal_name: parsed.title, public_name: parsed.title, property_type: parsed.propertyType, city: parsed.city, district: parsed.extraction.location.district, public_district: parsed.extraction.location.district, capacity: normalizeIntegerCount(parsed.extraction.capacity.maxGuests), bedrooms: normalizeIntegerCount(parsed.extraction.capacity.bedrooms), beds: parsed.extraction.capacity.beds == null ? null : normalizeIntegerCount(parsed.extraction.capacity.beds), bathrooms: normalizedBathrooms, short_description: parsed.shortDescription, detailed_description: parsed.extraction.descriptions.summary, description: parsed.extraction.descriptions.summary, amenities: parsed.extraction.amenities.available.map((item) => item.sourceLabel).slice(0, 12), house_rules: parsed.extraction.rules.additionalRules.slice(0, 12), price_per_night: parsed.pricePerNight, price_from: parsed.pricePerNight ?? 0, currency: parsed.currency, public_status: "draft", is_published: false, management_status: "info_missing", source_platform: "airbnb", source_listing_id: parsed.extraction.source.listingId, source_url: parsed.extraction.source.url, source_imported_at: new Date().toISOString() };
     stage = "apartment-write";
     let apartmentId: string;
     if (existing) { const updates = parsed.mode === "fill_empty" ? Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== null && value !== "" && value !== 0)) : payload; const { error } = await admin.from("apartments").update(updates).eq("id", existing.id).eq("company_id", companyId); if (error) throw error; apartmentId = existing.id; }
@@ -144,11 +149,12 @@ export async function confirmAirbnbImportAction(_state: AirbnbConfirmationState,
     stage = "photo-import";
     const photoResult = parsed.imageRightsConfirmed ? await importSelectedPhotos(admin, apartmentId, companyId, parsed.title, parsed.selectedPhotoUrls) : { uploaded: 0, failed: 0, warnings: [] as string[] };
     stage = "import-audit";
-    const { error: importError } = await admin.from("apartment_imports").upsert({ company_id: companyId, apartment_id: apartmentId, source_platform: "airbnb", source_listing_id: parsed.extraction.source.listingId, source_url: parsed.extraction.source.url, import_status: "completed", extraction_snapshot: parsed.extraction, mapped_payload: { ...payload, photos_imported: photoResult.uploaded }, warnings: [...parsed.extraction.warnings, ...photoResult.warnings], missing_fields: parsed.extraction.missingFields, content_hash: parsed.contentHash, created_by: user.id, confirmed_at: new Date().toISOString(), completed_at: new Date().toISOString() }, { onConflict: "company_id,source_platform,source_listing_id,content_hash" });
+    const importWarnings = [...mappingWarnings, ...photoResult.warnings];
+    const { error: importError } = await admin.from("apartment_imports").upsert({ company_id: companyId, apartment_id: apartmentId, source_platform: "airbnb", source_listing_id: parsed.extraction.source.listingId, source_url: parsed.extraction.source.url, import_status: "completed", extraction_snapshot: parsed.extraction, mapped_payload: { ...payload, photos_imported: photoResult.uploaded }, warnings: [...parsed.extraction.warnings, ...importWarnings], missing_fields: parsed.extraction.missingFields, content_hash: parsed.contentHash, created_by: user.id, confirmed_at: new Date().toISOString(), completed_at: new Date().toISOString() }, { onConflict: "company_id,source_platform,source_listing_id,content_hash" });
     if (importError) throw importError;
     revalidatePath("/dashboard/apartments"); revalidatePath(`/dashboard/apartments/${apartmentId}`); revalidatePath(`/dashboard/owners/${parsed.ownerId}`);
-    console.info("[airbnb-import] import completed", { apartmentId, photosDetected: parsed.extraction.photos.length, photosSelected: parsed.selectedPhotoUrls.length, uploadedPhotoCount: photoResult.uploaded, warningCount: photoResult.warnings.length });
-    return { requestId, apartmentId, photosDetected: parsed.extraction.photos.length, photosSelected: parsed.selectedPhotoUrls.length, photosUploaded: photoResult.uploaded, photosFailed: photoResult.failed, warnings: photoResult.warnings };
+    console.info("[airbnb-import] import completed", { apartmentId, photosDetected: parsed.extraction.photos.length, photosSelected: parsed.selectedPhotoUrls.length, uploadedPhotoCount: photoResult.uploaded, warningCount: importWarnings.length });
+    return { requestId, apartmentId, photosDetected: parsed.extraction.photos.length, photosSelected: parsed.selectedPhotoUrls.length, photosUploaded: photoResult.uploaded, photosFailed: photoResult.failed, warnings: importWarnings };
   } catch (error) {
     const normalized = normalizeAirbnbConfirmationError(error, stage);
     let listingId: string | undefined;

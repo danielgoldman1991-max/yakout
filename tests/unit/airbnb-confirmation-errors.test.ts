@@ -19,3 +19,11 @@ test("un doublon reçoit un message actionnable", () => {
   );
   assert.match(result.publicMessage, /déjà liée/);
 });
+
+test("une valeur décimale incompatible reçoit un message actionnable", () => {
+  const result = normalizeAirbnbConfirmationError(
+    { code: "22P02", message: "invalid input syntax for type integer: 1.5" },
+    "apartment-write",
+  );
+  assert.match(result.publicMessage, /valeur numérique/);
+});

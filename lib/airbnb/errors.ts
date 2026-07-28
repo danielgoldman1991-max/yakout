@@ -109,6 +109,8 @@ export function normalizeAirbnbConfirmationError(
     publicMessage = "Le propriétaire sélectionné n’est plus disponible. Rechargez la page et choisissez-le à nouveau.";
   } else if (["PGRST204", "42703", "42P01"].includes(code)) {
     publicMessage = "La base Yakout n’est pas à jour pour cet import. La fiche n’a pas été créée.";
+  } else if (["22P02", "42804"].includes(code)) {
+    publicMessage = "Une valeur numérique de l’annonce est incompatible avec la fiche Yakout. Rechargez l’analyse puis réessayez.";
   } else if (code === "42501") {
     publicMessage = "La base Yakout a refusé l’enregistrement pour ce compte.";
   } else if (stage === "photo-import") {

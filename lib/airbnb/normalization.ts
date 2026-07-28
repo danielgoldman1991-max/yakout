@@ -15,6 +15,10 @@ export function canonicalPropertyType(label: string | null): AirbnbPropertyType 
 export function mapAirbnbListingToApartmentForm(listing: AirbnbListingCanonical) {
   return { title: listing.title ?? "", city: listing.city ?? "", country: listing.country ?? "", propertyType: listing.propertyType ?? "", capacity: listing.maxGuests, bedrooms: listing.bedrooms, beds: listing.beds, bathrooms: listing.bathrooms, shortDescription: listing.description ?? "", sourceUrl: listing.sourceUrl, airbnbListingId: listing.listingId, photos: listing.photos };
 }
+export function normalizeIntegerCount(value: number | null | undefined, fallback = 0) {
+  if (value == null || !Number.isFinite(value)) return fallback;
+  return Math.max(0, Math.trunc(value));
+}
 export function buildShortDescription(e: AirbnbListingExtraction) { const type = e.identity.propertyTypeLabel ?? "Logement"; const location = e.location.district ?? e.location.city; const parts = [type + (location ? ` à ${location}` : "")]; if (e.capacity.maxGuests) parts.push(`pour ${e.capacity.maxGuests} voyageurs`); if (e.capacity.bedrooms) parts.push(`avec ${e.capacity.bedrooms} chambre${e.capacity.bedrooms > 1 ? "s" : ""}`); return `${parts.join(", ")}. Informations issues de l’annonce et à confirmer avant publication.`.slice(0, 220); }
 function stable(value: unknown): unknown { if (Array.isArray(value)) return value.map(stable).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))); if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, child]) => [key, stable(child)])); return value; }
 export function extractionContentHash(e: AirbnbListingExtraction) { const content = { identity: e.identity, capacity: e.capacity, descriptions: e.descriptions, amenities: e.amenities, rules: e.rules, photos: e.photos.map(({ highResolutionUrl, caption, altText }) => ({ highResolutionUrl: highResolutionUrl.replace(/\?.*$/, ""), caption, altText })) }; return createHash("sha256").update(JSON.stringify(stable(content))).digest("hex"); }
